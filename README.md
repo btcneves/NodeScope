@@ -85,6 +85,16 @@ Services:
 | ZMQ rawblock | `127.0.0.1:28332` |
 | ZMQ rawtx | `127.0.0.1:28333` |
 
+If local services already use those ports, set the `HOST_*` values in `.env` before running Compose. Example:
+
+```bash
+HOST_BITCOIN_RPC_PORT=18444
+HOST_ZMQ_RAWBLOCK_PORT=28342
+HOST_ZMQ_RAWTX_PORT=28343
+HOST_API_PORT=18000
+HOST_FRONTEND_PORT=15173
+```
+
 Validate Compose without starting containers:
 
 ```bash
