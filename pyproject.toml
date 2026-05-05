@@ -1,0 +1,19 @@
+[project]
+name = "nodescope"
+version = "0.1.0"
+description = "Bitcoin Core intelligence dashboard for real-time node observability."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]
