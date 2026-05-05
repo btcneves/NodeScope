@@ -22,9 +22,9 @@ cp .env.example .env
 All contributions must pass the test suite:
 
 ```bash
-make test        # 34 Python unit tests
-make lint        # static compilation check
-cd frontend && npm run build   # frontend type-check + build
+make test
+make build
+make public-clean
 ```
 
 ## Code Style
@@ -46,7 +46,6 @@ cd frontend && npm run build   # frontend type-check + build
 
 Before changing core design (storage, API shape, engine pipeline), read:
 - [docs/architecture.md](docs/architecture.md)
-- The ADR notes in `notes/15-adr/` (local vault, not committed)
 
 ## Reporting Issues
 

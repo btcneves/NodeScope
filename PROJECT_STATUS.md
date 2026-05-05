@@ -9,7 +9,7 @@ NodeScope is a working hackathon-ready prototype with:
 - Append-only NDJSON event storage and replay engine.
 - Transaction and block classification pipeline.
 - React/Vite/TypeScript dashboard.
-- Regtest demo script, Docker backend stack, CI and smoke checks.
+- Regtest demo script, Docker Compose demo stack, CI and smoke checks.
 
 ## Readiness Checklist
 
@@ -24,9 +24,38 @@ NodeScope is a working hackathon-ready prototype with:
 | CI | Ready | Runs Python tests, frontend build and public-clean check. |
 | Documentation | Ready | README plus setup, API, architecture, demo and troubleshooting guides. |
 
+## Hackathon Requirements
+
+| Requirement | Status |
+|---|---|
+| Bitcoin Core backend | Ready |
+| RPC data extraction | Ready |
+| ZMQ event reaction | Ready |
+| Backend API | Ready |
+| Web interface | Ready |
+| Real node data demonstration | Ready |
+| Backend/frontend integration | Ready |
+| Real-time event path | Ready |
+| Public open source documentation | Ready |
+| Demo  | Ready |
+
+## Validation
+
+```bash
+make test
+make build
+make public-clean
+docker compose config
+```
+
+With the backend running:
+
+```bash
+make smoke
+```
+
 ## Remaining Manual Steps
 
-- Add the GitHub repository About text:
-  `Bitcoin Core intelligence dashboard for real-time node observability using RPC, ZMQ, mempool monitoring, and regtest demos.`
 - Record the 3 to 5 minute  using ``.
-- Push the feature branch and open the pull request manually.
+- Run the regtest demo against a local or Docker Bitcoin Core node before  day.
+- Push the feature branch and open a pull request manually.
