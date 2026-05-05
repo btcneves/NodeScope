@@ -10,6 +10,7 @@ Uso:
 from __future__ import annotations
 
 import argparse
+import os
 import pathlib
 import sys
 
@@ -21,8 +22,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Executa a API read-only local do NodeScope."
     )
-    parser.add_argument("--host", default="127.0.0.1")
-    parser.add_argument("--port", type=int, default=8000)
+    parser.add_argument("--host", default=os.environ.get("API_HOST", "127.0.0.1"))
+    parser.add_argument("--port", type=int, default=int(os.environ.get("API_PORT", "8000")))
     args = parser.parse_args()
 
     try:

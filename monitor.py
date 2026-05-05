@@ -35,8 +35,8 @@ def log(level, event, origin, data=None):
 
 def rpc(method: str, params: list[Any] | None = None) -> Any | None:
     rpc_url = os.environ.get("BITCOIN_RPC_URL", "http://127.0.0.1:18443")
-    rpc_user = os.environ.get("BITCOIN_RPC_USER", "corecraft")
-    rpc_password = os.environ.get("BITCOIN_RPC_PASSWORD", "corecraft")
+    rpc_user = os.environ.get("BITCOIN_RPC_USER", "nodescope")
+    rpc_password = os.environ.get("BITCOIN_RPC_PASSWORD", "nodescope")
     payload = json.dumps({
         "jsonrpc": "1.1",
         "id": "nodescope-monitor",

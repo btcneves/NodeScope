@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import os
 from pathlib import Path
 
 from .analytics import EngineAnalytics, new_analytics
@@ -10,7 +11,7 @@ from .reader import iter_events, iter_log_dir
 
 PathLike = str | Path
 ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_LOG_DIR = ROOT / "logs"
+DEFAULT_LOG_DIR = Path(os.environ.get("NODESCOPE_LOG_DIR", ROOT / "logs"))
 
 
 @dataclass
