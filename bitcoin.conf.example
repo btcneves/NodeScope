@@ -1,6 +1,7 @@
 # NodeScope regtest example for ~/.bitcoin/bitcoin.conf
 
 regtest=1
+server=1
 
 # RPC credentials are local examples only. Replace before any non-local use.
 rpcuser=nodescope
@@ -13,3 +14,4 @@ zmqpubrawblock=tcp://127.0.0.1:28332
 zmqpubrawtx=tcp://127.0.0.1:28333
 
 txindex=1
+fallbackfee=0.0001

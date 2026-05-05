@@ -22,11 +22,6 @@ logs/*.ndjson
 .env.local
 .env.*.local
 
-# Local assistant/editor tooling
-CLAUDE.md
-.claude/
-.codex
-
 # Obsidian editor state
 **/.obsidian/
 

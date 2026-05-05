@@ -1,65 +1,112 @@
-# NodeScope — Docker Compose
-#
-# This file spins up the NodeScope backend (API + ZMQ monitor).
-# Bitcoin Core is NOT included here — it must run on the host or separately.
-#
-# Usage:
-#   docker compose up --build       # Start API + monitor
-#   docker compose up api           # Start API only
-#   docker compose up monitor       # Start ZMQ monitor only
-#
-# Prerequisites:
-#   - Bitcoin Core running on the host with ZMQ enabled
-#   - .env file copied from .env.example and configured
+name: nodescope
+
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "3"
 
 services:
-  api:
+  nodescope-bitcoind:
+    image: bitcoin/bitcoin:26
+    container_name: nodescope-bitcoind
+    restart: unless-stopped
+    command:
+      - -regtest=1
+      - -server=1
+      - -rpcuser=${BITCOIN_RPC_USER:-nodescope}
+      - -rpcpassword=${BITCOIN_RPC_PASSWORD:-nodescope}
+      - -rpcbind=0.0.0.0
+      - -rpcallowip=0.0.0.0/0
+      - -zmqpubrawblock=tcp://0.0.0.0:28332
+      - -zmqpubrawtx=tcp://0.0.0.0:28333
+      - -txindex=1
+      - -fallbackfee=0.0001
+    ports:
+      - "18443:18443"
+      - "28332:28332"
+      - "28333:28333"
+    volumes:
+      - nodescope-bitcoin-data:/home/bitcoin/.bitcoin
+    healthcheck:
+      test: ["CMD-SHELL", "bitcoin-cli -regtest -rpcuser=$${BITCOIN_RPC_USER:-nodescope} -rpcpassword=$${BITCOIN_RPC_PASSWORD:-nodescope} getblockchaininfo >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+    logging:
+      <<: *default-logging
+
+  nodescope-api:
     build:
       context: .
       dockerfile: Dockerfile
     image: nodescope-api:latest
     container_name: nodescope-api
     restart: unless-stopped
+    depends_on:
+      nodescope-bitcoind:
+        condition: service_healthy
     ports:
       - "8000:8000"
     volumes:
       - ./logs:/app/logs
     environment:
-      - BITCOIN_RPC_URL=${BITCOIN_RPC_URL:-http://host.docker.internal:18443}
-      - BITCOIN_RPC_USER=${BITCOIN_RPC_USER:-nodescope}
-      - BITCOIN_RPC_PASSWORD=${BITCOIN_RPC_PASSWORD:-nodescope}
-      - NODESCOPE_LOG_DIR=/app/logs
-    command: ["python", "scripts/run_api.py", "--host", "0.0.0.0", "--port", "8000"]
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      BITCOIN_RPC_URL: http://nodescope-bitcoind:18443
+      BITCOIN_RPC_USER: ${BITCOIN_RPC_USER:-nodescope}
+      BITCOIN_RPC_PASSWORD: ${BITCOIN_RPC_PASSWORD:-nodescope}
+      NODESCOPE_LOG_DIR: /app/logs
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+    command: ["python", "scripts/run_api.py"]
     healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:8000/health"]
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3).read()\""]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 10s
+    logging:
+      <<: *default-logging
 
-  monitor:
-    build:
-      context: .
-      dockerfile: Dockerfile
+  nodescope-monitor:
     image: nodescope-api:latest
     container_name: nodescope-monitor
     restart: unless-stopped
+    depends_on:
+      nodescope-bitcoind:
+        condition: service_healthy
+      nodescope-api:
+        condition: service_healthy
     volumes:
       - ./logs:/app/logs
     environment:
-      - BITCOIN_RPC_URL=${BITCOIN_RPC_URL:-http://host.docker.internal:18443}
-      - BITCOIN_RPC_USER=${BITCOIN_RPC_USER:-nodescope}
-      - BITCOIN_RPC_PASSWORD=${BITCOIN_RPC_PASSWORD:-nodescope}
-      - NODESCOPE_LOG_DIR=/app/logs
-      - ZMQ_RAWBLOCK_URL=${ZMQ_RAWBLOCK_URL:-tcp://host.docker.internal:28332}
-      - ZMQ_RAWTX_URL=${ZMQ_RAWTX_URL:-tcp://host.docker.internal:28333}
+      BITCOIN_RPC_URL: http://nodescope-bitcoind:18443
+      BITCOIN_RPC_USER: ${BITCOIN_RPC_USER:-nodescope}
+      BITCOIN_RPC_PASSWORD: ${BITCOIN_RPC_PASSWORD:-nodescope}
+      ZMQ_RAWBLOCK_URL: tcp://nodescope-bitcoind:28332
+      ZMQ_RAWTX_URL: tcp://nodescope-bitcoind:28333
+      NODESCOPE_LOG_DIR: /app/logs
     command: ["python", "monitor.py"]
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    logging:
+      <<: *default-logging
+
+  nodescope-frontend:
+    image: node:20-alpine
+    container_name: nodescope-frontend
+    restart: unless-stopped
+    working_dir: /app
     depends_on:
-      api:
+      nodescope-api:
         condition: service_healthy
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - nodescope-frontend-node-modules:/app/node_modules
+    command: ["sh", "-c", "npm ci && npm run dev -- --host 0.0.0.0 --port 5173"]
+    logging:
+      <<: *default-logging
 
 volumes:
-  logs:
+  nodescope-bitcoin-data:
+  nodescope-frontend-node-modules:
