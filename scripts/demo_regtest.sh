@@ -3,7 +3,39 @@
 
 set -euo pipefail
 
-CLI="${BITCOIN_CLI:-bitcoin-cli -regtest}"
+if [ -f .env ]; then
+    set -a
+    # shellcheck disable=SC1091
+    . ./.env
+    set +a
+fi
+
+RPC_USER="${BITCOIN_RPC_USER:-nodescope}"
+RPC_PASSWORD="${BITCOIN_RPC_PASSWORD:-nodescope}"
+RPC_HOST="${BITCOIN_RPC_HOST:-127.0.0.1}"
+RPC_PORT="${HOST_BITCOIN_RPC_PORT:-18443}"
+
+if [ -n "${BITCOIN_RPC_URL:-}" ]; then
+    RPC_HOST=$(python3 - "${BITCOIN_RPC_URL}" <<'PY'
+from urllib.parse import urlparse
+import sys
+parsed = urlparse(sys.argv[1])
+print(parsed.hostname or "127.0.0.1")
+PY
+)
+    parsed_port=$(python3 - "${BITCOIN_RPC_URL}" <<'PY'
+from urllib.parse import urlparse
+import sys
+parsed = urlparse(sys.argv[1])
+print(parsed.port or "")
+PY
+)
+    if [ -n "${parsed_port}" ]; then
+        RPC_PORT="${parsed_port}"
+    fi
+fi
+
+CLI="${BITCOIN_CLI:-bitcoin-cli -regtest -rpcconnect=${RPC_HOST} -rpcport=${RPC_PORT} -rpcuser=${RPC_USER} -rpcpassword=${RPC_PASSWORD}}"
 WALLET_NAME="${NODESCOPE_DEMO_WALLET:-nodescope_demo}"
 SEND_AMOUNT="${NODESCOPE_DEMO_AMOUNT:-1.5}"
 API_URL="${API_URL:-http://127.0.0.1:8000}"
@@ -26,6 +58,7 @@ info "API is reachable"
 
 step "Checking Bitcoin Core RPC"
 $CLI getblockchaininfo >/dev/null || fail "Bitcoin Core RPC is not reachable"
+info "RPC is reachable at ${RPC_HOST}:${RPC_PORT}"
 
 step "Creating or loading wallet ${WALLET_NAME}"
 loaded=$($CLI listwallets 2>/dev/null || echo "[]")
