@@ -37,7 +37,6 @@ NodeScope is a working hackathon-ready prototype with:
 | Backend/frontend integration | Ready |
 | Real-time event path | Ready |
 | Public open source documentation | Ready |
-|  | Pending recording |
 
 ## Validation
 
@@ -56,6 +55,5 @@ make smoke
 
 ## Remaining Manual Steps
 
-- Record the 3 to 5 minute  outside the repository.
 - Run the regtest demo against a local or Docker Bitcoin Core node before the final demo.
 - Push the feature branch and open a pull request manually.

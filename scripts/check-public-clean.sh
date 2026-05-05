@@ -28,6 +28,11 @@ PATTERN_LOCAL_MEMORY="memória ""operacional"
 PATTERN_OLD_CHAT="con""versa antiga"
 PATTERN_REASONING="raci""ocínio interno"
 PATTERN_PRIVATE_KEY="private ""key"
+PATTERN_VIDEO_SCRIPT="video-""script"
+PATTERN_PRESENTATION="present""ation"
+PATTERN_PRESENTATION_PT="apresenta""ção"
+PATTERN_SCRIPT_PT="rote""iro"
+PATTERN_VIDEO_PT="ví""deo"
 
 SCAN_FILES=$(
     {
@@ -68,6 +73,13 @@ for pattern in \
     "${PATTERN_LOCAL_MEMORY}" \
     "${PATTERN_OLD_CHAT}" \
     "${PATTERN_REASONING}" \
+    "${PATTERN_VIDEO_SCRIPT}" \
+    "${PATTERN_PRESENTATION}" \
+    "${PATTERN_PRESENTATION_PT}" \
+    "${PATTERN_SCRIPT_PT}" \
+    "${PATTERN_VIDEO_PT}" \
+    "" \
+    "" \
     "prompt" \
     "\.cookie" \
     "logs sensíveis"; do

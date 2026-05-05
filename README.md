@@ -10,8 +10,6 @@ Real-time observability for Bitcoin Core nodes using RPC, ZMQ, mempool monitorin
 [![React](https://img.shields.io/badge/React%20%2B%20Vite-ready-61dafb?logo=react&logoColor=black)](https://react.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> : coming soon.
-
 ## Problem
 
 Bitcoin Core exposes powerful operational data, but it is split across RPC calls, ZMQ binary streams, mempool state and command-line workflows. Developers and node operators need a clear way to see current node state and live events without manually stitching those sources together.
@@ -213,7 +211,7 @@ More detail: [docs/troubleshooting.md](docs/troubleshooting.md).
 - Persistent metrics export.
 - Richer transaction heuristics.
 - Dashboard filters for event type, confidence and script type.
--  release artifact.
+- Release artifacts.
 
 ## Documentation
 
