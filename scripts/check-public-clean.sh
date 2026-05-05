@@ -80,6 +80,7 @@ header "Hardcoded credentials"
 
 for pattern in "rpcpassword=[^n]" "BEGIN PRIVATE KEY" "BEGIN RSA PRIVATE KEY" "-----BEGIN EC" "xprv" "xpub" "zprvA" "zpub"; do
     MATCHES=$(echo "${SCAN_FILES}" | xargs grep -l "${pattern}" 2>/dev/null || true)
+    MATCHES=$(echo "${MATCHES}" | grep -Ev '^scripts/check-public-clean\.sh$' || true)
     if [ -n "${MATCHES}" ]; then
         case "${MATCHES}" in
             *".env.example"* | *"bitcoin.conf.example"* | *"README"* | *"docs/"* | *"${TOOL_FILE_PATTERN}"*)

@@ -7,6 +7,9 @@ import unittest
 from pathlib import Path
 
 
+ROOT = Path(__file__).resolve().parents[1]
+
+
 class ReplayScriptTests(unittest.TestCase):
     def test_replay_script_emits_coherent_summary(self) -> None:
         fixture = "\n".join(
@@ -23,7 +26,7 @@ class ReplayScriptTests(unittest.TestCase):
 
             result = subprocess.run(
                 [sys.executable, "scripts/replay_monitor_log.py", "--file", str(log_file)],
-                cwd="/home/btcneves/corecraft",
+                cwd=ROOT,
                 capture_output=True,
                 text=True,
                 check=True,

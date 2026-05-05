@@ -6,7 +6,8 @@ from pathlib import Path
 from engine.snapshot import load_snapshot
 
 
-FIXTURE_FILE = Path("/home/btcneves/corecraft/tests/fixtures/monitor-sample.ndjson")
+ROOT = Path(__file__).resolve().parents[1]
+FIXTURE_FILE = ROOT / "tests" / "fixtures" / "monitor-sample.ndjson"
 
 
 class SnapshotTests(unittest.TestCase):

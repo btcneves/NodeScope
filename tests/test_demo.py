@@ -4,11 +4,14 @@ import unittest
 from pathlib import Path
 
 
+ROOT = Path(__file__).resolve().parents[1]
+
+
 class DemoAssetTests(unittest.TestCase):
     def test_demo_static_assets_exist_and_reference_api_features(self) -> None:
-        html = Path("/home/btcneves/corecraft/api/static/demo.html").read_text(encoding="utf-8")
-        css = Path("/home/btcneves/corecraft/api/static/demo.css").read_text(encoding="utf-8")
-        js = Path("/home/btcneves/corecraft/api/static/demo.js").read_text(encoding="utf-8")
+        html = (ROOT / "api" / "static" / "demo.html").read_text(encoding="utf-8")
+        css = (ROOT / "api" / "static" / "demo.css").read_text(encoding="utf-8")
+        js = (ROOT / "api" / "static" / "demo.js").read_text(encoding="utf-8")
 
         self.assertIn("NodeScope Demo", html)
         self.assertIn("/static/demo.js", html)
