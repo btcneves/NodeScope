@@ -1,0 +1,10 @@
+{"ts":"2026-04-22T23:37:43+00:00","level":"info","origin":"monitor","event":"monitor_start","data":{"sockets":["rawtx:28333","rawblock:28332"]}}
+{"ts":"2026-04-22T23:37:45+00:00","level":"info","origin":"rawtx","event":"zmq_rawtx","data":{"txid":"tx-1","inputs":1,"outputs":2,"vin_count":1,"vout_count":2,"total_out":50.0,"coinbase_input_present":true,"addressed_output_count":1,"unattributed_output_count":1,"zero_value_output_count":1,"positive_output_count":1,"script_types":["nulldata","witness_v0_keyhash"],"has_op_return":true,"vout":[{"value":50.0,"address":"bcrt1coinbase1"},{"value":0.0,"address":null}]}}
+{"ts":"2026-04-22T23:37:46+00:00","level":"info","origin":"rawblock","event":"zmq_rawblock","data":{"height":3,"hash":"hash-3"}}
+{"ts":"2026-04-22T23:37:47+00:00","level":"info","origin":"rawtx","event":"zmq_rawtx","data":{"txid":"tx-2","inputs":1,"outputs":2,"total_out":50.0,"vout":[{"value":50.0,"address":"bcrt1coinbase2"},{"value":0.0,"address":null}]}}
+{"ts":"2026-04-22T23:37:48+00:00","level":"info","origin":"rawblock","event":"zmq_rawblock","data":{"height":4,"hash":"hash-4"}}
+{"ts":"2026-04-22T23:37:49+00:00","level":"info","origin":"rawtx","event":"zmq_rawtx","data":{"txid":"tx-3","inputs":2,"outputs":1,"total_out":1.5,"vout":[{"value":1.5,"address":"bcrt1payment"}]}}
+{"ts":"2026-04-22T23:37:50+00:00","level":"info","origin":"rawblock","event":"zmq_rawblock","data":{"height":5,"hash":"hash-5"}}
+{"ts":"2026-04-22T23:37:51+00:00","level":"info","origin":"rawtx","event":"zmq_rawtx","data":{"txid":"tx-4","inputs":1,"outputs":2,"vin_count":1,"vout_count":2,"total_out":50.0,"coinbase_input_present":true,"addressed_output_count":1,"unattributed_output_count":1,"zero_value_output_count":1,"positive_output_count":1,"script_types":["nulldata","witness_v0_keyhash"],"has_op_return":true,"vout":[{"value":50.0,"address":"bcrt1coinbase4"},{"value":0.0,"address":null}]}}
+{"ts":"2026-04-22T23:37:52+00:00","level":"info","origin":"rawblock","event":"zmq_rawblock","data":{"height":6,"hash":"hash-6"}}
+{"ts":"2026-04-22T23:37:53+00:00","level":"info","origin":"monitor","event":"monitor_stop","data":{}}

@@ -1,0 +1,26 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Runtime logs
+logs/*.ndjson
+
+# Obsidian editor state
+**/.obsidian/
+
+# Local notes and reports
+notes/
+reports/
+
+# System
+.DS_Store
+
+# Backups
+*.bak

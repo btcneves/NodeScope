@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NodeScope — Monitor Bitcoin</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230d7a5f'/%3E%3Ctext x='50' y='72' font-size='62' font-family='monospace' font-weight='700' fill='%23ffffff' text-anchor='middle'%3EN%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="/static/demo.css" />
+    <!-- NodeScope Demo — Monitor Bitcoin Core -->
+  </head>
+  <body>
+    <!-- ─── top bar ─── -->
+    <nav class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <span class="brand-mark">N</span>
+          <span class="brand-name">NodeScope</span>
+          <span class="env-badge">regtest</span>
+        </div>
+        <div class="topbar-right">
+          <div class="status-indicator">
+            <span class="dot dot-muted" id="api-dot"></span>
+            <span class="status-label" id="api-text">API</span>
+          </div>
+          <div class="status-indicator">
+            <span class="dot dot-muted" id="sse-dot"></span>
+            <span class="status-label" id="sse-text">SSE</span>
+          </div>
+          <span class="topbar-timestamp" id="last-refresh-time">—</span>
+          <button id="refresh-all" type="button" class="btn-topbar">↻ Atualizar</button>
+        </div>
+      </div>
+    </nav>
+
+    <main class="shell">
+      <!-- ─── hero ─── -->
+      <header class="hero">
+        <p class="eyebrow">Fase 1 · Semana 3 · Read-only local</p>
+        <h1>Visibilidade local<br />sobre o node Bitcoin.</h1>
+        <p class="lede">
+          ZMQ → NDJSON → Engine → API → Demo.<br />
+          Eventos capturados em tempo real do Bitcoin Core em regtest.
+        </p>
+      </header>
+
+      <!-- ─── KPI row ─── -->
+      <div class="kpi-row" aria-label="Métricas principais">
+        <div class="kpi-card skeleton" id="kpi-total">
+          <span class="kpi-label">Eventos totais</span>
+          <span class="kpi-value">—</span>
+        </div>
+        <div class="kpi-card skeleton" id="kpi-rawtx">
+          <span class="kpi-label">rawtx</span>
+          <span class="kpi-value">—</span>
+        </div>
+        <div class="kpi-card skeleton" id="kpi-rawblock">
+          <span class="kpi-label">rawblock</span>
+          <span class="kpi-value">—</span>
+        </div>
+        <div class="kpi-card skeleton" id="kpi-coinbase">
+          <span class="kpi-label">Coinbase detectados</span>
+          <span class="kpi-value">—</span>
+        </div>
+        <div class="kpi-card skeleton" id="kpi-opreturn">
+          <span class="kpi-label">OP_RETURN</span>
+          <span class="kpi-value">—</span>
+        </div>
+        <div class="kpi-card skeleton" id="kpi-classified">
+          <span class="kpi-label">Classificados</span>
+          <span class="kpi-value">—</span>
+        </div>
+      </div>
+
+      <!-- ─── live / block / tx ─── -->
+      <section class="grid three-grid">
+        <article class="card card-live">
+          <div class="card-hd">
+            <div class="row-between">
+              <h2>Tempo real</h2>
+              <div class="live-pill" id="live-pill">
+                <span class="dot dot-muted" id="live-dot"></span>
+                <span id="live-text">conectando</span>
+              </div>
+            </div>
+            <div id="live-counters" class="chip-row"></div>
+          </div>
+          <div id="last-event-box" class="inset-box">
+            <p class="empty-msg">Aguardando eventos do node...</p>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-hd">
+            <h2>Último bloco</h2>
+          </div>
+          <div id="latest-block" class="inset-box skeleton">
+            <p class="empty-msg">Carregando...</p>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-hd">
+            <h2>Última transação</h2>
+          </div>
+          <div id="latest-tx" class="inset-box skeleton">
+            <p class="empty-msg">Carregando...</p>
+          </div>
+        </article>
+      </section>
+
+      <!-- ─── events / classifications ─── -->
+      <section class="grid two-grid">
+        <article class="card">
+          <div class="card-hd">
+            <div class="row-between">
+              <h2>Eventos recentes</h2>
+              <span class="count-badge" id="events-count">—</span>
+            </div>
+            <div class="filter-row">
+              <label class="filter-label">
+                Tipo
+                <select id="event-type" class="filter-ctrl">
+                  <option value="">Todos</option>
+                </select>
+              </label>
+              <label class="filter-label">
+                Limit
+                <input
+                  id="events-limit"
+                  type="number"
+                  min="1"
+                  max="20"
+                  value="5"
+                  class="filter-ctrl filter-num"
+                />
+              </label>
+              <label class="filter-label">
+                Offset
+                <input
+                  id="events-offset"
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="filter-ctrl filter-num"
+                />
+              </label>
+              <button id="refresh-events" type="button">Buscar</button>
+            </div>
+          </div>
+          <div id="events-list" class="item-list">
+            <p class="empty-msg">Carregando...</p>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-hd">
+            <div class="row-between">
+              <h2>Classificações recentes</h2>
+              <span class="count-badge" id="classifications-count">—</span>
+            </div>
+            <div class="filter-row">
+              <label class="filter-label">
+                Kind
+                <select id="classification-kind" class="filter-ctrl">
+                  <option value="">Todos</option>
+                </select>
+              </label>
+              <label class="filter-label">
+                Limit
+                <input
+                  id="classifications-limit"
+                  type="number"
+                  min="1"
+                  max="20"
+                  value="5"
+                  class="filter-ctrl filter-num"
+                />
+              </label>
+              <label class="filter-label">
+                Offset
+                <input
+                  id="classifications-offset"
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="filter-ctrl filter-num"
+                />
+              </label>
+              <button id="refresh-classifications" type="button">Buscar</button>
+            </div>
+          </div>
+          <div id="classifications-list" class="item-list">
+            <p class="empty-msg">Carregando...</p>
+          </div>
+        </article>
+      </section>
+
+      <!-- ─── analytics ─── -->
+      <section class="grid one-grid">
+        <article class="card">
+          <div class="card-hd">
+            <h2>Snapshot analytics</h2>
+          </div>
+          <div id="analytics-row" class="analytics-chips">
+            <p class="empty-msg">Carregando...</p>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <strong class="footer-brand">NodeScope</strong>
+        <span class="footer-sep">·</span>
+        <span>Monitor Bitcoin Core · Fase 1 · Regtest</span>
+        <span class="footer-sep">·</span>
+        <span class="footer-stack">Python · FastAPI · ZMQ · NDJSON</span>
+      </div>
+    </footer>
+
+    <script src="/static/demo.js" defer></script>
+  </body>
+</html>
