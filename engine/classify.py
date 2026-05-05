@@ -51,6 +51,10 @@ def _classify_tx(event: RawEvent, tx: TxEvent) -> ClassifiedEvent:
             "vin coinbase observado diretamente no payload do monitor; "
             "classificação continua conservadora na taxonomia pública da Fase 1"
         )
+    elif tx.has_op_return:
+        kind = "possible_op_return"
+        confidence = "medium"
+        reason = "transaction includes a nulldata script or explicit OP_RETURN signal"
     elif coinbase_like_signal:
         kind = "coinbase_like"
         confidence = "low"
@@ -67,6 +71,10 @@ def _classify_tx(event: RawEvent, tx: TxEvent) -> ClassifiedEvent:
         kind = "simple_payment_like"
         confidence = "medium"
         reason = "shape simples observado: pelo menos 1 input e exatamente 1 output com endereço"
+    elif tx.inputs >= 1 and tx.outputs >= 2 and tx.positive_output_count >= 2:
+        kind = "complex_transaction"
+        confidence = "medium"
+        reason = "multiple positive outputs suggest a fan-out or change-producing transaction"
     else:
         kind = "unknown"
         confidence = "low"

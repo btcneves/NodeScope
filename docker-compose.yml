@@ -1,0 +1,65 @@
+# NodeScope — Docker Compose
+#
+# This file spins up the NodeScope backend (API + ZMQ monitor).
+# Bitcoin Core is NOT included here — it must run on the host or separately.
+#
+# Usage:
+#   docker compose up --build       # Start API + monitor
+#   docker compose up api           # Start API only
+#   docker compose up monitor       # Start ZMQ monitor only
+#
+# Prerequisites:
+#   - Bitcoin Core running on the host with ZMQ enabled
+#   - .env file copied from .env.example and configured
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: nodescope-api:latest
+    container_name: nodescope-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./logs:/app/logs
+    environment:
+      - BITCOIN_RPC_URL=${BITCOIN_RPC_URL:-http://host.docker.internal:18443}
+      - BITCOIN_RPC_USER=${BITCOIN_RPC_USER:-nodescope}
+      - BITCOIN_RPC_PASSWORD=${BITCOIN_RPC_PASSWORD:-nodescope}
+      - NODESCOPE_LOG_DIR=/app/logs
+    command: ["python", "scripts/run_api.py", "--host", "0.0.0.0", "--port", "8000"]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: nodescope-api:latest
+    container_name: nodescope-monitor
+    restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs
+    environment:
+      - BITCOIN_RPC_URL=${BITCOIN_RPC_URL:-http://host.docker.internal:18443}
+      - BITCOIN_RPC_USER=${BITCOIN_RPC_USER:-nodescope}
+      - BITCOIN_RPC_PASSWORD=${BITCOIN_RPC_PASSWORD:-nodescope}
+      - NODESCOPE_LOG_DIR=/app/logs
+      - ZMQ_RAWBLOCK_URL=${ZMQ_RAWBLOCK_URL:-tcp://host.docker.internal:28332}
+      - ZMQ_RAWTX_URL=${ZMQ_RAWTX_URL:-tcp://host.docker.internal:28333}
+    command: ["python", "monitor.py"]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  logs:

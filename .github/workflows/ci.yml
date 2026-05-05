@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "release/**", "feature/**"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Python backend — tests + static validation
+  # ---------------------------------------------------------------------------
+  backend:
+    name: Backend (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Static compilation check
+        run: python -m compileall engine api scripts tests monitor.py
+
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -v
+
+  # ---------------------------------------------------------------------------
+  # Frontend — type-check + build
+  # ---------------------------------------------------------------------------
+  frontend:
+    name: Frontend (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ["18", "20"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Type-check and build
+        working-directory: frontend
+        run: npm run build
+
+  # ---------------------------------------------------------------------------
+  # Public-clean check — no local artifacts or credentials in the repo
+  # ---------------------------------------------------------------------------
+  clean-check:
+    name: Public-clean check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for sensitive or local-only content
+        run: bash scripts/check-public-clean.sh

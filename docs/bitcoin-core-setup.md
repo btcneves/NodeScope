@@ -42,8 +42,8 @@ Paste the following content:
 regtest=1
 
 # RPC
-rpcuser=corecraft
-rpcpassword=corecraft
+rpcuser=nodescope
+rpcpassword=nodescope
 rpcbind=127.0.0.1
 rpcallowip=127.0.0.1
 
@@ -171,15 +171,15 @@ NodeScope reads the following environment variables to locate Bitcoin Core. If t
 | Variable               | Default                      | Description                        |
 |------------------------|------------------------------|------------------------------------|
 | `BITCOIN_RPC_URL`      | `http://127.0.0.1:18443`     | Bitcoin Core RPC endpoint          |
-| `BITCOIN_RPC_USER`     | `corecraft`                  | RPC username                       |
-| `BITCOIN_RPC_PASSWORD` | `corecraft`                  | RPC password                       |
+| `BITCOIN_RPC_USER`     | `nodescope`                  | RPC username                       |
+| `BITCOIN_RPC_PASSWORD` | `nodescope`                  | RPC password                       |
 
 To override, set them in your shell before starting the API or monitor:
 
 ```bash
 export BITCOIN_RPC_URL=http://127.0.0.1:18443
-export BITCOIN_RPC_USER=corecraft
-export BITCOIN_RPC_PASSWORD=corecraft
+export BITCOIN_RPC_USER=nodescope
+export BITCOIN_RPC_PASSWORD=nodescope
 ```
 
 ---

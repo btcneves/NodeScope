@@ -14,7 +14,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - Vite dev proxy to backend (no CORS issues in development)
 - `api/rpc.py` — Bitcoin Core JSON-RPC client (stdlib only, no extra dependency)
   - Configurable via `BITCOIN_RPC_URL`, `BITCOIN_RPC_USER`, `BITCOIN_RPC_PASSWORD`
-  - Regtest defaults: `http://127.0.0.1:18443`, user `corecraft`
+  - Regtest defaults: `http://127.0.0.1:18443`, user `nodescope`
 - `GET /mempool/summary` — live mempool stats via RPC with graceful offline fallback
 - CORS middleware for frontend development servers (ports 5173 and 3000)
 - `GET /health` — extended with `rpc_ok`, `chain`, `blocks`, `rpc_error`
@@ -29,6 +29,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 - `GET /health` now returns RPC connectivity status alongside existing fields
 - `README.md` rewritten as professional public-facing documentation
+- `Makefile`, Dockerfile, Docker Compose, CI workflow, public-clean check, smoke test, contribution/security docs, project status,  and regtest config example
+- Transaction classification expanded with `possible_op_return` and `complex_transaction`
 
 ---
 
@@ -63,4 +65,4 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
-*Total: 34 automated tests passing.*
+*Total: 35 automated tests passing.*

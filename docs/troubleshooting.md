@@ -36,7 +36,7 @@ bitcoin-cli -regtest getblockchaininfo
 ```
 
 **b) Wrong RPC credentials:**
-Check `~/.bitcoin/bitcoin.conf` and confirm `rpcuser` and `rpcpassword` match what NodeScope expects. The defaults are both `corecraft`. Override with environment variables if needed:
+Check `~/.bitcoin/bitcoin.conf` and confirm `rpcuser` and `rpcpassword` match what NodeScope expects. The defaults are both `nodescope`. Override with environment variables if needed:
 ```bash
 export BITCOIN_RPC_USER=youruser
 export BITCOIN_RPC_PASSWORD=yourpassword

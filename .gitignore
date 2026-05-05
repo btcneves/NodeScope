@@ -4,23 +4,46 @@ __pycache__/
 *.pyc
 *.pyo
 *.egg-info/
+*.pyd
+dist/
+build/
+*.egg/
 
 # Frontend
 frontend/node_modules/
 frontend/dist/
+frontend/.vite/
 
-# Runtime logs
+# Runtime logs (NDJSON files are runtime artifacts, never committed)
 logs/*.ndjson
+
+# Environment — never commit secrets
+.env
+.env.local
+.env.*.local
+
+# Local assistant/editor tooling
+CLAUDE.md
+.claude/
+.codex
 
 # Obsidian editor state
 **/.obsidian/
 
-# Local notes and reports
+# Local notes, reports and vault
 notes/
 reports/
 
 # System
 .DS_Store
+Thumbs.db
 
 # Backups
 *.bak
+*.orig
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo

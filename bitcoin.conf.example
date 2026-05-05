@@ -1,0 +1,15 @@
+# NodeScope regtest example for ~/.bitcoin/bitcoin.conf
+
+regtest=1
+
+# RPC credentials are local examples only. Replace before any non-local use.
+rpcuser=nodescope
+rpcpassword=nodescope
+rpcbind=127.0.0.1
+rpcallowip=127.0.0.1
+
+# ZMQ streams consumed by monitor.py
+zmqpubrawblock=tcp://127.0.0.1:28332
+zmqpubrawtx=tcp://127.0.0.1:28333
+
+txindex=1

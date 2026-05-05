@@ -118,14 +118,14 @@ class ClassifyTests(unittest.TestCase):
         self.assertTrue(result.metadata["signals"]["has_height"])
         self.assertTrue(result.metadata["signals"]["has_hash"])
 
-    def test_classify_unknown_when_tx_is_inconclusive(self) -> None:
+    def test_classify_complex_transaction(self) -> None:
         event = RawEvent(
             ts="2026-04-22T00:00:03+00:00",
             level="info",
             origin="rawtx",
             event="zmq_rawtx",
             data={
-                "txid": "unknown-1",
+                "txid": "complex-1",
                 "inputs": 2,
                 "outputs": 2,
                 "total_out": 4.0,
@@ -140,11 +140,39 @@ class ClassifyTests(unittest.TestCase):
 
         self.assertIsNotNone(result)
         assert result is not None
-        self.assertEqual(result.kind, "unknown")
-        self.assertEqual(result.metadata["confidence"], "low")
+        self.assertEqual(result.kind, "complex_transaction")
+        self.assertEqual(result.metadata["confidence"], "medium")
         self.assertEqual(result.metadata["address_count"], 2)
-        self.assertIn("shape insuficiente", result.metadata["reason"])
+        self.assertIn("multiple positive outputs", result.metadata["reason"])
         self.assertFalse(result.metadata["coinbase_like_signal"])
+
+    def test_classify_possible_op_return(self) -> None:
+        event = RawEvent(
+            ts="2026-04-22T00:00:04+00:00",
+            level="info",
+            origin="rawtx",
+            event="zmq_rawtx",
+            data={
+                "txid": "op-return-1",
+                "inputs": 1,
+                "outputs": 2,
+                "total_out": 0.1,
+                "script_types": ["nulldata", "witness_v0_keyhash"],
+                "has_op_return": True,
+                "vout": [
+                    {"value": 0.1, "address": "bcrt1payment"},
+                    {"value": 0.0, "address": None},
+                ],
+            },
+        )
+
+        result = classify(event)
+
+        self.assertIsNotNone(result)
+        assert result is not None
+        self.assertEqual(result.kind, "possible_op_return")
+        self.assertEqual(result.metadata["confidence"], "medium")
+        self.assertTrue(result.metadata["has_op_return"])
 
 
 if __name__ == "__main__":

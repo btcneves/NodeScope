@@ -9,8 +9,8 @@ import urllib.request
 from typing import Any
 
 _DEFAULT_URL = "http://127.0.0.1:18443"  # regtest default
-_DEFAULT_USER = "corecraft"
-_DEFAULT_PASS = "corecraft"
+_DEFAULT_USER = "nodescope"
+_DEFAULT_PASS = "nodescope"
 
 
 class RPCError(Exception):
