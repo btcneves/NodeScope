@@ -29,7 +29,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 - `GET /health` now returns RPC connectivity status alongside existing fields
 - `README.md` rewritten as professional public-facing documentation
-- `Makefile`, Dockerfile, Docker Compose, CI workflow, public-clean check, smoke test, contribution/security docs, project status,  and regtest config example
+- `Makefile`, Dockerfile, Docker Compose, CI workflow, public-clean check, smoke test, contribution/security docs, project status and regtest config example
 - Transaction classification expanded with `possible_op_return` and `complex_transaction`
 
 ---

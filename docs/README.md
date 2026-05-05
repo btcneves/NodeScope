@@ -13,7 +13,6 @@ NodeScope is a Bitcoin Core Intelligence Dashboard for real-time node observabil
 | [demo.md](demo.md) | End-to-end regtest demo |
 | [smoke-tests.md](smoke-tests.md) | Local validation and CI-style checks |
 | [troubleshooting.md](troubleshooting.md) | Common setup and runtime issues |
-| []() | 3 to 5 minute demo  |
 
 ## Recommended Reading Order
 

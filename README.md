@@ -10,7 +10,7 @@ Real-time observability for Bitcoin Core nodes using RPC, ZMQ, mempool monitorin
 [![React](https://img.shields.io/badge/React%20%2B%20Vite-ready-61dafb?logo=react&logoColor=black)](https://react.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> : coming soon. Use []() to record the 3 to 5 minute walkthrough.
+> : coming soon.
 
 ## Problem
 
@@ -213,7 +213,7 @@ More detail: [docs/troubleshooting.md](docs/troubleshooting.md).
 - Persistent metrics export.
 - Richer transaction heuristics.
 - Dashboard filters for event type, confidence and script type.
--  and release artifacts.
+-  release artifact.
 
 ## Documentation
 
@@ -225,7 +225,6 @@ More detail: [docs/troubleshooting.md](docs/troubleshooting.md).
 - [docs/demo.md](docs/demo.md)
 - [docs/smoke-tests.md](docs/smoke-tests.md)
 - [docs/troubleshooting.md](docs/troubleshooting.md)
-- []()
 
 ## License
 
