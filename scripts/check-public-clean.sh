@@ -78,8 +78,6 @@ for pattern in \
     "${PATTERN_PRESENTATION_PT}" \
     "${PATTERN_SCRIPT_PT}" \
     "${PATTERN_VIDEO_PT}" \
-    "" \
-    "" \
     "prompt" \
     "\.cookie" \
     "logs sensíveis"; do
