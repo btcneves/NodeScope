@@ -10,7 +10,7 @@ RPC gives the snapshot. ZMQ gives real time. NodeScope gives interpretation.
 
 ## Phase 1 — Regtest Command Center
 
-**Target:** 2026-05-07  
+**Released:** 2026-05-06
 **Status:** Ready for final rehearsal.
 
 Objective: deliver a stable, visual, deterministic demo on regtest.

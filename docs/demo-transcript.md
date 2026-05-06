@@ -208,6 +208,6 @@ All 8 screenshots are real PNG files captured from a live demo session.
 ## Release Tag
 
 - Tag: `v1.0.0`
-- Date: 2026-05-07
+- Date: 2026-05-06
 - Branch: `main`
 - Repository: https://github.com/btcneves/NodeScope

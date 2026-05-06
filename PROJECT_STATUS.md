@@ -1,59 +1,46 @@
 # NodeScope Project Status
 
-## Current State
+## Final Delivery Status
 
-NodeScope is a working hackathon-ready prototype with:
+Status: Hackathon-ready
+Release: v1.0.0
+Docker quickstart: validated
+Smoke test: passing
+Frontend build: passing
+Python tests: passing
 
-- FastAPI backend exposing health, summary, mempool, event, block and transaction endpoints.
-- ZMQ monitor for `rawtx` and `rawblock` streams.
-- Append-only NDJSON event storage and replay engine.
-- Transaction and block classification pipeline.
-- React/Vite/TypeScript dashboard.
-- Regtest demo script, Docker Compose demo stack, CI and smoke checks.
-
-## Readiness Checklist
-
-| Area | Status | Notes |
-|---|---|---|
-| Backend API | Ready | Handles missing Bitcoin Core with structured fallback responses. |
-| ZMQ monitor | Ready | Uses configurable RPC and ZMQ endpoints. |
-| Engine replay | Ready | Rebuilds snapshots from NDJSON logs. |
-| Frontend | Ready | Builds production assets and shows offline/empty states. |
-| Regtest demo | Ready | Generates wallet activity, mempool transaction and mined block. |
-| Tests | Ready | Unit suite covers engine, parser, API, RPC and demo helpers. |
-| CI | Ready | Runs Python tests, frontend build and public-clean check. |
-| Documentation | Ready | README plus setup, API, architecture, demo and troubleshooting guides. |
-
-## Hackathon Requirements
-
-| Requirement | Status |
-|---|---|
-| Bitcoin Core backend | Ready |
-| RPC data extraction | Ready |
-| ZMQ event reaction | Ready |
-| Backend API | Ready |
-| Web interface | Ready |
-| Real node data demonstration | Ready |
-| Backend/frontend integration | Ready |
-| Real-time event path | Ready |
-| Public open source documentation | Ready |
-
-## Validation
+## Official Evaluator Flow
 
 ```bash
-make test
-make build
-make public-clean
-docker compose config
-```
-
-With the backend running:
-
-```bash
+git clone https://github.com/btcneves/NodeScope.git
+cd NodeScope
+cp .env.example .env
+docker compose up -d --build
+make docker-demo
 make smoke
 ```
 
-## Remaining Manual Steps
+Open:
 
-- Run the regtest demo against a local or Docker Bitcoin Core node before the final demo.
-- Push the feature branch and open a pull request manually.
+```text
+http://localhost:5173
+```
+
+## Delivered Capabilities
+
+| Area | Status | Notes |
+|---|---|---|
+| Bitcoin Core regtest | Ready | Compose starts Bitcoin Core 26 without mainnet, wallet keys, or external services. |
+| RPC snapshot | Ready | FastAPI reads chain and mempool state through Bitcoin Core RPC. |
+| ZMQ rawtx/rawblock | Ready | Monitor subscribes to real regtest ZMQ events. |
+| NDJSON event logs | Ready | Monitor writes append-only logs under `logs/`. |
+| Event classification | Ready | Blocks and transactions are classified from captured events. |
+| FastAPI API | Ready | Health, summary, mempool, recent events, classifications, blocks, tx, intelligence and SSE endpoints. |
+| React dashboard | Ready | Vite dashboard reads the API and shows live event state. |
+| Smoke validation | Ready | Dockerized smoke covers RPC, ZMQ-derived counts, API endpoints, frontend build and Python tests. |
+
+## Known Limitations
+
+- The official demo uses Bitcoin Core regtest only; signet/mainnet operation is intentionally out of scope for v1.0.0.
+- `logs/` is local runtime storage, not a production database.
+- Local non-Docker mode is available for development, but Docker is the validated judging path.

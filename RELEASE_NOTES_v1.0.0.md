@@ -1,6 +1,6 @@
 # Release Notes — NodeScope v1.0.0
 
-**Release date:** 2026-05-07  
+**Release date:** 2026-05-06
 **Tag:** `v1.0.0`
 
 ---

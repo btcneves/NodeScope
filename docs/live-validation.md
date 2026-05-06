@@ -217,7 +217,7 @@ This creates a wallet (if needed), mines 101 blocks, sends a transaction, and mi
 make smoke
 ```
 
-See `docs/smoke-tests.md` for the full list of automated checks. The default smoke path is Dockerized and should be run after `docker compose up -d` and `make docker-demo`.
+See `docs/smoke-tests.md` for the full list of automated checks. The default smoke path is Dockerized and should be run after `docker compose up -d --build` and `make docker-demo`.
 
 ---
 
@@ -237,7 +237,7 @@ Docker validation path:
 
 ```bash
 docker compose config
-docker compose up -d
+docker compose up -d --build
 make docker-demo
 make smoke
 make screenshots
@@ -274,4 +274,4 @@ Screenshot rules:
 - Capture only from local trusted stacks.
 - Do not include terminal windows with private paths or credentials.
 - Do not edit screenshots to simulate data.
-- Re-run `make demo-screenshots` whenever the dashboard layout changes.
+- Re-run the Docker demo flow and `make screenshots` whenever the dashboard layout changes.

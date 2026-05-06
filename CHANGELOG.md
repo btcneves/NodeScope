@@ -29,7 +29,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
-## [1.0.0] — 2026-05-07
+## [1.0.0] — 2026-05-06
 
 ### Added
 - `frontend/src/components/TransactionLifecycle.tsx` — animated 6-stage transaction flow panel (Created → Broadcast → Mempool → ZMQ rawtx → Block Mined → Confirmed), driven by live RPC, ZMQ, and mempool state

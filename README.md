@@ -6,7 +6,7 @@
 
 Real-time observability for Bitcoin Core nodes using RPC, ZMQ, mempool monitoring, and regtest demos.
 
-[![Release](https://img.shields.io/badge/release-v1.0.0-3fb886?logo=github)](https://github.com/btcneves/NodeScope/releases/tag/v1.0.0)
+[![Release](https://img.shields.io/github/v/release/btcneves/NodeScope)](https://github.com/btcneves/NodeScope/releases/tag/v1.0.0)
 [![CI](https://github.com/btcneves/NodeScope/actions/workflows/ci.yml/badge.svg)](https://github.com/btcneves/NodeScope/actions/workflows/ci.yml)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-3776ab?logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-ready-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -36,7 +36,7 @@ NodeScope combines:
 git clone https://github.com/btcneves/NodeScope.git
 cd NodeScope
 cp .env.example .env
-docker compose up -d
+docker compose up -d --build
 make docker-demo
 make smoke
 open http://localhost:5173
@@ -123,7 +123,7 @@ RPC gives the snapshot. ZMQ gives real time. NodeScope gives interpretation.
 git clone https://github.com/btcneves/NodeScope.git
 cd NodeScope
 cp .env.example .env
-docker compose up -d
+docker compose up -d --build
 make docker-demo
 make smoke
 ```
@@ -148,13 +148,14 @@ HOST_API_PORT=18000
 HOST_FRONTEND_PORT=15173
 ```
 
-Validate Compose without starting containers:
+Validate Compose without starting containers, or run the complete Docker demo in one command:
 
 ```bash
-docker compose config
+make docker-config
+make docker-full-demo
 ```
 
-## Local Development Without Docker
+## Optional Local Development Without Docker
 
 The Docker quickstart above is the recommended evaluation path. Use local mode only when you intentionally want to run Python, Node and Bitcoin Core on the host.
 
@@ -194,7 +195,7 @@ Example regtest credentials are `nodescope` / `nodescope`. Replace them before a
 
 ## Regtest Demo
 
-Start the API, monitor and frontend, then generate live activity:
+With local Bitcoin Core, API, monitor and frontend already running, generate live activity:
 
 ```bash
 make demo
@@ -259,9 +260,9 @@ NodeScope/
 
 | Symptom | Fix |
 |---|---|
-| `/health` returns `rpc_ok: false` | Start `bitcoind` in regtest and confirm RPC credentials match `.env`. |
-| No live events | Confirm `getzmqnotifications` lists rawblock and rawtx, then start `make monitor`. |
-| Empty dashboard | Generate activity with `make demo` or inspect `/events/recent`. |
+| `/health` returns `rpc_ok: false` | Start the Docker stack with `docker compose up -d --build` and confirm `.env` matches `.env.example`. |
+| No live events | Run `make docker-demo`, then inspect `/events/recent` and `/events/classifications`. |
+| Empty dashboard | Generate activity with `make docker-demo` or inspect `/summary`. |
 | Frontend cannot reach API | Use `make frontend` or Docker Compose so Vite proxy/API ports are aligned. |
 
 More detail: [docs/troubleshooting.md](docs/troubleshooting.md).

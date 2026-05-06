@@ -55,16 +55,13 @@ With API, monitor, frontend and Bitcoin Core already running:
 make screenshots
 ```
 
-To run smoke tests, generate regtest activity and capture images:
+To run the validated Docker demo flow before capturing images:
 
 ```bash
-make demo-screenshots
-```
-
-To run the broader validation flow and generate visual evidence:
-
-```bash
-make evidence
+docker compose up -d --build
+make docker-demo
+make smoke
+make screenshots
 ```
 
 The capture script uses Chromium, viewport `1440x900`, `networkidle` page loads and full-page PNG screenshots.

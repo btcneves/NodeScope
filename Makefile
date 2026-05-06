@@ -10,14 +10,14 @@ COMPOSE_FILE ?= docker-compose.yml
 export COMPOSE_FILE
 COMPOSE ?= docker compose
 
-.PHONY: help setup setup-local venv backend monitor frontend test test-local build build-local smoke smoke-local demo replay-demo screenshots demo-screenshots evidence clean public-clean docker-up docker-down docker-demo docker-wait lint docker-config
+.PHONY: help setup setup-local venv backend monitor frontend test test-local build build-local smoke smoke-local demo replay-demo screenshots clean public-clean docker-up docker-down docker-demo docker-full-demo docker-wait lint docker-config
 
 help:
 	@echo "NodeScope Makefile - Available Targets"
 	@echo "======================================="
 	@echo ""
 	@echo "Docker quickstart:"
-	@echo "  docker compose up -d   Start the full stack"
+	@echo "  docker compose up -d --build   Start the full stack"
 	@echo "  make docker-demo       Generate regtest wallet/tx/block activity"
 	@echo "  make smoke             Run Dockerized smoke checks, frontend build and Python tests"
 	@echo ""
@@ -35,8 +35,6 @@ help:
 	@echo "  make smoke         Run Dockerized smoke tests against the Compose stack"
 	@echo "  make smoke-local   Run smoke tests using local Python and node_modules"
 	@echo "  make screenshots   Capture dashboard/API screenshots (requires running stack)"
-	@echo "  make demo-screenshots Run smoke, demo, then capture screenshots"
-	@echo "  make evidence      Run tests, smoke, demo and screenshot evidence"
 	@echo "  make public-clean  Scan public files for local artifacts and secrets"
 	@echo ""
 	@echo "Demo and Docker:"
@@ -45,6 +43,7 @@ help:
 	@echo "  make docker-up     Start bitcoind, API, monitor and frontend"
 	@echo "  make docker-config Validate Docker Compose configuration"
 	@echo "  make docker-demo   Generate regtest activity through the Docker bitcoind"
+	@echo "  make docker-full-demo Start stack, generate demo data and run smoke checks"
 	@echo "  make docker-down   Stop Docker services"
 	@echo ""
 	@echo "Maintenance:"
@@ -106,24 +105,6 @@ replay-demo:
 screenshots:
 	$(PYTHON) scripts/capture-dashboard-screenshots.py
 
-demo-screenshots:
-	$(MAKE) smoke
-	$(MAKE) demo
-	sleep 5
-	$(MAKE) screenshots
-
-evidence:
-	$(MAKE) test
-	$(MAKE) build
-	$(MAKE) public-clean
-	$(MAKE) smoke
-	$(MAKE) demo
-	sleep 5
-	$(MAKE) screenshots
-	@echo ""
-	@echo "Generated visual evidence:"
-	@ls -lh docs/assets/*.png
-
 public-clean:
 	bash scripts/check-public-clean.sh
 
@@ -148,6 +129,11 @@ docker-demo: docker-wait
 	BITCOIN_CLI="$(COMPOSE) exec -T nodescope-bitcoind bitcoin-cli -regtest -rpcuser=$${BITCOIN_RPC_USER:-nodescope} -rpcpassword=$${BITCOIN_RPC_PASSWORD:-nodescope}" \
 	API_URL="http://127.0.0.1:$${HOST_API_PORT:-$(API_PORT)}" \
 	bash scripts/demo_regtest.sh
+
+docker-full-demo:
+	$(COMPOSE) up -d --build
+	$(MAKE) docker-demo
+	$(MAKE) smoke
 
 docker-down:
 	$(COMPOSE) down

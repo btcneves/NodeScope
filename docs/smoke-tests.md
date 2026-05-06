@@ -7,8 +7,10 @@ Smoke tests verify that the main Docker workflow is healthy from a clean clone.
 Start the Compose stack and generate regtest activity:
 
 ```bash
+git clone https://github.com/btcneves/NodeScope.git
+cd NodeScope
 cp .env.example .env
-docker compose up -d
+docker compose up -d --build
 make docker-demo
 ```
 
@@ -28,6 +30,7 @@ The script validates:
 - `GET /summary`
 - `GET /mempool/summary`
 - `GET /events/recent`
+- `GET /events/classifications`
 - frontend production build inside the Node container
 - Python unit tests inside the API image
 

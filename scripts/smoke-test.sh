@@ -87,6 +87,13 @@ if check_endpoint "/events/recent"; then
         fail "Recent events are empty; run make docker-demo first"
     fi
 fi
+if check_endpoint "/events/classifications"; then
+    if contains_positive_json_number "total_items"; then
+        pass "Classified events are available"
+    else
+        fail "Classifications are empty; run make docker-demo first"
+    fi
+fi
 
 header "Frontend build"
 if [ "${SKIP_FRONTEND_BUILD}" = "1" ]; then

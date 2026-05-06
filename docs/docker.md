@@ -15,7 +15,7 @@ NodeScope includes a Docker Compose stack for a full local demo.
 
 ```bash
 cp .env.example .env
-docker compose up -d
+docker compose up -d --build
 make docker-demo
 make smoke
 ```
@@ -41,7 +41,7 @@ docker compose down
 ## Validate Configuration
 
 ```bash
-docker compose config
+make docker-config
 ```
 
 ## Smoke Test

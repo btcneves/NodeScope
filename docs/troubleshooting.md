@@ -10,7 +10,7 @@
 
 **Fix:**
 ```bash
-docker compose up -d
+docker compose up -d --build
 docker compose ps
 make smoke
 ```

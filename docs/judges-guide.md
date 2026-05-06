@@ -23,10 +23,13 @@ The result is a unified REST API + SSE stream + React dashboard that transforms 
 ```bash
 git clone https://github.com/btcneves/NodeScope.git
 cd NodeScope
-docker compose up
+cp .env.example .env
+docker compose up -d --build
+make docker-demo
+make smoke
 ```
 
-Wait ~30s for Bitcoin Core to initialize, then open:
+Then open:
 
 - **Dashboard:** http://localhost:5173
 - **API:** http://localhost:8000/health
@@ -164,7 +167,7 @@ React Dashboard (polling 5s + SSE real-time)
 | Test coverage | `tests/` directory — 37 unit tests |
 | Code quality | `engine/`, `api/` — typed Python with Pydantic schemas |
 | Documentation | `docs/` — architecture, API reference, setup guides |
-| Reproducibility | `docker compose up -d && make docker-demo && make smoke` or `make setup-local && make demo` |
+| Reproducibility | `docker compose up -d --build && make docker-demo && make smoke` |
 
 ---
 

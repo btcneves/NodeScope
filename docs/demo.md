@@ -1,197 +1,77 @@
 # NodeScope Demo Guide
 
-This guide walks through a complete end-to-end demonstration of NodeScope: starting all services, generating Bitcoin regtest activity, and observing real-time updates in the dashboard.
+This is the official evaluator demo path for NodeScope v1.0.0. It runs a real Bitcoin Core regtest node, captures RPC and ZMQ activity, stores NDJSON events, serves them through FastAPI/SSE, and renders the React dashboard.
 
-**Related guides:** [demo-checklist.md](demo-checklist.md) · [demo-script.md](demo-script.md) · [live-validation.md](live-validation.md)
-
----
-
-## Prerequisites
-
-Before starting, ensure the following are in place:
-
-- **Bitcoin Core** installed and configured for regtest (see `docs/bitcoin-core-setup.md`)
-- **`bitcoind`** running: `bitcoin-cli -regtest getblockchaininfo` should respond without error
-- **Python 3.12+** with the project virtualenv: `.venv/` at the project root
-- **Node.js 18+** for the frontend dev server
-- At least one wallet created and 101 blocks mined (for spendable balance)
-
----
-
-## Step 1 — Start the Backend
-
-From the project root, start the FastAPI server:
+## Official Docker Flow
 
 ```bash
-./.venv/bin/python scripts/run_api.py
+git clone https://github.com/btcneves/NodeScope.git
+cd NodeScope
+cp .env.example .env
+docker compose up -d --build
+make docker-demo
+make smoke
 ```
 
-The server listens on `http://127.0.0.1:8000`. To confirm it is running:
+Open the dashboard:
+
+```text
+http://localhost:5173
+```
+
+The same flow is available as one Make target:
 
 ```bash
-curl -s http://127.0.0.1:8000/health | python3 -m json.tool
+make docker-full-demo
 ```
 
-You should see `"status": "ok"`.
+## What The Demo Does
 
-Optional flags:
+`docker compose up -d --build` starts:
+
+- Bitcoin Core 26 in regtest mode
+- ZMQ publishers for `rawtx` and `rawblock`
+- NodeScope monitor writing append-only NDJSON logs
+- FastAPI backend with REST and SSE endpoints
+- React/Vite dashboard on port 5173
+
+`make docker-demo` creates or loads the `nodescope_demo` wallet, ensures spendable regtest balance, broadcasts a transaction, reads the mempool, mines a confirmation block, and lets the monitor capture the transaction and block through ZMQ.
+
+`make smoke` validates the API/RPC path, ZMQ-derived summary counts, recent events, classified events, frontend production build, and Python unit tests.
+
+## Endpoints To Open
+
+| View | URL |
+|---|---|
+| Dashboard | http://localhost:5173 |
+| API docs | http://localhost:8000/docs |
+| Health | http://localhost:8000/health |
+| Summary | http://localhost:8000/summary |
+| Recent events | http://localhost:8000/events/recent?limit=5 |
+| Classifications | http://localhost:8000/events/classifications?limit=5 |
+| SSE stream | http://localhost:8000/events/stream |
+
+## Expected Signals
+
+After `make docker-demo`:
+
+- `/health` reports `status: ok`, `rpc_ok: true`, and `chain: regtest`.
+- `/summary` includes positive `rawtx_count` and `rawblock_count`.
+- `/events/recent?limit=5` returns recent ZMQ events.
+- `/events/classifications?limit=5` returns classified block or transaction events.
+- The dashboard shows node health, RPC/ZMQ sync, mempool state, live events, classifications, and transaction/block details.
+
+## Optional Local Development
+
+The Docker flow above is the supported evaluation path. Local mode is for development only and requires host-installed Python, Node.js, Bitcoin Core regtest, RPC credentials, ZMQ ports, and frontend dependencies.
 
 ```bash
-./.venv/bin/python scripts/run_api.py --host 127.0.0.1 --port 8000
+make setup-local
+make backend
+make monitor
+make frontend
+make demo
+make smoke-local
 ```
 
----
-
-## Step 2 — Start the Frontend
-
-In a separate terminal, from the project root:
-
-```bash
-cd frontend && npm install && npm run dev
-```
-
-Vite will print:
-
-```
-  VITE v6.x.x  ready in NNNms
-
-  ➜  Local:   http://localhost:5173/
-```
-
-The Vite dev server proxies all API paths to the FastAPI backend, so you do not need to configure CORS.
-
----
-
-## Step 3 — Open the Dashboard
-
-Open your browser at [http://localhost:5173](http://localhost:5173).
-
-The dashboard displays:
-- API and SSE connection status (top bar)
-- KPI row: total events, rawtx count, rawblock count, coinbase count, OP_RETURN count, classified events
-- Live event feed with classification badges
-- Latest block and latest transaction details
-- Analytics summary chips
-
-At this point the dashboard may show empty or stale data if `monitor.py` has not run yet.
-
----
-
-## Step 4 — Start the Monitor
-
-In another terminal, from the project root:
-
-```bash
-./.venv/bin/python monitor.py
-```
-
-`monitor.py` subscribes to the ZMQ sockets and begins writing to `logs/YYYY-MM-DD-monitor.ndjson`. Each captured event is also printed to stdout as a NDJSON line.
-
-Leave this running for the duration of the demo.
-
----
-
-## Step 5 — Generate Regtest Activity
-
-### Option A: Automated Demo Script
-
-Run the provided script to generate a complete sequence of blocks, transactions, and confirmations:
-
-```bash
-bash scripts/demo_regtest.sh
-```
-
-The script:
-1. Verifies `bitcoin-cli` and the API are available
-2. Creates or loads the `nodescope-demo` wallet
-3. Mines 101 initial blocks (only if balance is zero)
-4. Sends 1.5 BTC to a new address
-5. Queries the mempool to show the pending transaction
-6. Mines 1 block to confirm
-7. Prints a summary with the final block count
-
-### Option B: Manual Commands
-
-```bash
-# Get or create a receive address
-ADDR=$(bitcoin-cli -regtest getnewaddress)
-
-# Mine a block
-bitcoin-cli -regtest generatetoaddress 1 $ADDR
-
-# Send a transaction (leaves it in the mempool)
-bitcoin-cli -regtest sendtoaddress $ADDR 1.0
-
-# Confirm the transaction by mining another block
-bitcoin-cli -regtest generatetoaddress 1 $ADDR
-```
-
----
-
-## Step 6 — Watch the Dashboard Update
-
-As `monitor.py` captures events:
-
-- New **blocks** appear in the latest block section
-- New **transactions** appear in the event feed, tagged with their classification (`coinbase_like`, `simple_payment_like`)
-- **KPI counters** increment in real time via the SSE connection
-- The **SSE status dot** in the top bar pulses to indicate an active stream
-
-The dashboard updates without a manual page refresh.
-
----
-
-## Step 7 — Run Automated Tests
-
-To verify the full stack is functioning correctly:
-
-```bash
-./.venv/bin/python -m unittest discover -s tests -v
-```
-
-All tests run against local fixtures and the live log files. Expected output ends with:
-
-```
-----------------------------------------------------------------------
-Ran 26 tests in X.XXXs
-
-OK
-```
-
-## Step 8 — Capture Visual Evidence
-
-NodeScope can generate reproducible visual evidence after the real stack, smoke tests and regtest demo are working.
-
-Install Playwright Chromium once:
-
-```bash
-./.venv/bin/python -m pip install -r requirements-dev.txt
-./.venv/bin/python -m playwright install chromium
-```
-
-With API, monitor, frontend and Bitcoin Core running:
-
-```bash
-make demo-screenshots
-```
-
-This runs smoke tests, generates regtest activity, waits for the dashboard to refresh and saves full-page PNG files in `docs/assets/`.
-
-For a broader evidence run:
-
-```bash
-make evidence
-```
-
----
-
-## Quick Reference
-
-| Service             | Command                                              | URL                        |
-|---------------------|------------------------------------------------------|----------------------------|
-| Bitcoin Core daemon | `bitcoind -daemon`                                   | RPC :18443                 |
-| NodeScope API       | `./.venv/bin/python scripts/run_api.py`              | http://127.0.0.1:8000      |
-| React dashboard     | `cd frontend && npm run dev`                         | http://localhost:5173      |
-| Monitor             | `./.venv/bin/python monitor.py`                      | (writes to `logs/`)        |
-| Demo script         | `bash scripts/demo_regtest.sh`                       | —                          |
-| Tests               | `./.venv/bin/python -m unittest discover -s tests -v`| —                          |
+Use Docker for judging unless you intentionally need to debug host-local services.
