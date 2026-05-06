@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import type { BlockData } from '../types/api'
+import { copyText } from '../utils/clipboard'
 
 interface Props {
   block: BlockData | null
@@ -17,6 +19,16 @@ function relTime(ts: string): string {
 }
 
 export function BlocksPanel({ block }: Props) {
+  const [copied, setCopied] = useState(false)
+
+  async function copyHash() {
+    if (!block?.hash) return
+    if (await copyText(block.hash)) {
+      setCopied(true)
+      window.setTimeout(() => setCopied(false), 1000)
+    }
+  }
+
   return (
     <div className="panel">
       <div className="panel-header">
@@ -35,9 +47,22 @@ export function BlocksPanel({ block }: Props) {
             </div>
             <div className="event-row">
               <span className="kpi-label" style={{ minWidth: '60px' }}>Hash</span>
-              <span className="event-hash mono" title={block.hash ?? ''}>
+              <span
+                className="event-hash mono copyable-text"
+                title="Clique para copiar hash completo"
+                onClick={copyHash}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault()
+                    void copyHash()
+                  }
+                }}
+              >
                 {trunc(block.hash, 20)}
               </span>
+              {copied && <span className="copy-feedback">copied</span>}
             </div>
             <div className="event-row">
               <span className="kpi-label" style={{ minWidth: '60px' }}>Time</span>

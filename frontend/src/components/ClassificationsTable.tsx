@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import type { ClassificationItem } from '../types/api'
+import { copyText } from '../utils/clipboard'
 
 interface Props {
   classifications: ClassificationItem[]
@@ -12,6 +14,15 @@ function kindClass(kind: string): string {
 }
 
 export function ClassificationsTable({ classifications }: Props) {
+  const [copiedKey, setCopiedKey] = useState<string | null>(null)
+
+  async function copyValue(key: string, value: string | null | undefined) {
+    if (await copyText(value)) {
+      setCopiedKey(key)
+      window.setTimeout(() => setCopiedKey(null), 1000)
+    }
+  }
+
   return (
     <div className="panel" style={{ marginBottom: '24px' }}>
       <div className="panel-header">
@@ -27,7 +38,15 @@ export function ClassificationsTable({ classifications }: Props) {
           classifications.slice(0, 20).map((c, i) => {
             const confidence = c.metadata?.confidence
             const reason = c.metadata?.reason as string | undefined
-            const identifier = c.txid?.slice(0, 16) ?? c.hash?.slice(0, 16) ?? '—'
+            const identifierValue = c.txid ?? c.hash
+            const identifier = identifierValue?.slice(0, 16) ?? '—'
+            const identifierTitle = c.txid
+              ? 'Clique para copiar TXID completo'
+              : c.hash
+                ? 'Clique para copiar hash completo'
+                : undefined
+            const identifierKey = `identifier-${i}`
+            const reasonKey = `reason-${i}`
             return (
               <div key={i} className="event-row">
                 <span className="event-time">{new Date(c.ts).toLocaleTimeString()}</span>
@@ -40,8 +59,34 @@ export function ClassificationsTable({ classifications }: Props) {
                     {String(confidence)}
                   </span>
                 )}
-                <span className="event-hash mono">{identifier}&hellip;</span>
                 <span
+                  className={`event-hash mono ${identifierValue ? 'copyable-text' : ''}`}
+                  title={identifierTitle}
+                  onClick={() => void copyValue(identifierKey, identifierValue)}
+                  role={identifierValue ? 'button' : undefined}
+                  tabIndex={identifierValue ? 0 : undefined}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault()
+                      void copyValue(identifierKey, identifierValue)
+                    }
+                  }}
+                >
+                  {identifier}&hellip;
+                </span>
+                {copiedKey === identifierKey && <span className="copy-feedback">copied</span>}
+                <span
+                  className={reason ? 'copyable-text' : undefined}
+                  title={reason ? `Clique para copiar motivo completo: ${reason}` : undefined}
+                  onClick={() => void copyValue(reasonKey, reason)}
+                  role={reason ? 'button' : undefined}
+                  tabIndex={reason ? 0 : undefined}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault()
+                      void copyValue(reasonKey, reason)
+                    }
+                  }}
                   style={{
                     fontSize: '11px',
                     color: 'var(--muted)',
@@ -54,6 +99,7 @@ export function ClassificationsTable({ classifications }: Props) {
                 >
                   {reason ?? ''}
                 </span>
+                {copiedKey === reasonKey && <span className="copy-feedback">copied</span>}
               </div>
             )
           })

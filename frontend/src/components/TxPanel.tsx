@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import type { TxData } from '../types/api'
+import { copyText } from '../utils/clipboard'
 
 interface Props {
   tx: TxData | null
@@ -13,6 +15,16 @@ function kindBadgeClass(kind: string): string {
 }
 
 export function TxPanel({ tx }: Props) {
+  const [copied, setCopied] = useState(false)
+
+  async function copyTxid() {
+    if (!tx?.txid) return
+    if (await copyText(tx.txid)) {
+      setCopied(true)
+      window.setTimeout(() => setCopied(false), 1000)
+    }
+  }
+
   return (
     <div className="panel">
       <div className="panel-header">
@@ -25,9 +37,22 @@ export function TxPanel({ tx }: Props) {
           <>
             <div className="event-row">
               <span className="kpi-label" style={{ minWidth: '60px' }}>TXID</span>
-              <span className="event-hash mono" title={tx.txid}>
+              <span
+                className="event-hash mono copyable-text"
+                title="Clique para copiar TXID completo"
+                onClick={copyTxid}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault()
+                    void copyTxid()
+                  }
+                }}
+              >
                 {trunc(tx.txid)}
               </span>
+              {copied && <span className="copy-feedback">copied</span>}
             </div>
             <div className="event-row">
               <span className="kpi-label" style={{ minWidth: '60px' }}>Kind</span>

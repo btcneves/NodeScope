@@ -265,6 +265,22 @@ body {
   white-space: nowrap;
 }
 
+.copyable-text {
+  cursor: pointer;
+}
+
+.copyable-text:hover {
+  color: var(--text);
+}
+
+.copy-feedback {
+  color: var(--accent-bright);
+  font-size: 10px;
+  line-height: 1;
+  margin-left: 4px;
+  white-space: nowrap;
+}
+
 .badge-rawtx {
   background: rgba(56, 139, 253, 0.15);
   color: var(--blue);
