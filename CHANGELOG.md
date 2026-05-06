@@ -27,6 +27,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - CI: `ruff format --check` and `ruff check` on every push and PR
 - CI: `pip-audit` for Python dependency vulnerability scanning
 
+### Fixed
+- Applied `ruff format` to `engine/classify.py` and `engine/parser.py` (missed in initial Phase 2 commit)
+
 ### Changed
 - `frontend/src/hooks/useSSE.ts` — auto-reconnect with exponential backoff (3s → 5s → 10s, up to 3 retries)
 - `frontend/src/App.tsx` — NodeHealthScore and TransactionLifecycle integrated into main layout

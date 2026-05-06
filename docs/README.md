@@ -10,14 +10,35 @@ NodeScope is a Bitcoin Core Intelligence Dashboard for real-time node observabil
 | [api.md](api.md) | REST and SSE API reference |
 | [bitcoin-core-setup.md](bitcoin-core-setup.md) | Local Bitcoin Core regtest setup |
 | [docker.md](docker.md) | Docker Compose stack and service reference |
-| [demo.md](demo.md) | End-to-end regtest demo |
+| [demo.md](demo.md) | End-to-end regtest demo walkthrough |
+| [demo-checklist.md](demo-checklist.md) | Pre-demo verification checklist |
+| [demo-script.md](demo-script.md) | 4-minute demo narrative |
+| [judges-guide.md](judges-guide.md) | Technical evaluation guide |
 | [smoke-tests.md](smoke-tests.md) | Local validation and CI-style checks |
 | [troubleshooting.md](troubleshooting.md) | Common setup and runtime issues |
+| [deploy-vps.md](deploy-vps.md) | VPS deployment with nginx + systemd |
+| [deploy-cloudflare-tunnel.md](deploy-cloudflare-tunnel.md) | Public demo via Cloudflare Tunnel |
+| [signet.md](signet.md) | Signet observer mode (Phase 2 preview) |
 
 ## Recommended Reading Order
 
-1. `README.md`
-2. `docs/docker.md` or `docs/bitcoin-core-setup.md`
-3. `docs/demo.md`
-4. `docs/api.md`
-5. `docs/troubleshooting.md`
+**First time setup:**
+1. `README.md` — overview and quickstart
+2. `docs/docker.md` or `docs/bitcoin-core-setup.md` — get the node running
+3. `docs/demo.md` — end-to-end walkthrough
+4. `docs/api.md` — full endpoint reference
+5. `docs/troubleshooting.md` — if something doesn't work
+
+**For a live demo:**
+1. `docs/demo-checklist.md` — pre-demo verification
+2. `docs/demo-script.md` — 4-minute narrative
+
+**For evaluators:**
+1. `docs/judges-guide.md` — what to run and what to assess
+
+**For deployment beyond localhost:**
+1. `docs/deploy-vps.md` — VPS with nginx reverse proxy
+2. `docs/deploy-cloudflare-tunnel.md` — public demo without a VPS
+
+**For Phase 2 (signet):**
+1. `docs/signet.md` — observer mode configuration
