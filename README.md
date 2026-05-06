@@ -159,6 +159,7 @@ The demo script creates or loads the `nodescope_demo` wallet, mines initial bloc
 | `GET` | `/events/stream` | Server-Sent Events stream |
 | `GET` | `/blocks/latest` | Latest observed block event |
 | `GET` | `/tx/latest` | Latest observed transaction event |
+| `GET` | `/tx/{txid}` | Full detail for any transaction captured via ZMQ |
 
 Full reference: [docs/api.md](docs/api.md).
 
@@ -176,7 +177,7 @@ With the backend running:
 make smoke
 ```
 
-The current suite has **35 Python tests** covering the API, RPC client, engine replay, parser, classifier, monitor payloads and demo assets.
+The current suite has **37 Python tests** covering the API, RPC client, engine replay, parser, classifier, monitor payloads and demo assets.
 
 ## Repository Structure
 
