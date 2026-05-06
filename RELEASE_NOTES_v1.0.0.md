@@ -59,7 +59,7 @@ NodeScope v1.0.0 is the first stable release of the Bitcoin Core Intelligence Da
 | SSE auto-reconnect with backoff | ✅ |
 | Regtest demo script | ✅ |
 | Docker Compose demo stack | ✅ |
-| 35+ Python unit tests | ✅ |
+| 37 Python unit tests | ✅ |
 | CI: tests, build, lint, audit, public-clean | ✅ |
 | Bilingual documentation (EN + PT-BR) | ✅ |
 
@@ -99,7 +99,7 @@ See [SECURITY.md](SECURITY.md) for mitigation guidance.
 Build validation:
 
 ```bash
-make test          # 35 Python tests — all pass
+make test          # 37 Python tests — all pass
 make build         # TypeScript strict + Vite bundle — no errors
 make public-clean  # 0 issues
 docker compose config  # valid
