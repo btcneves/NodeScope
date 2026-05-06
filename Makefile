@@ -8,7 +8,7 @@ API_PORT ?= 8000
 FRONTEND_PORT ?= 5173
 COMPOSE ?= docker compose
 
-.PHONY: help setup venv backend monitor frontend test build smoke demo clean public-clean docker-up docker-down docker-demo lint docker-config
+.PHONY: help setup venv backend monitor frontend test build smoke demo screenshots demo-screenshots evidence clean public-clean docker-up docker-down docker-demo lint docker-config
 
 help:
 	@echo "NodeScope Makefile - Available Targets"
@@ -24,6 +24,9 @@ help:
 	@echo "  make test          Run Python unit tests"
 	@echo "  make build         Compile Python and build the frontend"
 	@echo "  make smoke         Run smoke tests against a running backend"
+	@echo "  make screenshots   Capture dashboard/API screenshots (requires running stack)"
+	@echo "  make demo-screenshots Run smoke, demo, then capture screenshots"
+	@echo "  make evidence      Run tests, smoke, demo and screenshot evidence"
 	@echo "  make public-clean  Scan public files for local artifacts and secrets"
 	@echo ""
 	@echo "Demo and Docker:"
@@ -74,6 +77,27 @@ smoke:
 
 demo:
 	bash scripts/demo_regtest.sh
+
+screenshots:
+	$(PYTHON) scripts/capture-dashboard-screenshots.py
+
+demo-screenshots:
+	$(MAKE) smoke
+	$(MAKE) demo
+	sleep 5
+	$(MAKE) screenshots
+
+evidence:
+	$(MAKE) test
+	$(MAKE) build
+	$(MAKE) public-clean
+	$(MAKE) smoke
+	$(MAKE) demo
+	sleep 5
+	$(MAKE) screenshots
+	@echo ""
+	@echo "Generated visual evidence:"
+	@ls -lh docs/assets/*.png
 
 public-clean:
 	bash scripts/check-public-clean.sh

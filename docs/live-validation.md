@@ -218,3 +218,61 @@ make smoke
 ```
 
 See `docs/smoke-tests.md` for the full list of automated checks.
+
+---
+
+## Visual Evidence Validation — 2026-05-06
+
+Visual evidence must be generated from a real running stack after smoke tests and regtest activity.
+
+Commands:
+
+```bash
+./.venv/bin/python -m pip install -r requirements-dev.txt
+./.venv/bin/python -m playwright install chromium
+make smoke
+make demo
+make screenshots
+```
+
+Docker validation path:
+
+```bash
+docker compose config
+docker compose up --build -d
+make smoke
+make docker-demo
+make screenshots
+```
+
+Validated endpoints:
+
+| Endpoint | Expected result |
+|---|---|
+| `/health` | `status: ok`, `rpc_ok: true`, `chain: regtest` |
+| `/summary` | non-zero `rawtx_count` and `rawblock_count` after demo |
+| `/mempool/summary` | RPC-backed mempool object |
+| `/events/recent` | recent `zmq_rawtx` and `zmq_rawblock` events |
+| `/events/classifications` | classified block and transaction events |
+| `/blocks/latest` | latest block height and hash |
+| `/tx/latest` | latest transaction txid and classification |
+
+Generated screenshots:
+
+| File | Source |
+|---|---|
+| `docs/assets/nodescope-dashboard.png` | Dashboard home |
+| `docs/assets/nodescope-command-center.png` | Dashboard home |
+| `docs/assets/nodescope-transaction-lifecycle.png` | Dashboard home |
+| `docs/assets/nodescope-api-docs.png` | `/docs` |
+| `docs/assets/nodescope-health.png` | `/health` |
+| `docs/assets/nodescope-live-events.png` | `/events/recent?limit=20` |
+| `docs/assets/nodescope-mempool-summary.png` | `/mempool/summary` |
+| `docs/assets/nodescope-latest-block.png` | `/blocks/latest` |
+
+Screenshot rules:
+
+- Capture only from local trusted stacks.
+- Do not include terminal windows with private paths or credentials.
+- Do not edit screenshots to simulate data.
+- Re-run `make demo-screenshots` whenever the dashboard layout changes.

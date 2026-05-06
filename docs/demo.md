@@ -158,6 +158,31 @@ Ran 26 tests in X.XXXs
 OK
 ```
 
+## Step 8 — Capture Visual Evidence
+
+NodeScope can generate reproducible visual evidence after the real stack, smoke tests and regtest demo are working.
+
+Install Playwright Chromium once:
+
+```bash
+./.venv/bin/python -m pip install -r requirements-dev.txt
+./.venv/bin/python -m playwright install chromium
+```
+
+With API, monitor, frontend and Bitcoin Core running:
+
+```bash
+make demo-screenshots
+```
+
+This runs smoke tests, generates regtest activity, waits for the dashboard to refresh and saves full-page PNG files in `docs/assets/`.
+
+For a broader evidence run:
+
+```bash
+make evidence
+```
+
 ---
 
 ## Quick Reference

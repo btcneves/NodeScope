@@ -8,6 +8,7 @@ NodeScope is a Bitcoin Core Intelligence Dashboard for real-time node observabil
 |---|---|
 | [architecture.md](architecture.md) | System design and data flow |
 | [api.md](api.md) | REST and SSE API reference |
+| [assets/README.md](assets/README.md) | Visual evidence capture workflow |
 | [bitcoin-core-setup.md](bitcoin-core-setup.md) | Local Bitcoin Core regtest setup |
 | [docker.md](docker.md) | Docker Compose stack and service reference |
 | [demo.md](demo.md) | End-to-end regtest demo walkthrough |
@@ -36,6 +37,7 @@ NodeScope is a Bitcoin Core Intelligence Dashboard for real-time node observabil
 1. `docs/demo-checklist.md` — pre-demo verification
 2. `docs/demo-script.md` — 4-minute narrative
 3. `docs/project-status.md` — readiness and risk register
+4. `docs/assets/README.md` — screenshot evidence workflow
 
 **For evaluators:**
 1. `docs/judges-guide.md` — what to run and what to assess
