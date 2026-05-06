@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -25,6 +25,7 @@ from .service import (
     get_latest_tx,
     get_mempool_summary,
     get_recent_events,
+    get_tx_by_txid,
     iter_live_events_sse,
 )
 
@@ -135,3 +136,11 @@ def latest_block(log_dir: str | None = None, file: str | None = None) -> dict | 
 @app.get("/tx/latest", response_model=TxResponse | None)
 def latest_tx(log_dir: str | None = None, file: str | None = None) -> dict | None:
     return get_latest_tx(log_dir=_resolve_path(log_dir), file=_resolve_path(file))
+
+
+@app.get("/tx/{txid}", response_model=TxResponse)
+def tx_by_id(txid: str, log_dir: str | None = None, file: str | None = None) -> dict:
+    result = get_tx_by_txid(txid=txid, log_dir=_resolve_path(log_dir), file=_resolve_path(file))
+    if result is None:
+        raise HTTPException(status_code=404, detail=f"Transaction {txid} not found in event store")
+    return result

@@ -220,6 +220,11 @@ body {
   font-size: 13px;
   font-weight: 600;
   color: var(--text);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .panel-body {
@@ -522,4 +527,96 @@ body {
   }
   .lifecycle-label { font-size: 10px; }
   .lifecycle-sub   { display: none; }
+}
+
+/* ── ReplayEnginePanel ───────────────────────────────────────────── */
+
+.panel-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+
+.panel-row:last-child {
+  border-bottom: none;
+}
+
+.panel-key {
+  color: var(--muted);
+}
+
+.panel-val {
+  font-variant-numeric: tabular-nums;
+  font-family: monospace;
+  color: var(--text);
+}
+
+.panel-empty {
+  padding: 20px 16px;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+/* ── RpcZmqSyncPanel ─────────────────────────────────────────────── */
+
+.sync-header,
+.sync-row {
+  display: grid;
+  grid-template-columns: 1fr 100px 100px;
+  align-items: center;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+
+.sync-row:last-child {
+  border-bottom: none;
+}
+
+.sync-header {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.sync-label {
+  color: var(--muted);
+}
+
+.sync-rpc,
+.sync-zmq {
+  font-variant-numeric: tabular-nums;
+  font-family: monospace;
+  text-align: right;
+}
+
+.sync-header .sync-rpc,
+.sync-header .sync-zmq {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sync-badge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 99px;
+  border: 1px solid;
+  margin-left: auto;
+}
+
+.sync-ok {
+  color: var(--accent-bright);
+  border-color: var(--accent-bright);
+}
+
+.sync-warn {
+  color: var(--warn);
+  border-color: var(--warn);
 }

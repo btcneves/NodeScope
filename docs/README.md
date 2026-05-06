@@ -15,6 +15,7 @@ NodeScope is a Bitcoin Core Intelligence Dashboard for real-time node observabil
 | [demo-script.md](demo-script.md) | 4-minute demo narrative |
 | [judges-guide.md](judges-guide.md) | Technical evaluation guide |
 | [smoke-tests.md](smoke-tests.md) | Local validation and CI-style checks |
+| [live-validation.md](live-validation.md) | curl-based API validation with expected outputs |
 | [troubleshooting.md](troubleshooting.md) | Common setup and runtime issues |
 | [deploy-vps.md](deploy-vps.md) | VPS deployment with nginx + systemd |
 | [deploy-cloudflare-tunnel.md](deploy-cloudflare-tunnel.md) | Public demo via Cloudflare Tunnel |
