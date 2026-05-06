@@ -43,3 +43,14 @@ Thumbs.db
 .vscode/
 *.swp
 *.swo
+
+# Tool caches
+.ruff_cache/
+.pytest_cache/
+htmlcov/
+
+# Agent and AI tool files — never commit
+.codex
+CODEX-HANDOFF.md
+docs/agent-handoff/
+CLAUDE.md

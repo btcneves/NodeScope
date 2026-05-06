@@ -166,22 +166,27 @@ make docker-demo
 
 Validation results:
 
-- Local API started from the current code and returned `rpc_ok: true`, `chain: regtest`.
-- Local `make smoke` passed with `PASS=7 FAIL=0 WARN=0`.
-- Local `make demo` created a transaction, observed mempool size `1`, mined a confirmation block and produced enriched `zmq_rawtx` and `zmq_rawblock` records.
-- Docker Compose rebuilt the API/monitor image and started all four services.
-- Docker `make smoke` passed with `PASS=7 FAIL=0 WARN=0`.
-- Docker `make docker-demo` created and confirmed a regtest transaction through the Docker bitcoind.
+- 37 Python unit tests: 0 failures, 0 errors.
+- `make build`: Python compileall clean; Vite bundle built with no TypeScript errors.
+- `make public-clean`: CLEAN — 0 issues.
+- `docker compose config`: valid.
+- `make smoke`: PASS=7 FAIL=0 WARN=0.
+- Ruff format check: 27 files already formatted.
+- Ruff lint check: all checks passed.
+- All four Docker containers up and healthy (bitcoind, api, monitor, frontend).
+- `make docker-demo` created and confirmed a regtest transaction through the Docker bitcoind.
 
-Issue found and fixed:
+Issue found and fixed (2026-05-06):
 
 - The API RPC client and ZMQ monitor were sending JSON-RPC version `1.1`, which Bitcoin Core rejected with HTTP 400 during real RPC calls. Both now use JSON-RPC `1.0`.
 
-## Next Exact Steps
+## Remaining Manual Steps Before Saturday
 
-1. Run `docker compose up --build`.
-2. Wait for services to become healthy.
-3. Run `make docker-demo`.
-4. Open `http://localhost:5173` and verify Transaction Lifecycle, Live Feed and classifications.
-5. Run `make smoke`.
-6. Capture screenshots/GIFs only after the live dashboard is verified.
+1. Open a pull request from `fix/demo-validation-readiness` to `main`.
+2. Confirm CI is green (all jobs pass).
+3. Merge the PR after review.
+4. Apply the `v1.0.0` tag: `git tag v1.0.0 && git push origin v1.0.0`.
+5. Create the GitHub release from the tag, linking `RELEASE_NOTES_v1.0.0.md`.
+6. Run final live rehearsal on the demo machine using `docker compose up --build` and `make docker-demo`.
+
+See `docs/final-delivery-checklist.md` for the full Saturday gate checklist.
