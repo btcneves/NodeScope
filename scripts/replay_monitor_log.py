@@ -8,14 +8,14 @@ Uso:
     python scripts/replay_monitor_log.py --log-dir logs/
 """
 
-import sys
-import pathlib
 import argparse
+import pathlib
+import sys
 
 ROOT = pathlib.Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
 
-from engine import load_snapshot
+from engine import load_snapshot  # noqa: E402
 
 
 def main() -> None:

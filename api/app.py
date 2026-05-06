@@ -13,7 +13,6 @@ from .schemas import (
     ClassificationsResponse,
     HealthResponse,
     MempoolSummaryResponse,
-    RawEventResponse,
     RecentEventsResponse,
     SummaryResponse,
     TxResponse,

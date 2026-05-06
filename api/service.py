@@ -1,14 +1,15 @@
 from __future__ import annotations
 
-from collections import Counter
 import json
-from pathlib import Path
 import time
+from collections import Counter
+from pathlib import Path
 from typing import Any
 
 from engine.classify import classify
 from engine.models import ClassifiedEvent, RawEvent
 from engine.snapshot import EngineSnapshot, load_snapshot
+
 from .rpc import RPCError, get_client
 
 PathLike = str | Path
@@ -55,7 +56,7 @@ def _paginate[T](items: list[T], limit: int, offset: int) -> tuple[list[T], int,
     effective_offset = max(0, offset)
     total = len(items)
     return (
-        items[effective_offset:effective_offset + effective_limit],
+        items[effective_offset : effective_offset + effective_limit],
         total,
         effective_limit,
         effective_offset,
@@ -106,10 +107,7 @@ def serialize_tx(result: ClassifiedEvent | None) -> dict[str, Any] | None:
         "has_op_return": result.tx.has_op_return,
         "kind": result.kind,
         "metadata": result.metadata,
-        "vout": [
-            {"value": item.value, "address": item.address}
-            for item in result.tx.vout
-        ],
+        "vout": [{"value": item.value, "address": item.address} for item in result.tx.vout],
     }
 
 
@@ -256,12 +254,16 @@ def get_classifications(
     }
 
 
-def get_latest_block(log_dir: PathLike | None = None, file: PathLike | None = None) -> dict[str, Any] | None:
+def get_latest_block(
+    log_dir: PathLike | None = None, file: PathLike | None = None
+) -> dict[str, Any] | None:
     state = load_engine_state(log_dir=log_dir, file=file)
     return serialize_block(state.latest_block)
 
 
-def get_latest_tx(log_dir: PathLike | None = None, file: PathLike | None = None) -> dict[str, Any] | None:
+def get_latest_tx(
+    log_dir: PathLike | None = None, file: PathLike | None = None
+) -> dict[str, Any] | None:
     state = load_engine_state(log_dir=log_dir, file=file)
     return serialize_tx(state.latest_tx)
 
@@ -282,10 +284,14 @@ def serialize_stream_event(event: RawEvent) -> dict[str, Any]:
     return payload
 
 
-def _select_stream_file(log_dir: PathLike | None = None, file: PathLike | None = None) -> Path | None:
+def _select_stream_file(
+    log_dir: PathLike | None = None, file: PathLike | None = None
+) -> Path | None:
     if file is not None:
         return Path(file)
-    base_dir = Path(log_dir) if log_dir is not None else Path(__file__).resolve().parent.parent / "logs"
+    base_dir = (
+        Path(log_dir) if log_dir is not None else Path(__file__).resolve().parent.parent / "logs"
+    )
     files = sorted(base_dir.glob("*.ndjson"))
     return files[-1] if files else None
 

@@ -1,6 +1,5 @@
-from typing import Optional
 
-from .models import RawEvent, TxEvent, BlockEvent, VoutEntry
+from .models import BlockEvent, RawEvent, TxEvent, VoutEntry
 
 
 def _as_int(value: object, default: int = 0) -> int:
@@ -43,7 +42,7 @@ def _as_optional_bool(value: object) -> bool | None:
     return None
 
 
-def parse_tx(event: RawEvent) -> Optional[TxEvent]:
+def parse_tx(event: RawEvent) -> TxEvent | None:
     """Transforma um evento zmq_rawtx em TxEvent tipado."""
     if event.event != "zmq_rawtx":
         return None
@@ -116,7 +115,7 @@ def parse_tx(event: RawEvent) -> Optional[TxEvent]:
     )
 
 
-def parse_block(event: RawEvent) -> Optional[BlockEvent]:
+def parse_block(event: RawEvent) -> BlockEvent | None:
     """Transforma um evento zmq_rawblock em BlockEvent tipado."""
     if event.event != "zmq_rawblock":
         return None

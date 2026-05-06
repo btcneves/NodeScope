@@ -5,6 +5,37 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [1.0.0] — 2026-05-07
+
+### Added
+- `frontend/src/components/TransactionLifecycle.tsx` — animated 6-stage transaction flow panel (Created → Broadcast → Mempool → ZMQ rawtx → Block Mined → Confirmed), driven by live RPC, ZMQ, and mempool state
+- `frontend/src/components/NodeHealthScore.tsx` — 0-100 weighted score card (RPC 40pts, ZMQ 30pts, mempool 20pts, block freshness 10pts) with color-coded progress bar
+- `frontend/src/utils/healthScore.ts` — isolated score computation logic
+- `docs/demo-checklist.md` — step-by-step pre-demo verification
+- `docs/judges-guide.md` — technical evaluation guide
+- `docs/demo-script.md` — 4-minute demo narrative
+- `docs/deploy-vps.md` — VPS deployment with nginx reverse proxy
+- `docs/deploy-cloudflare-tunnel.md` — Cloudflare Tunnel zero-port-forward guide
+- `docs/signet.md` — observer mode guide for signet (Phase 2 preview)
+- `CONTRIBUTING.md` — complete contribution guide
+- `SECURITY.md` — security scope, limitations, and responsible disclosure
+- `ROADMAP.md` — four-phase development plan
+- `README.pt-BR.md` — full Portuguese documentation
+- `RELEASE_NOTES_v1.0.0.md` — detailed release notes
+- `.env.signet.example` — signet environment template
+- `bitcoin.signet.conf.example` — signet Bitcoin Core configuration example
+- CI: `ruff format --check` and `ruff check` on every push and PR
+- CI: `pip-audit` for Python dependency vulnerability scanning
+
+### Changed
+- `frontend/src/hooks/useSSE.ts` — auto-reconnect with exponential backoff (3s → 5s → 10s, up to 3 retries)
+- `frontend/src/App.tsx` — NodeHealthScore and TransactionLifecycle integrated into main layout
+- `frontend/src/index.css` — CSS for lifecycle connector animation and health score breakdown
+- `README.md` — language switcher linking to Portuguese documentation
+- `requirements-dev.txt` — added `pip-audit`
+
+---
+
 ## [0.1.0] — 2026-05-04
 
 ### Added

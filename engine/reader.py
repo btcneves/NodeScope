@@ -1,6 +1,7 @@
 import json
 import pathlib
-from typing import Any, Iterator
+from collections.abc import Iterator
+from typing import Any
 
 from .models import RawEvent, ReaderStats
 

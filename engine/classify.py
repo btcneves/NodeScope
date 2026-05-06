@@ -1,7 +1,6 @@
-from typing import Optional
 
-from .models import RawEvent, TxEvent, BlockEvent, ClassifiedEvent
-from .parser import parse_tx, parse_block
+from .models import ClassifiedEvent, RawEvent, TxEvent
+from .parser import parse_block, parse_tx
 
 
 def _tx_signals(tx: TxEvent) -> dict[str, object]:
@@ -33,15 +32,12 @@ def _classify_tx(event: RawEvent, tx: TxEvent) -> ClassifiedEvent:
     """Heurísticas iniciais, deliberadamente conservadoras, para transações."""
     signals = _tx_signals(tx)
     explicit_coinbase_signal = tx.coinbase_input_present is True
-    coinbase_like_signal = (
-        explicit_coinbase_signal
-        or (
-            signals["one_input"]
-            and tx.outputs >= 1
-            and signals["positive_total_out"]
-            and signals["has_address"]
-            and (signals["has_zero_value_output"] or signals["has_null_address"])
-        )
+    coinbase_like_signal = explicit_coinbase_signal or (
+        signals["one_input"]
+        and tx.outputs >= 1
+        and signals["positive_total_out"]
+        and signals["has_address"]
+        and (signals["has_zero_value_output"] or signals["has_null_address"])
     )
 
     if explicit_coinbase_signal:
@@ -106,7 +102,7 @@ def _classify_tx(event: RawEvent, tx: TxEvent) -> ClassifiedEvent:
     return ClassifiedEvent(raw=event, kind=kind, tx=tx, metadata=metadata)
 
 
-def classify(event: RawEvent) -> Optional[ClassifiedEvent]:
+def classify(event: RawEvent) -> ClassifiedEvent | None:
     """
     Pipeline de classificação: recebe RawEvent, retorna ClassifiedEvent ou None.
     Eventos que não são zmq_rawtx nem zmq_rawblock retornam None (skipped).

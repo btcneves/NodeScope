@@ -2,13 +2,13 @@ name: CI
 
 on:
   push:
-    branches: ["main", "release/**", "feature/**"]
+    branches: ["main", "release/**", "feature/**", "feat/**", "chore/**", "fix/**"]
   pull_request:
     branches: ["main"]
 
 jobs:
   # ---------------------------------------------------------------------------
-  # Python backend — tests + static validation
+  # Python backend — lint, tests, static validation, dependency audit
   # ---------------------------------------------------------------------------
   backend:
     name: Backend (Python ${{ matrix.python-version }})
@@ -18,10 +18,10 @@ jobs:
         python-version: ["3.12"]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
@@ -31,11 +31,20 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements-dev.txt
 
+      - name: Lint — ruff format check
+        run: ruff format --check .
+
+      - name: Lint — ruff check
+        run: ruff check .
+
       - name: Static compilation check
         run: python -m compileall engine api scripts tests monitor.py
 
       - name: Run unit tests
         run: python -m unittest discover -s tests -v
+
+      - name: Dependency vulnerability audit
+        run: pip-audit --requirement requirements.txt
 
   # ---------------------------------------------------------------------------
   # Frontend — type-check + build
@@ -45,13 +54,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: ["18", "20"]
+        node-version: ["18", "20", "24"]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
@@ -73,7 +82,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Check for sensitive or local-only content
         run: bash scripts/check-public-clean.sh
