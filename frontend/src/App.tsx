@@ -70,7 +70,7 @@ export default function App() {
         onRefresh={() => { void fetchAll() }}
       />
       <main className="main">
-        <KpiRow summary={summary} mempool={mempool} />
+        <KpiRow summary={summary} mempool={mempool} health={health} />
         <NodeHealthScore
           health={health}
           mempool={mempool}
