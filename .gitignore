@@ -28,6 +28,7 @@ logs/*.ndjson
 # Local notes, reports and vault
 notes/
 reports/
+.local-run/
 
 # System
 .DS_Store

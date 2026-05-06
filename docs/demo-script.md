@@ -93,4 +93,4 @@ bitcoin-cli -regtest generatetoaddress 1 $ADDR
 > Para a Fase 1: zero dependência externa, replay trivial, auditável com `grep`. Para a Fase 2, migramos para storage persistente conforme o volume exigir.
 
 **"Os testes cobrem o quê?"**
-> 35 testes unitários cobrindo engine (classificação, parser, reader, snapshot), API (todos os endpoints), RPC client e replay script. CI roda a cada push.
+> 37 testes unitários cobrindo engine (classificação, parser, reader, snapshot), API (todos os endpoints), RPC client, monitor, SSE e replay script. CI roda a cada push.

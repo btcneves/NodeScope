@@ -118,7 +118,7 @@ Expected: SSE event appears within 1-2 seconds of the transaction being broadcas
 ## Test Suite
 
 ```bash
-# Python unit tests (35 tests)
+# Python unit tests (37 tests)
 ./.venv/bin/python -m unittest discover -s tests -v
 
 # Frontend build (TypeScript strict check + Vite bundle)
@@ -128,7 +128,7 @@ cd frontend && npm ci && npm run build
 ./.venv/bin/python -m compileall engine api scripts tests monitor.py
 ```
 
-All 35 Python tests should pass. Frontend build should succeed with no TypeScript errors.
+All 37 Python tests should pass. Frontend build should succeed with no TypeScript errors.
 
 ---
 
@@ -161,7 +161,7 @@ React Dashboard (polling 5s + SSE real-time)
 | Real-time data capture | Live Feed panel + `/events/stream` SSE |
 | Classification intelligence | Classifications Table + `/events/classifications` |
 | Replay / auditability | `scripts/replay_monitor_log.py` + NDJSON logs |
-| Test coverage | `tests/` directory — 35 unit tests |
+| Test coverage | `tests/` directory — 37 unit tests |
 | Code quality | `engine/`, `api/` — typed Python with Pydantic schemas |
 | Documentation | `docs/` — architecture, API reference, setup guides |
 | Reproducibility | `docker compose up` or `make setup && make demo` |

@@ -15,7 +15,7 @@ RPC_PASSWORD="${BITCOIN_RPC_PASSWORD:-nodescope}"
 RPC_HOST="${BITCOIN_RPC_HOST:-127.0.0.1}"
 RPC_PORT="${HOST_BITCOIN_RPC_PORT:-18443}"
 
-if [ -n "${BITCOIN_RPC_URL:-}" ]; then
+if [ -n "${BITCOIN_RPC_URL:-}" ] && [ -z "${BITCOIN_CLI:-}" ]; then
     RPC_HOST=$(python3 - "${BITCOIN_RPC_URL}" <<'PY'
 from urllib.parse import urlparse
 import sys
@@ -50,7 +50,11 @@ json_field() {
 }
 
 step "Checking bitcoin-cli"
-command -v bitcoin-cli >/dev/null 2>&1 || fail "bitcoin-cli not found"
+if [ -z "${BITCOIN_CLI:-}" ]; then
+    command -v bitcoin-cli >/dev/null 2>&1 || fail "bitcoin-cli not found"
+else
+    info "Using custom BITCOIN_CLI command"
+fi
 
 step "Checking NodeScope API"
 curl -sf "${API_URL}/health" >/dev/null || fail "API not responding at ${API_URL}"
