@@ -51,6 +51,12 @@ flowchart LR
 
 RPC gives the snapshot. ZMQ gives real time. NodeScope gives interpretation.
 
+## Demo Preview
+
+![NodeScope Dashboard](docs/assets/nodescope-dashboard.png)
+
+![NodeScope API Docs](docs/assets/nodescope-api-docs.png)
+
 ## Features
 
 | Feature | Status |
