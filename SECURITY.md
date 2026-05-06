@@ -1,40 +1,69 @@
 # Security Policy
 
+## Supported Versions
+
+| Version | Supported |
+|---------|-----------|
+| 1.0.x   | Yes       |
+| < 1.0   | No        |
+
 ## Scope
 
-NodeScope is designed for **local and development use** (regtest, signet). It is a read-only observability tool — it does not write to Bitcoin Core, sign transactions, or handle private keys.
+NodeScope is a **local observability tool** designed for regtest and, in future phases, signet/mainnet read-only monitoring. The current security posture reflects Phase 1 assumptions:
 
-## Current Security Model
+- The API runs on `127.0.0.1` (loopback only) by default.
+- Bitcoin Core RPC credentials are example-only (`nodescope`/`nodescope`) and intended for local regtest use only.
+- No authentication is implemented on the NodeScope API in Phase 1.
+- No transaction signing, key management, or wallet operations are exposed.
 
-| Aspect | Status |
-|---|---|
-| API authentication | None — read-only local API |
-| RPC credentials | Simple `rpcuser`/`rpcpassword` (regtest default) |
-| Network exposure | Localhost only (`127.0.0.1`) by default |
-| Private key handling | None — NodeScope never touches keys or wallets |
-| Data written to Bitcoin Core | None — read-only |
-
-## Before Using on Public Networks
-
-NodeScope is **not production-ready** for mainnet without additional hardening:
-
-1. **Use `rpcauth`** instead of `rpcpassword` — see [docs/bitcoin-core-setup.md](docs/bitcoin-core-setup.md)
-2. **Add API authentication** before exposing port 8000 externally
-3. **Restrict ZMQ bindings** to localhost only
-4. **Do not expose the API** on a public IP without a reverse proxy and auth layer
-5. **Review CORS settings** in `api/app.py` before deploying
+**Do not run NodeScope with a publicly exposed API port without a reverse proxy, firewall rules, and authentication.**
 
 ## Reporting a Vulnerability
 
-If you find a security issue in NodeScope, please report it privately:
+If you discover a security vulnerability, please **do not open a public GitHub issue**.
 
-- Email: open an issue with the `security` label on GitHub and we will contact you for details
-- Do **not** post vulnerability details in public issues
+Report it via a [GitHub Security Advisory](https://github.com/btcneves/NodeScope/security/advisories/new) (private disclosure).
 
-We will respond within 5 business days.
+Include:
+- A description of the vulnerability and its potential impact
+- Steps to reproduce
+- Affected version(s)
+- Any suggested mitigation
 
-## Credentials in This Repository
+You will receive an acknowledgment within 72 hours. We aim to release a fix within 14 days for critical issues.
 
-All credentials in this repository (`nodescope` / `nodescope`) are **example values for regtest only**. They are not real credentials and carry no risk.
+## Known Limitations (Phase 1)
 
-Never commit real RPC passwords, Bitcoin private keys, seeds, or authentication tokens to this repository.
+| Limitation | Mitigation |
+|------------|-----------|
+| No API authentication | Run on loopback only; use firewall for remote deployments |
+| Example RPC credentials in `.env.example` | Replace before any non-local use |
+| CORS allows `localhost:5173` and `localhost:3000` | Acceptable for local development |
+| No rate limiting on SSE stream | Acceptable for single-node local use |
+
+## Recommendations for Remote Deployments
+
+If you deploy NodeScope beyond localhost:
+
+1. Place the API behind a reverse proxy (nginx, Caddy) with TLS.
+2. Add HTTP Basic Auth or an API key layer at the proxy level.
+3. Restrict Bitcoin Core RPC to the loopback interface (`rpcbind=127.0.0.1`).
+4. Never expose Bitcoin Core RPC directly to the internet.
+5. Use `rpcauth` instead of `rpcpassword` for production Bitcoin Core setups.
+6. Review firewall rules to ensure only intended ports are reachable.
+
+See [docs/deploy-vps.md](docs/deploy-vps.md) for a reference nginx + firewall configuration.
+
+## Credentials and Secrets
+
+- Never commit `.env` files with real credentials.
+- The `.env.example` file contains placeholder values only.
+- `bitcoin.conf.example` uses `rpcpassword=nodescope` for local regtest only.
+- NDJSON logs are gitignored and should never be committed.
+
+## Future Security Roadmap
+
+- API key authentication for remote deployments.
+- `rpcauth` support documentation for production Bitcoin Core.
+- Signet/mainnet read-only mode with explicit network flag.
+- Rate limiting on `/events/stream`.

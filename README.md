@@ -1,5 +1,7 @@
 # NodeScope
 
+[Leia em Português](README.pt-BR.md)
+
 **Bitcoin Core Intelligence Dashboard**
 
 Real-time observability for Bitcoin Core nodes using RPC, ZMQ, mempool monitoring, and regtest demos.

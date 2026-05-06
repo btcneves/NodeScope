@@ -1,4 +1,5 @@
 """Thin JSON-RPC client for Bitcoin Core."""
+
 from __future__ import annotations
 
 import base64
@@ -31,12 +32,14 @@ class RPCClient:
 
     def call(self, method: str, params: list[Any] | None = None) -> Any:
         self._id += 1
-        payload = json.dumps({
-            "jsonrpc": "1.1",
-            "id": self._id,
-            "method": method,
-            "params": params or [],
-        }).encode()
+        payload = json.dumps(
+            {
+                "jsonrpc": "1.1",
+                "id": self._id,
+                "method": method,
+                "params": params or [],
+            }
+        ).encode()
         creds = base64.b64encode(f"{self._user}:{self._password}".encode()).decode()
         req = urllib.request.Request(
             self._url,

@@ -1,0 +1,19 @@
+# bitcoin.signet.conf.example
+# Copy to ~/.bitcoin/bitcoin.conf for signet observer mode.
+# Replace rpcpassword with a strong random password.
+
+signet=1
+server=1
+
+# RPC — loopback only
+rpcbind=127.0.0.1
+rpcallowip=127.0.0.1
+rpcuser=nodescope
+rpcpassword=nodescope
+
+# ZMQ — loopback only
+zmqpubrawtx=tcp://127.0.0.1:28333
+zmqpubrawblock=tcp://127.0.0.1:28332
+
+# Index
+txindex=1

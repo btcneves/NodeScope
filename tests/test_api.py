@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-import unittest
-from pathlib import Path
 import tempfile
 import threading
 import time
-
+import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 from api.app import (
@@ -24,7 +23,6 @@ from api.app import (
 from api.rpc import RPCError
 from api.service import iter_live_events_sse
 from engine.snapshot import load_snapshot
-
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_FILE = ROOT / "tests" / "fixtures" / "monitor-sample.ndjson"
@@ -55,7 +53,8 @@ class ApiTests(unittest.TestCase):
     def test_health_endpoint_with_rpc(self) -> None:
         with patch("api.service.get_client") as mock_get:
             mock_get.return_value.getblockchaininfo.return_value = {
-                "chain": "regtest", "blocks": 101,
+                "chain": "regtest",
+                "blocks": 101,
             }
             data = health(file=str(FIXTURE_FILE))
         self.assertTrue(data["rpc_ok"])
@@ -72,8 +71,11 @@ class ApiTests(unittest.TestCase):
     def test_mempool_summary_rpc_online(self) -> None:
         with patch("api.service.get_client") as mock_get:
             mock_get.return_value.getmempoolinfo.return_value = {
-                "size": 5, "bytes": 2000, "usage": 10000,
-                "maxmempool": 300000000, "mempoolminfee": 0.00001,
+                "size": 5,
+                "bytes": 2000,
+                "usage": 10000,
+                "maxmempool": 300000000,
+                "mempoolminfee": 0.00001,
                 "minrelaytxfee": 0.00001,
             }
             data = mempool_summary()
@@ -94,7 +96,9 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(data["script_type_counts"], {"nulldata": 2, "witness_v0_keyhash": 2})
         self.assertEqual(data["classification_counts"], snapshot.analytics.classification_counts)
         self.assertEqual(data["event_type_counts"], snapshot.analytics.event_type_counts)
-        self.assertEqual(data["coinbase_input_present_count"], snapshot.analytics.coinbase_input_present_count)
+        self.assertEqual(
+            data["coinbase_input_present_count"], snapshot.analytics.coinbase_input_present_count
+        )
         self.assertEqual(data["op_return_count"], snapshot.analytics.op_return_count)
         self.assertEqual(data["script_type_counts"], snapshot.analytics.script_type_counts)
 

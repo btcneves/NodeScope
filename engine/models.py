@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, Literal, Optional
+from typing import Any, Literal
 
 ClassificationKind = Literal[
     "coinbase_like",
@@ -12,6 +12,7 @@ ClassificationKind = Literal[
 @dataclass
 class RawEvent:
     """Evento bruto validado e lido do log NDJSON do monitor."""
+
     ts: str
     level: str
     origin: str
@@ -37,40 +38,43 @@ class ReaderStats:
 @dataclass
 class VoutEntry:
     value: float
-    address: Optional[str]
+    address: str | None
 
 
 @dataclass
 class TxEvent:
     """Transação normalizada a partir de zmq_rawtx."""
+
     ts: str
     txid: str
     inputs: int
     outputs: int
     total_out: float
     vout: list[VoutEntry]
-    coinbase_input_present: Optional[bool] = None
+    coinbase_input_present: bool | None = None
     addressed_output_count: int = 0
     unattributed_output_count: int = 0
     zero_value_output_count: int = 0
     positive_output_count: int = 0
     script_types: list[str] = field(default_factory=list)
-    has_op_return: Optional[bool] = None
+    has_op_return: bool | None = None
 
 
 @dataclass
 class BlockEvent:
     """Bloco normalizado a partir de zmq_rawblock."""
+
     ts: str
-    height: Optional[int]
-    hash: Optional[str]
+    height: int | None
+    hash: str | None
 
 
 @dataclass
 class ClassifiedEvent:
     """Resultado do pipeline: evento bruto + tipo parsed + classificação."""
+
     raw: RawEvent
     kind: ClassificationKind
-    tx: Optional[TxEvent] = None
-    block: Optional[BlockEvent] = None
+    tx: TxEvent | None = None
+    block: BlockEvent | None = None
     metadata: dict[str, Any] = field(default_factory=dict)

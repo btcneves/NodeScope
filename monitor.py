@@ -1,5 +1,5 @@
-import datetime
 import base64
+import datetime
 import json
 import os
 import pathlib
@@ -18,7 +18,7 @@ LOG_DIR.mkdir(exist_ok=True)
 
 def log(level, event, origin, data=None):
     entry = {
-        "ts": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "ts": datetime.datetime.now(datetime.UTC).isoformat(),
         "level": level,
         "origin": origin,
         "event": event,
@@ -33,16 +33,19 @@ def log(level, event, origin, data=None):
 
 # --- RPC ---
 
+
 def rpc(method: str, params: list[Any] | None = None) -> Any | None:
     rpc_url = os.environ.get("BITCOIN_RPC_URL", "http://127.0.0.1:18443")
     rpc_user = os.environ.get("BITCOIN_RPC_USER", "nodescope")
     rpc_password = os.environ.get("BITCOIN_RPC_PASSWORD", "nodescope")
-    payload = json.dumps({
-        "jsonrpc": "1.1",
-        "id": "nodescope-monitor",
-        "method": method,
-        "params": params or [],
-    }).encode()
+    payload = json.dumps(
+        {
+            "jsonrpc": "1.1",
+            "id": "nodescope-monitor",
+            "method": method,
+            "params": params or [],
+        }
+    ).encode()
     credentials = f"{rpc_user}:{rpc_password}".encode()
     auth = base64.b64encode(credentials).decode()
     request = urllib.request.Request(
@@ -85,7 +88,9 @@ def build_rawtx_payload(tx: dict[str, Any]) -> dict[str, Any]:
     coinbase_input_present = False
     if isinstance(vin, list):
         coinbase_input_present = any(
-            isinstance(entry, dict) and isinstance(entry.get("coinbase"), str) and entry.get("coinbase")
+            isinstance(entry, dict)
+            and isinstance(entry.get("coinbase"), str)
+            and entry.get("coinbase")
             for entry in vin
         )
 
@@ -143,6 +148,7 @@ def build_rawtx_payload(tx: dict[str, Any]) -> dict[str, Any]:
 
 # --- Handlers de evento ---
 
+
 def handle_rawtx(body):
     tx_hex = body.hex()
     tx = rpc("decoderawtransaction", [tx_hex])
@@ -155,10 +161,15 @@ def handle_rawtx(body):
 def handle_rawblock(body):
     height = rpc("getblockcount")
     block_hash = rpc("getblockhash", [height]) if height is not None else None
-    log("info", "zmq_rawblock", "rawblock", {
-        "height": int(height) if isinstance(height, int) else None,
-        "hash": block_hash if isinstance(block_hash, str) else None,
-    })
+    log(
+        "info",
+        "zmq_rawblock",
+        "rawblock",
+        {
+            "height": int(height) if isinstance(height, int) else None,
+            "hash": block_hash if isinstance(block_hash, str) else None,
+        },
+    )
 
 
 def create_socket(context: zmq.Context | None = None) -> zmq.Socket:
@@ -172,10 +183,15 @@ def create_socket(context: zmq.Context | None = None) -> zmq.Socket:
 
 def main() -> None:
     socket = create_socket()
-    log("info", "monitor_start", "monitor", {
-        "rawtx": os.environ.get("ZMQ_RAWTX_URL", "tcp://127.0.0.1:28333"),
-        "rawblock": os.environ.get("ZMQ_RAWBLOCK_URL", "tcp://127.0.0.1:28332"),
-    })
+    log(
+        "info",
+        "monitor_start",
+        "monitor",
+        {
+            "rawtx": os.environ.get("ZMQ_RAWTX_URL", "tcp://127.0.0.1:28333"),
+            "rawblock": os.environ.get("ZMQ_RAWBLOCK_URL", "tcp://127.0.0.1:28332"),
+        },
+    )
 
     while True:
         try:

@@ -19,9 +19,7 @@ sys.path.insert(0, str(ROOT))
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Executa a API read-only local do NodeScope."
-    )
+    parser = argparse.ArgumentParser(description="Executa a API read-only local do NodeScope.")
     parser.add_argument("--host", default=os.environ.get("API_HOST", "127.0.0.1"))
     parser.add_argument("--port", type=int, default=int(os.environ.get("API_PORT", "8000")))
     args = parser.parse_args()
