@@ -21,6 +21,8 @@ import { BlocksPanel } from './components/BlocksPanel'
 import { TxPanel } from './components/TxPanel'
 import { NodeHealthScore } from './components/NodeHealthScore'
 import { TransactionLifecycle } from './components/TransactionLifecycle'
+import { ReplayEnginePanel } from './components/ReplayEnginePanel'
+import { RpcZmqSyncPanel } from './components/RpcZmqSyncPanel'
 
 export default function App() {
   const [health, setHealth] = useState<HealthData | null>(null)
@@ -92,6 +94,10 @@ export default function App() {
         <div className="grid-2">
           <LiveFeed sseEvents={sseEvents} connected={sseConnected} />
           <EventsTable events={events} />
+        </div>
+        <div className="grid-2">
+          <ReplayEnginePanel summary={summary} />
+          <RpcZmqSyncPanel health={health} summary={summary} latestBlock={latestBlock} />
         </div>
         <ClassificationsTable classifications={classifications} />
       </main>

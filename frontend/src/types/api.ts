@@ -26,6 +26,8 @@ export interface SummaryData {
   rawblock_count: number
   other_count: number
   ignored_lines: number
+  skipped_events?: number
+  source?: string
   classification_counts: Record<string, number>
   coinbase_input_present_count: number
   op_return_count: number

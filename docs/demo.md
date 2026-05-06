@@ -2,6 +2,8 @@
 
 This guide walks through a complete end-to-end demonstration of NodeScope: starting all services, generating Bitcoin regtest activity, and observing real-time updates in the dashboard.
 
+**Related guides:** [demo-checklist.md](demo-checklist.md) · [demo-script.md](demo-script.md) · [live-validation.md](live-validation.md)
+
 ---
 
 ## Prerequisites

@@ -12,4 +12,5 @@ export const api = {
   classifications: (limit = 20) => get<import('../types/api').ClassificationsData>(`/events/classifications?limit=${limit}`),
   latestBlock: () => get<import('../types/api').BlockData | null>('/blocks/latest'),
   latestTx: () => get<import('../types/api').TxData | null>('/tx/latest'),
+  txById: (txid: string) => get<import('../types/api').TxData>(`/tx/${txid}`),
 }

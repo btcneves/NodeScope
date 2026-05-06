@@ -268,6 +268,16 @@ def get_latest_tx(
     return serialize_tx(state.latest_tx)
 
 
+def get_tx_by_txid(
+    txid: str, log_dir: PathLike | None = None, file: PathLike | None = None
+) -> dict[str, Any] | None:
+    state = load_engine_state(log_dir=log_dir, file=file)
+    for result in state.classifications:
+        if result.tx is not None and result.tx.txid == txid:
+            return serialize_tx(result)
+    return None
+
+
 def serialize_stream_event(event: RawEvent) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "project": PROJECT_NAME,
