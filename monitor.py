@@ -40,7 +40,7 @@ def rpc(method: str, params: list[Any] | None = None) -> Any | None:
     rpc_password = os.environ.get("BITCOIN_RPC_PASSWORD", "nodescope")
     payload = json.dumps(
         {
-            "jsonrpc": "1.1",
+            "jsonrpc": "1.0",
             "id": "nodescope-monitor",
             "method": method,
             "params": params or [],

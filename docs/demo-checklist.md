@@ -2,6 +2,8 @@
 
 Verificações obrigatórias antes de iniciar qualquer demo do NodeScope.
 
+Objetivo da demo: mostrar que o NodeScope transforma dados brutos do Bitcoin Core em inteligência operacional em tempo real.
+
 ---
 
 ## 1. Bitcoin Core
@@ -67,13 +69,28 @@ tail -3 logs/$(date +%Y-%m-%d)-monitor.ndjson 2>/dev/null | python -m json.tool
 ## 5. Demo Regtest
 
 ```bash
-bash scripts/demo_regtest.sh
+make demo
 ```
 
 - [ ] Script executa sem erro
 - [ ] Frontend atualiza com novos eventos em ~5s
 - [ ] Live Feed captura rawtx e rawblock
 - [ ] Classification Table mostra classificações
+- [ ] Transaction Lifecycle chega em `Confirmed`
+
+### Alternativa com Docker
+
+Com a stack Docker ativa:
+
+```bash
+docker compose up --build
+make docker-demo
+```
+
+- [ ] `nodescope-bitcoind` está healthy
+- [ ] `nodescope-api` está healthy
+- [ ] `nodescope-monitor` está rodando
+- [ ] `nodescope-frontend` abre em `http://localhost:5173`
 
 ---
 
@@ -84,6 +101,8 @@ make smoke
 ```
 
 - [ ] Todos os checks passam
+
+Última validação real: `PASS=7 FAIL=0 WARN=0` com API, Bitcoin Core RPC, frontend build e testes Python.
 
 ---
 
@@ -106,6 +125,16 @@ make frontend
 make demo
 ```
 
+## Comandos de Inicialização com Docker
+
+```bash
+docker compose up --build
+make docker-demo
+make smoke
+```
+
+Última validação Docker: `docker compose up --build -d`, `make smoke` e `make docker-demo` executaram com sucesso.
+
 ---
 
 ## Plano de Contingência
@@ -117,3 +146,12 @@ make demo
 | Frontend sem dados | Verificar proxy Vite: `VITE_API_PROXY_TARGET` |
 | ZMQ sem eventos | Verificar `zmqpubrawtx` no `bitcoin.conf` |
 | Tudo offline | Usar screenshots de `docs/assets/` + NDJSON como evidência |
+
+## Planos A-D
+
+| Plano | Caminho | Quando usar |
+|---|---|---|
+| A | Demo local regtest com `make backend`, `make monitor`, `make frontend`, `make demo` | Caminho principal |
+| B | Docker com `docker compose up --build` e `make docker-demo` | Quando faltar `bitcoin-cli` local ou houver conflito de ambiente |
+| C | Acesso público temporário via túnel documentado | Quando avaliadores precisarem abrir o dashboard remotamente |
+| D | API docs, logs NDJSON e capturas reais em `docs/assets/` | Quando a rede/local machine falhar durante a demo |

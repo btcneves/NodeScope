@@ -151,7 +151,7 @@ Referência completa: [docs/api.md](docs/api.md).
 ## Testes e Validações
 
 ```bash
-make test          # 35 testes Python
+make test          # 37 testes Python
 make build         # TypeScript strict + Vite build
 make public-clean  # Verifica artefatos locais e segredos
 ```

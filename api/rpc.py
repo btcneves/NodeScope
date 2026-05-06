@@ -34,7 +34,7 @@ class RPCClient:
         self._id += 1
         payload = json.dumps(
             {
-                "jsonrpc": "1.1",
+                "jsonrpc": "1.0",
                 "id": self._id,
                 "method": method,
                 "params": params or [],

@@ -8,7 +8,7 @@ API_PORT ?= 8000
 FRONTEND_PORT ?= 5173
 COMPOSE ?= docker compose
 
-.PHONY: help setup venv backend monitor frontend test build smoke demo clean public-clean docker-up docker-down lint docker-config
+.PHONY: help setup venv backend monitor frontend test build smoke demo clean public-clean docker-up docker-down docker-demo lint docker-config
 
 help:
 	@echo "NodeScope Makefile - Available Targets"
@@ -29,6 +29,8 @@ help:
 	@echo "Demo and Docker:"
 	@echo "  make demo          Generate regtest wallet activity"
 	@echo "  make docker-up     Start bitcoind, API, monitor and frontend"
+	@echo "  make docker-config Validate Docker Compose configuration"
+	@echo "  make docker-demo   Generate regtest activity through the Docker bitcoind"
 	@echo "  make docker-down   Stop Docker services"
 	@echo ""
 	@echo "Maintenance:"
@@ -78,6 +80,12 @@ public-clean:
 
 docker-up:
 	$(COMPOSE) up --build
+
+docker-demo:
+	@set -a; [ ! -f .env ] || . ./.env; set +a; \
+	BITCOIN_CLI="$(COMPOSE) exec -T nodescope-bitcoind bitcoin-cli -regtest -rpcuser=$${BITCOIN_RPC_USER:-nodescope} -rpcpassword=$${BITCOIN_RPC_PASSWORD:-nodescope}" \
+	API_URL="http://127.0.0.1:$${HOST_API_PORT:-$(API_PORT)}" \
+	bash scripts/demo_regtest.sh
 
 docker-down:
 	$(COMPOSE) down
