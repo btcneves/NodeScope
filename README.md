@@ -195,7 +195,9 @@ Example regtest credentials are `nodescope` / `nodescope`. Replace them before a
 
 ## Regtest Demo
 
-With local Bitcoin Core, API, monitor and frontend already running, generate live activity:
+The official Docker evaluation flow generates activity with `make docker-demo` after `docker compose up -d --build`.
+
+For manual local mode only, with local Bitcoin Core, API, monitor and frontend already running, generate live activity:
 
 ```bash
 make demo
