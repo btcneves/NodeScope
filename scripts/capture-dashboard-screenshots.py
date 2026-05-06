@@ -37,6 +37,7 @@ CAPTURE_TARGETS = [
         ".lifecycle-panel",
     ),
     CaptureTarget("nodescope-api-docs.png", f"{API_URL}/docs", None),
+    CaptureTarget("nodescope-demo-page.png", f"{API_URL}/demo", ".shell"),
     CaptureTarget("nodescope-health.png", f"{API_URL}/health", None),
     CaptureTarget("nodescope-live-events.png", f"{API_URL}/events/recent?limit=20", None),
     CaptureTarget(
