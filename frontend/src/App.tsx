@@ -19,6 +19,8 @@ import { EventsTable } from './components/EventsTable'
 import { ClassificationsTable } from './components/ClassificationsTable'
 import { BlocksPanel } from './components/BlocksPanel'
 import { TxPanel } from './components/TxPanel'
+import { NodeHealthScore } from './components/NodeHealthScore'
+import { TransactionLifecycle } from './components/TransactionLifecycle'
 
 export default function App() {
   const [health, setHealth] = useState<HealthData | null>(null)
@@ -69,6 +71,19 @@ export default function App() {
       />
       <main className="main">
         <KpiRow summary={summary} mempool={mempool} />
+        <NodeHealthScore
+          health={health}
+          mempool={mempool}
+          latestBlock={latestBlock}
+          sseConnected={sseConnected}
+        />
+        <TransactionLifecycle
+          rpcOk={rpcOk}
+          zmqConnected={sseConnected}
+          mempool={mempool}
+          latestBlock={latestBlock}
+          latestTx={latestTx}
+        />
         <div className="grid-3">
           <MempoolPanel mempool={mempool} />
           <BlocksPanel block={latestBlock} />
