@@ -19,6 +19,7 @@ from api.app import (
     root,
     stream_events,
     summary,
+    tx_by_id,
 )
 from api.rpc import RPCError
 from api.service import iter_live_events_sse
@@ -156,6 +157,25 @@ class ApiTests(unittest.TestCase):
         self.assertTrue(all("signals" in item["metadata"] for item in data["items"]))
         self.assertTrue(all("has_zero_value_output" in item["metadata"] for item in data["items"]))
         self.assertTrue(all("coinbase_input_present" in item["metadata"] for item in data["items"]))
+
+    def test_tx_by_id_returns_transaction_when_found(self) -> None:
+        tx_data = latest_tx(file=str(FIXTURE_FILE))
+        self.assertIsNotNone(tx_data)
+        txid = tx_data["txid"]
+
+        result = tx_by_id(txid=txid, file=str(FIXTURE_FILE))
+        self.assertEqual(result["txid"], txid)
+        self.assertIn("kind", result)
+        self.assertIn("metadata", result)
+        self.assertIn("inputs", result)
+        self.assertIn("outputs", result)
+
+    def test_tx_by_id_raises_404_when_not_found(self) -> None:
+        from fastapi import HTTPException
+
+        with self.assertRaises(HTTPException) as ctx:
+            tx_by_id(txid="nonexistenttxid0000", file=str(FIXTURE_FILE))
+        self.assertEqual(ctx.exception.status_code, 404)
 
     def test_live_sse_stream_emits_appended_rawtx_event(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:

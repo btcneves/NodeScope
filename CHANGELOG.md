@@ -32,10 +32,19 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 - `frontend/src/hooks/useSSE.ts` — auto-reconnect with exponential backoff (3s → 5s → 10s, up to 3 retries)
-- `frontend/src/App.tsx` — NodeHealthScore and TransactionLifecycle integrated into main layout
-- `frontend/src/index.css` — CSS for lifecycle connector animation and health score breakdown
+- `frontend/src/App.tsx` — NodeHealthScore, TransactionLifecycle, ReplayEnginePanel and RpcZmqSyncPanel integrated into main layout
+- `frontend/src/index.css` — CSS for lifecycle animation, health score, replay engine and RPC/ZMQ sync panels
+- `frontend/src/components/KpiRow.tsx` — restructured KPIs: Block Height (RPC snapshot), Mempool TXs, ZMQ TX Events, ZMQ Blocks, Classified, Event Store
 - `README.md` — language switcher linking to Portuguese documentation
 - `requirements-dev.txt` — added `pip-audit`
+
+### Added (dashboard and API extensions)
+- `frontend/src/components/ReplayEnginePanel.tsx` — event store metrics card (source file, totals, rawtx/rawblock/other/ignored/skipped counts)
+- `frontend/src/components/RpcZmqSyncPanel.tsx` — side-by-side RPC vs ZMQ alignment with in-sync/behind badge
+- `GET /tx/{txid}` — transaction lookup by txid; searches the event store and returns full transaction detail, or 404 if not found
+- `docs/live-validation.md` — curl-based validation guide covering all 11 endpoints with expected responses, designed for evaluators
+- `frontend/src/api/client.ts` — `api.txById(txid)` for direct transaction lookup from the frontend
+- `frontend/src/types/api.ts` — `SummaryData` extended with optional `skipped_events` and `source` fields
 
 ---
 
@@ -99,4 +108,4 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
-*Total: 35 automated tests passing.*
+*Total: 37 automated tests passing.*

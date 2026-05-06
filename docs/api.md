@@ -345,6 +345,26 @@ null
 
 ---
 
+### GET /tx/{txid}
+
+Searches the event store for a transaction by its txid and returns full detail.
+
+**Path parameter:** `txid` — hex transaction ID
+
+**Response — 200 OK**
+
+Same schema as `GET /tx/latest`.
+
+**Response — 404 Not Found**
+
+```json
+{
+  "detail": "Transaction <txid> not found in event store"
+}
+```
+
+---
+
 ## Common Query Parameters (all endpoints)
 
 All endpoints accept two optional parameters for pointing at a specific log source. These are primarily used in tests and operational tooling.
