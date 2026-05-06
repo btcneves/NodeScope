@@ -284,13 +284,11 @@ def get_intelligence_summary(
     state = load_engine_state(log_dir=log_dir, file=file)
 
     rpc_ok = False
-    blocks: int | None = None
     mempool_size = 0
     mempool_bytes = 0
     mempool_rpc_ok = False
     try:
-        info = get_client().getblockchaininfo()
-        blocks = info.get("blocks")
+        get_client().getblockchaininfo()
         rpc_ok = True
         minfo = get_client().getmempoolinfo()
         mempool_size = minfo.get("size", 0)
@@ -310,7 +308,7 @@ def get_intelligence_summary(
 
         try:
             ts = datetime.datetime.fromisoformat(state.latest_block.block.ts.replace("Z", "+00:00"))
-            age = (datetime.datetime.now(datetime.timezone.utc) - ts).total_seconds()
+            age = (datetime.datetime.now(datetime.UTC) - ts).total_seconds()
             if age < 60:
                 block_points = 10
             elif age < 300:
