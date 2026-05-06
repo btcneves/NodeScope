@@ -6,6 +6,8 @@ VENV ?= ./.venv
 API_HOST ?= 127.0.0.1
 API_PORT ?= 8000
 FRONTEND_PORT ?= 5173
+COMPOSE_FILE ?= docker-compose.yml
+export COMPOSE_FILE
 COMPOSE ?= docker compose
 
 .PHONY: help setup setup-local venv backend monitor frontend test test-local build build-local smoke smoke-local demo replay-demo screenshots demo-screenshots evidence clean public-clean docker-up docker-down docker-demo docker-wait lint docker-config
