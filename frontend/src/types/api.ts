@@ -81,3 +81,21 @@ export interface ClassificationsData {
   total_items: number
   counts: Record<string, number>
 }
+
+export interface IntelligenceData {
+  node_health_score: number
+  node_health_label: 'healthy' | 'degraded' | 'critical'
+  rpc_status: string
+  zmq_status: string
+  sse_status: string
+  mempool_pressure: 'low' | 'medium' | 'high' | 'unknown'
+  latest_signal: string | null
+  event_store: {
+    replayable: boolean
+    source: string
+    total_events: number
+  }
+  classification_summary: Record<string, number>
+  latest_block: BlockData | null
+  latest_tx: TxData | null
+}

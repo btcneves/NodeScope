@@ -620,3 +620,292 @@ body {
   color: var(--warn);
   border-color: var(--warn);
 }
+
+/* ── Demo View button ────────────────────────────────────── */
+
+.pres-btn {
+  background: rgba(63, 184, 134, 0.1);
+  border: 1px solid var(--accent-bright);
+  color: var(--accent-bright);
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.pres-btn:hover {
+  background: rgba(63, 184, 134, 0.2);
+}
+
+/* ── Demo View overlay ───────────────────────────────────── */
+
+.pres-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.pres-close {
+  position: fixed;
+  top: 16px;
+  right: 24px;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  z-index: 1001;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.pres-close:hover {
+  color: var(--text);
+  border-color: var(--text);
+}
+
+.pres-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px 32px 48px;
+}
+
+.pres-hero {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.pres-title {
+  font-size: 52px;
+  font-weight: 800;
+  color: var(--accent-bright);
+  letter-spacing: -2px;
+  margin-bottom: 12px;
+}
+
+.pres-tagline {
+  font-size: 18px;
+  color: var(--muted);
+  font-style: italic;
+  max-width: 680px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+.pres-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  margin-bottom: 32px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px 32px;
+}
+
+.pres-statuses {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pres-status-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.pres-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pres-dot-ok {
+  background: var(--accent-bright);
+  box-shadow: 0 0 6px var(--accent-bright);
+}
+
+.pres-dot-err {
+  background: var(--error);
+}
+
+.pres-status-label {
+  color: var(--muted);
+  min-width: 80px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pres-status-value {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.pres-score-ring {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 4px solid;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pres-score-value {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.pres-score-sub {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+/* ── Intelligence Summary Panel ──────────────────────────────────── */
+
+.intelligence-panel {
+  margin-bottom: 0;
+}
+
+.intelligence-loading {
+  padding: 20px 16px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.intelligence-body {
+  padding: 0;
+}
+
+.intelligence-score-block {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.intelligence-score-value {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.intelligence-score-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  flex: 1;
+}
+
+.intelligence-score-status {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.intelligence-grid {
+  padding: 4px 0;
+}
+
+.intelligence-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 16px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--border);
+  gap: 8px;
+}
+
+.intelligence-row:last-child {
+  border-bottom: none;
+}
+
+.intelligence-key {
+  color: var(--muted);
+  min-width: 110px;
+  flex-shrink: 0;
+}
+
+.intelligence-val {
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.intelligence-mono {
+  font-family: monospace;
+  font-size: 11px;
+}
+
+.intelligence-truncate {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+.intelligence-classifications {
+  border-top: 1px solid var(--border);
+}
+
+.intelligence-section-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  padding: 8px 16px 4px;
+}
+
+/* Mempool pressure badges */
+.intelligence-pressure {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.intelligence-pressure--low {
+  background: rgba(63, 184, 134, 0.15);
+  color: var(--accent-bright);
+}
+
+.intelligence-pressure--medium {
+  background: rgba(227, 179, 65, 0.15);
+  color: var(--warn);
+}
+
+.intelligence-pressure--high {
+  background: rgba(248, 81, 73, 0.15);
+  color: var(--error);
+}
+
+.intelligence-pressure--unknown {
+  background: rgba(139, 148, 158, 0.1);
+  color: var(--muted);
+}

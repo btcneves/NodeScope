@@ -6,10 +6,13 @@
 
 Real-time observability for Bitcoin Core nodes using RPC, ZMQ, mempool monitoring, and regtest demos.
 
+[![Release](https://img.shields.io/badge/release-v1.0.0-3fb886?logo=github)](https://github.com/btcneves/NodeScope/releases/tag/v1.0.0)
 [![CI](https://github.com/btcneves/NodeScope/actions/workflows/ci.yml/badge.svg)](https://github.com/btcneves/NodeScope/actions/workflows/ci.yml)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-3776ab?logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-ready-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React%20%2B%20Vite-ready-61dafb?logo=react&logoColor=black)](https://react.dev/)
+[![Docker Compose](https://img.shields.io/badge/Docker%20Compose-ready-2496ed?logo=docker&logoColor=white)](docker-compose.yml)
+[![Bitcoin Core](https://img.shields.io/badge/Bitcoin%20Core-v26%2B-f7931a?logo=bitcoin&logoColor=white)](https://bitcoincore.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## Problem
@@ -26,6 +29,45 @@ NodeScope combines:
 - **Classification engine** for block, payment, coinbase-like, OP_RETURN-like and complex transaction signals.
 - **FastAPI + SSE** for structured JSON and live streaming.
 - **React dashboard** for a professional visual demo.
+
+## Evaluate in 1 Minute
+
+```bash
+git clone https://github.com/btcneves/NodeScope.git
+cd NodeScope
+cp .env.example .env
+docker compose up -d
+make docker-demo
+make smoke
+open http://localhost:5173
+```
+
+That is the full stack: Bitcoin Core regtest → ZMQ monitor → FastAPI → React dashboard. No external services, no wallet keys, no mainnet.
+
+Replay the event store offline (no Bitcoin Core required):
+
+```bash
+make replay-demo
+```
+
+## Why NodeScope Is Different
+
+Traditional Bitcoin dashboards show node state: block height, mempool count, peer list. They answer *what is*.
+
+NodeScope answers *what happened and why*:
+
+| Capability | Traditional dashboards | NodeScope |
+|---|---|---|
+| RPC snapshot (current state) | Yes | Yes |
+| ZMQ live events (rawtx, rawblock) | Rarely | Yes, streamed via SSE |
+| Replayable event store (NDJSON) | No | Yes, offline-replayable |
+| Transaction classification | No | Yes (coinbase, payment, OP_RETURN, complex) |
+| Node health score (0–100) | No | Yes, composite RPC + ZMQ + mempool signal |
+| Mempool pressure signal | No | Yes (low/medium/high) |
+| Intelligence summary endpoint | No | `GET /intelligence/summary` |
+| Demo View mode | No | One-click clean view |
+
+NodeScope is not a dashboard that polls and renders. It is an operational intelligence layer that unifies RPC snapshots, ZMQ live events, replayable NDJSON evidence and transaction classification into a single, coherent view.
 
 ## Architecture
 
@@ -168,6 +210,7 @@ The demo script creates or loads the `nodescope_demo` wallet, mines initial bloc
 | `GET` | `/blocks/latest` | Latest observed block event |
 | `GET` | `/tx/latest` | Latest observed transaction event |
 | `GET` | `/tx/{txid}` | Full detail for any transaction captured via ZMQ |
+| `GET` | `/intelligence/summary` | Composite node health score, status signals and classification overview |
 
 Full reference: [docs/api.md](docs/api.md).
 

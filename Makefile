@@ -8,7 +8,7 @@ API_PORT ?= 8000
 FRONTEND_PORT ?= 5173
 COMPOSE ?= docker compose
 
-.PHONY: help setup venv backend monitor frontend test build smoke demo screenshots demo-screenshots evidence clean public-clean docker-up docker-down docker-demo lint docker-config
+.PHONY: help setup venv backend monitor frontend test build smoke demo replay-demo screenshots demo-screenshots evidence clean public-clean docker-up docker-down docker-demo lint docker-config
 
 help:
 	@echo "NodeScope Makefile - Available Targets"
@@ -31,6 +31,7 @@ help:
 	@echo ""
 	@echo "Demo and Docker:"
 	@echo "  make demo          Generate regtest wallet activity"
+	@echo "  make replay-demo   Replay NDJSON event store and print engine summary (no Bitcoin Core needed)"
 	@echo "  make docker-up     Start bitcoind, API, monitor and frontend"
 	@echo "  make docker-config Validate Docker Compose configuration"
 	@echo "  make docker-demo   Generate regtest activity through the Docker bitcoind"
@@ -77,6 +78,9 @@ smoke:
 
 demo:
 	bash scripts/demo_regtest.sh
+
+replay-demo:
+	$(PYTHON) scripts/replay_monitor_log.py
 
 screenshots:
 	$(PYTHON) scripts/capture-dashboard-screenshots.py

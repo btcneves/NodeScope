@@ -5,6 +5,30 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [Unreleased] — Post-release polish
+
+### Added
+- `GET /intelligence/summary` — composite intelligence endpoint: node health score (0–100), RPC/ZMQ/SSE status, mempool pressure (low/medium/high), latest signal, event store info, classification summary, latest block and latest tx
+- `api/schemas.py` — `IntelligenceSummaryResponse` and `EventStoreInfo` Pydantic models
+- `api/service.py` — `get_intelligence_summary()` with mempool pressure computation
+- `frontend/src/components/IntelligenceSummaryPanel.tsx` — intelligence summary card with score, status dots, pressure badge and classification breakdown
+- `frontend/src/components/DemoView.tsx` — full-screen demo overlay (title, tagline, health ring, status rows, lifecycle, panels)
+- `frontend/src/types/api.ts` — `IntelligenceData` interface
+- `frontend/src/api/client.ts` — `api.intelligenceSummary()` method
+- `frontend/src/components/Header.tsx` — "Demo View" button
+- `docs/demo-transcript.md` — validated demo output (37 tests, smoke PASS=7 FAIL=0, replay summary, intelligence endpoint, Docker demo)
+- `make replay-demo` — Makefile target that runs `replay_monitor_log.py` offline (no Bitcoin Core required)
+- README: "Evaluate in 1 Minute" and "Why NodeScope Is Different" sections
+- README: Release v1.0.0, Docker Compose and Bitcoin Core badges
+
+### Changed
+- `frontend/src/components/TransactionLifecycle.tsx` — expanded to 7 stages: Created → Broadcast → Mempool → ZMQ rawtx → Block Mined → ZMQ rawblock → Confirmed
+- `frontend/src/App.tsx` — intelligence summary panel added alongside NodeHealthScore; demo view toggle wired to Header
+- `frontend/src/index.css` — CSS for IntelligenceSummaryPanel, DemoView overlay, demo button and mempool pressure badges
+- README: `GET /intelligence/summary` added to endpoints table
+
+---
+
 ## [1.0.0] — 2026-05-07
 
 ### Added

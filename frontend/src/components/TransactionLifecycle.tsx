@@ -30,8 +30,9 @@ export function TransactionLifecycle({
     { id: 'created', label: 'Created', sub: 'tx built', active: rpcOk },
     { id: 'broadcast', label: 'Broadcast', sub: 'sent to node', active: rpcOk },
     { id: 'mempool', label: 'Mempool', sub: `${mempool?.size ?? 0} pending`, active: hasMempoolTx },
-    { id: 'zmq', label: 'ZMQ rawtx', sub: 'event captured', active: zmqConnected },
+    { id: 'zmq-rawtx', label: 'ZMQ rawtx', sub: 'event captured', active: zmqConnected },
     { id: 'mined', label: 'Block Mined', sub: `height ${latestBlock?.height ?? '—'}`, active: hasBlock },
+    { id: 'zmq-rawblock', label: 'ZMQ rawblock', sub: 'block event captured', active: hasBlock && zmqConnected },
     { id: 'confirmed', label: 'Confirmed', sub: 'on-chain', active: hasConfirmed },
   ]
 

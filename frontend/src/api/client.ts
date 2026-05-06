@@ -13,4 +13,5 @@ export const api = {
   latestBlock: () => get<import('../types/api').BlockData | null>('/blocks/latest'),
   latestTx: () => get<import('../types/api').TxData | null>('/tx/latest'),
   txById: (txid: string) => get<import('../types/api').TxData>(`/tx/${txid}`),
+  intelligenceSummary: () => get<import('../types/api').IntelligenceData>('/intelligence/summary'),
 }

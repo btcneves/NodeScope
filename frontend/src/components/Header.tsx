@@ -4,9 +4,10 @@ interface Props {
   rpcOk: boolean
   sseConnected: boolean
   onRefresh: () => void
+  onDemoView?: () => void
 }
 
-export function Header({ network, apiOk, rpcOk, sseConnected, onRefresh }: Props) {
+export function Header({ network, apiOk, rpcOk, sseConnected, onRefresh, onDemoView }: Props) {
   const networkClass = ['mainnet', 'regtest', 'signet', 'testnet'].includes(network)
     ? `badge-${network}`
     : 'badge-regtest'
@@ -31,6 +32,9 @@ export function Header({ network, apiOk, rpcOk, sseConnected, onRefresh }: Props
           SSE
         </span>
         <button className="refresh-btn" onClick={onRefresh}>&#x21BB; Refresh</button>
+        {onDemoView && (
+          <button className="pres-btn" onClick={onDemoView}>Demo View</button>
+        )}
       </div>
     </header>
   )

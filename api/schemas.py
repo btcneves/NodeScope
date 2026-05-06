@@ -115,3 +115,23 @@ class RecentEventsResponse(BaseModel):
     offset: int = Field(ge=0)
     total_items: int = Field(ge=0)
     event_type: str | None = None
+
+
+class EventStoreInfo(BaseModel):
+    replayable: bool
+    source: str
+    total_events: int
+
+
+class IntelligenceSummaryResponse(BaseModel):
+    node_health_score: int
+    node_health_label: str
+    rpc_status: str
+    zmq_status: str
+    sse_status: str
+    mempool_pressure: str
+    latest_signal: str | None
+    event_store: EventStoreInfo
+    classification_summary: dict[str, int]
+    latest_block: BlockResponse | None
+    latest_tx: TxResponse | None

@@ -268,6 +268,82 @@ def get_latest_tx(
     return serialize_tx(state.latest_tx)
 
 
+def _compute_mempool_pressure(size: int, nbytes: int, rpc_ok: bool) -> str:
+    if not rpc_ok:
+        return "unknown"
+    if size > 100 or nbytes > 1_000_000:
+        return "high"
+    if size > 10 or nbytes > 100_000:
+        return "medium"
+    return "low"
+
+
+def get_intelligence_summary(
+    log_dir: PathLike | None = None, file: PathLike | None = None
+) -> dict[str, Any]:
+    state = load_engine_state(log_dir=log_dir, file=file)
+
+    rpc_ok = False
+    blocks: int | None = None
+    mempool_size = 0
+    mempool_bytes = 0
+    mempool_rpc_ok = False
+    try:
+        info = get_client().getblockchaininfo()
+        blocks = info.get("blocks")
+        rpc_ok = True
+        minfo = get_client().getmempoolinfo()
+        mempool_size = minfo.get("size", 0)
+        mempool_bytes = minfo.get("bytes", 0)
+        mempool_rpc_ok = True
+    except RPCError:
+        pass
+
+    zmq_active = state.rawtx_count + state.rawblock_count > 0
+    zmq_points = 30 if zmq_active else 0
+    rpc_points = 40 if rpc_ok else 0
+    mempool_points = 20 if mempool_rpc_ok else 0
+
+    block_points = 0
+    if state.latest_block and state.latest_block.block and state.latest_block.block.ts:
+        import datetime
+
+        try:
+            ts = datetime.datetime.fromisoformat(state.latest_block.block.ts.replace("Z", "+00:00"))
+            age = (datetime.datetime.now(datetime.timezone.utc) - ts).total_seconds()
+            if age < 60:
+                block_points = 10
+            elif age < 300:
+                block_points = 5
+        except (ValueError, TypeError):
+            pass
+
+    score = rpc_points + zmq_points + mempool_points + block_points
+    label = "healthy" if score >= 80 else "degraded" if score >= 50 else "critical"
+
+    latest_signal: str | None = None
+    if state.events:
+        latest_signal = state.events[-1].event
+
+    return {
+        "node_health_score": score,
+        "node_health_label": label,
+        "rpc_status": "online" if rpc_ok else "offline",
+        "zmq_status": "subscribed" if zmq_active else "no_events",
+        "sse_status": "streaming",
+        "mempool_pressure": _compute_mempool_pressure(mempool_size, mempool_bytes, mempool_rpc_ok),
+        "latest_signal": latest_signal,
+        "event_store": {
+            "replayable": True,
+            "source": str(state.source),
+            "total_events": state.analytics.total_events,
+        },
+        "classification_summary": state.analytics.classification_counts,
+        "latest_block": serialize_block(state.latest_block),
+        "latest_tx": serialize_tx(state.latest_tx),
+    }
+
+
 def get_tx_by_txid(
     txid: str, log_dir: PathLike | None = None, file: PathLike | None = None
 ) -> dict[str, Any] | None:

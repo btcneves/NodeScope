@@ -12,6 +12,7 @@ from .schemas import (
     BlockResponse,
     ClassificationsResponse,
     HealthResponse,
+    IntelligenceSummaryResponse,
     MempoolSummaryResponse,
     RecentEventsResponse,
     SummaryResponse,
@@ -21,6 +22,7 @@ from .service import (
     build_health,
     build_summary,
     get_classifications,
+    get_intelligence_summary,
     get_latest_block,
     get_latest_tx,
     get_mempool_summary,
@@ -136,6 +138,11 @@ def latest_block(log_dir: str | None = None, file: str | None = None) -> dict | 
 @app.get("/tx/latest", response_model=TxResponse | None)
 def latest_tx(log_dir: str | None = None, file: str | None = None) -> dict | None:
     return get_latest_tx(log_dir=_resolve_path(log_dir), file=_resolve_path(file))
+
+
+@app.get("/intelligence/summary", response_model=IntelligenceSummaryResponse)
+def intelligence_summary(log_dir: str | None = None, file: str | None = None) -> dict:
+    return get_intelligence_summary(log_dir=_resolve_path(log_dir), file=_resolve_path(file))
 
 
 @app.get("/tx/{txid}", response_model=TxResponse)

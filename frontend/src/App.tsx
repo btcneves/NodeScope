@@ -10,6 +10,7 @@ import type {
   ClassificationItem,
   BlockData,
   TxData,
+  IntelligenceData,
 } from './types/api'
 import { Header } from './components/Header'
 import { KpiRow } from './components/KpiRow'
@@ -23,6 +24,8 @@ import { NodeHealthScore } from './components/NodeHealthScore'
 import { TransactionLifecycle } from './components/TransactionLifecycle'
 import { ReplayEnginePanel } from './components/ReplayEnginePanel'
 import { RpcZmqSyncPanel } from './components/RpcZmqSyncPanel'
+import { IntelligenceSummaryPanel } from './components/IntelligenceSummaryPanel'
+import { DemoView } from './components/DemoView'
 
 export default function App() {
   const [health, setHealth] = useState<HealthData | null>(null)
@@ -32,11 +35,13 @@ export default function App() {
   const [classifications, setClassifications] = useState<ClassificationItem[]>([])
   const [latestBlock, setLatestBlock] = useState<BlockData | null>(null)
   const [latestTx, setLatestTx] = useState<TxData | null>(null)
+  const [intelligence, setIntelligence] = useState<IntelligenceData | null>(null)
+  const [demoView, setDemoView] = useState(false)
   const { events: sseEvents, connected: sseConnected } = useSSE('/events/stream')
 
   const fetchAll = async () => {
     try {
-      const [h, m, s, e, c, b, t] = await Promise.allSettled([
+      const [h, m, s, e, c, b, t, intel] = await Promise.allSettled([
         api.health(),
         api.mempool(),
         api.summary(),
@@ -44,6 +49,7 @@ export default function App() {
         api.classifications(20),
         api.latestBlock(),
         api.latestTx(),
+        api.intelligenceSummary(),
       ])
       if (h.status === 'fulfilled') setHealth(h.value)
       if (m.status === 'fulfilled') setMempool(m.value)
@@ -52,6 +58,7 @@ export default function App() {
       if (c.status === 'fulfilled') setClassifications(c.value.items)
       if (b.status === 'fulfilled') setLatestBlock(b.value)
       if (t.status === 'fulfilled') setLatestTx(t.value)
+      if (intel.status === 'fulfilled') setIntelligence(intel.value)
     } catch { /* ignore */ }
   }
 
@@ -62,6 +69,21 @@ export default function App() {
   const rpcOk = health?.rpc_ok ?? false
   const apiOk = health !== null
 
+  if (demoView) {
+    return (
+      <DemoView
+        health={health}
+        mempool={mempool}
+        summary={summary}
+        latestBlock={latestBlock}
+        latestTx={latestTx}
+        intelligence={intelligence}
+        sseConnected={sseConnected}
+        onClose={() => setDemoView(false)}
+      />
+    )
+  }
+
   return (
     <div className="app">
       <Header
@@ -70,15 +92,19 @@ export default function App() {
         rpcOk={rpcOk}
         sseConnected={sseConnected}
         onRefresh={() => { void fetchAll() }}
+        onDemoView={() => setDemoView(true)}
       />
       <main className="main">
         <KpiRow summary={summary} mempool={mempool} health={health} />
-        <NodeHealthScore
-          health={health}
-          mempool={mempool}
-          latestBlock={latestBlock}
-          sseConnected={sseConnected}
-        />
+        <div className="grid-2">
+          <NodeHealthScore
+            health={health}
+            mempool={mempool}
+            latestBlock={latestBlock}
+            sseConnected={sseConnected}
+          />
+          <IntelligenceSummaryPanel data={intelligence} />
+        </div>
         <TransactionLifecycle
           rpcOk={rpcOk}
           zmqConnected={sseConnected}
