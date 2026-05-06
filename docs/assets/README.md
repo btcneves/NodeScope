@@ -15,6 +15,7 @@ Esta pasta armazena evidências visuais reais usadas na documentação do NodeSc
 | `nodescope-mempool-summary.png` | Mempool summary endpoint rendered in Chromium |
 | `nodescope-latest-block.png` | Latest block endpoint rendered in Chromium |
 | `nodescope-api-docs.png` | FastAPI interactive API documentation |
+| `nodescope-demo-page.png` | Legacy `/demo` page served by the API |
 | `nodescope-health.png` | Health endpoint rendered in Chromium |
 
 Do not add private screenshots, local terminal captures, credentials, `.env` values, wallet secrets, or temporary files.

@@ -265,6 +265,7 @@ Generated screenshots:
 | `docs/assets/nodescope-command-center.png` | Dashboard home |
 | `docs/assets/nodescope-transaction-lifecycle.png` | Dashboard home |
 | `docs/assets/nodescope-api-docs.png` | `/docs` |
+| `docs/assets/nodescope-demo-page.png` | `/demo` |
 | `docs/assets/nodescope-health.png` | `/health` |
 | `docs/assets/nodescope-live-events.png` | `/events/recent?limit=20` |
 | `docs/assets/nodescope-mempool-summary.png` | `/mempool/summary` |

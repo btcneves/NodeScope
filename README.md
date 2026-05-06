@@ -57,6 +57,8 @@ RPC gives the snapshot. ZMQ gives real time. NodeScope gives interpretation.
 
 ![NodeScope API Docs](docs/assets/nodescope-api-docs.png)
 
+![NodeScope Demo Page](docs/assets/nodescope-demo-page.png)
+
 ## Features
 
 | Feature | Status |
