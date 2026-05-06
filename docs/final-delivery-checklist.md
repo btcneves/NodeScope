@@ -26,7 +26,7 @@ Priority: **P0** = must pass, **P1** = should pass, **P2** = nice to have.
 | `make monitor` starts ZMQ subscriber | ✅ Ready | Monitor running; NDJSON logs in `logs/` | None | P0 |
 | `make frontend` starts Vite on port 5173 | ✅ Ready | Port 5173 bound | None | P0 |
 | `make demo` runs regtest flow without error | ✅ Ready | Script creates wallet, tx, mines block | None | P0 |
-| `make smoke` passes all 7 checks | ✅ Ready | PASS=7 FAIL=0 WARN=0 | None | P0 |
+| `make smoke` passes Dockerized checks | ✅ Ready | API/RPC, ZMQ activity, frontend build and Python tests | None | P0 |
 | SSE live stream updates dashboard after `make demo` | ✅ Ready | SSE auto-reconnect with backoff in `useSSE.ts` | Run full live rehearsal before Saturday | P0 |
 
 ---
@@ -36,13 +36,13 @@ Priority: **P0** = must pass, **P1** = should pass, **P2** = nice to have.
 | Item | Status | Evidence | Action | Priority |
 |------|--------|----------|--------|----------|
 | `docker compose config` validates without error | ✅ Ready | Config printed without errors | None | P0 |
-| `docker compose up --build` starts all 4 services | ✅ Ready | All 4 containers Up 42+ min, bitcoind + api healthy | None | P0 |
+| `docker compose up -d` starts all 4 services | ✅ Ready | bitcoind, API, monitor and frontend healthy | None | P0 |
 | `nodescope-bitcoind` healthcheck passes | ✅ Ready | Status: healthy | None | P0 |
 | `nodescope-api` healthcheck passes | ✅ Ready | Status: healthy | None | P0 |
 | `nodescope-monitor` running | ✅ Ready | Container up, no crash-loop | None | P0 |
 | `nodescope-frontend` accessible on port 5173 | ✅ Ready | Port 5173 bound | None | P0 |
 | `make docker-demo` runs regtest flow through Docker bitcoind | ✅ Ready | Validated 2026-05-06 | None | P0 |
-| `make smoke` passes against Docker stack | ✅ Ready | PASS=7 FAIL=0 WARN=0 | None | P0 |
+| `make smoke` passes against Docker stack | ✅ Ready | Dockerized smoke suite | None | P0 |
 
 ---
 
@@ -193,8 +193,8 @@ Priority: **P0** = must pass, **P1** = should pass, **P2** = nice to have.
 | Title, short description, CI and language badges | ✅ Ready | README.md header | None | P0 |
 | Core product phrase present | ✅ Ready | "RPC gives the snapshot. ZMQ gives real time. NodeScope gives interpretation." | None | P0 |
 | Demo Preview with real screenshots | ✅ Ready | Three PNG images in Demo Preview section | None | P0 |
-| Quickstart with Docker | ✅ Ready | `docker compose up --build` block | None | P0 |
-| Quickstart without Docker | ✅ Ready | `scripts/quickstart.sh` + make targets | None | P0 |
+| Quickstart with Docker | ✅ Ready | `docker compose up -d`, `make docker-demo`, `make smoke` | None | P0 |
+| Quickstart without Docker | ✅ Ready | `make setup-local` + local make targets | None | P0 |
 | API endpoints table | ✅ Ready | 9 endpoints documented | None | P0 |
 | Architecture diagram (Mermaid) | ✅ Ready | Flowchart in README | None | P0 |
 | Tests section with test count | ✅ Ready | "37 Python tests" mentioned | None | P0 |
@@ -247,7 +247,7 @@ Priority: **P0** = must pass, **P1** = should pass, **P2** = nice to have.
 | No API authentication | Low for local demo | Documented; loopback-only by default |
 | NDJSON file storage (not SQL) | No query flexibility | Sufficient for Phase 1; replayable |
 | No rate limiting on SSE | Minor | Local use only; Phase 3 item |
-| `make smoke` requires running backend | CI can't run smoke | Smoke excluded from CI; Docker demo handles it |
+| `make smoke` requires running Compose stack | CI can't run smoke without services | Use `docker compose up -d`, then `make docker-demo` and `make smoke` |
 | `v1.0.0` tag not yet applied | GitHub release pending | Apply manually before Saturday |
 | PR not yet merged to `main` | Branch divergence | Open PR, request review, merge after final check |
 | Playwright screenshots require manual trigger | Not automated in CI | Run `make demo-screenshots` after `docker compose up` |
@@ -262,15 +262,14 @@ Before the demo:
 # On the demo machine — fresh clone via Docker
 git clone https://github.com/btcneves/NodeScope.git
 cd NodeScope
-docker compose up --build -d
-# Wait ~30s for bitcoind healthcheck
+docker compose up -d
 make docker-demo
 make smoke
 # Open http://localhost:5173 and verify dashboard is live
 ```
 
 Confirm:
-- [ ] `make smoke` → PASS=7 FAIL=0 WARN=0
+- [ ] `make smoke` → FAIL=0
 - [ ] Dashboard header shows API ✓, RPC ✓, SSE ✓
 - [ ] Transaction Lifecycle advances after `make docker-demo`
 - [ ] Live Feed shows `rawtx` and `rawblock` events

@@ -10,7 +10,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY api/       api/
 COPY engine/    engine/
 COPY scripts/   scripts/
+COPY tests/     tests/
 COPY monitor.py .
+COPY pyproject.toml .
 
 # Create logs directory
 RUN mkdir -p logs

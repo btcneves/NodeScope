@@ -38,7 +38,7 @@ Wait ~30s for Bitcoin Core to initialize, then open:
 Requirements: Python 3.12+, Node.js 18+, Bitcoin Core with regtest enabled.
 
 ```bash
-make setup      # creates .venv, installs Python deps, installs Node deps
+make setup-local # creates .venv, installs Python deps, installs Node deps
 make backend    # starts FastAPI on port 8000
 make monitor    # starts ZMQ subscriber (separate terminal)
 make frontend   # starts Vite dev server on port 5173
@@ -164,7 +164,7 @@ React Dashboard (polling 5s + SSE real-time)
 | Test coverage | `tests/` directory — 37 unit tests |
 | Code quality | `engine/`, `api/` — typed Python with Pydantic schemas |
 | Documentation | `docs/` — architecture, API reference, setup guides |
-| Reproducibility | `docker compose up` or `make setup && make demo` |
+| Reproducibility | `docker compose up -d && make docker-demo && make smoke` or `make setup-local && make demo` |
 
 ---
 

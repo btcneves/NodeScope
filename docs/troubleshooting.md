@@ -6,14 +6,23 @@
 
 **Symptom:** `curl http://127.0.0.1:8000/health` returns `Connection refused`.
 
-**Cause:** The FastAPI backend is not running.
+**Cause:** The FastAPI backend is not running or the Docker service is still starting.
 
 **Fix:**
 ```bash
-./.venv/bin/python scripts/run_api.py
+docker compose up -d
+docker compose ps
+make smoke
 ```
 
-Verify the process started successfully — it should print a Uvicorn startup message. If it exits immediately, check the output for a Python import error or a port conflict:
+For local development without Docker:
+
+```bash
+make setup-local
+make backend
+```
+
+If the API exits immediately, check the output for a Python import error or a port conflict:
 
 ```bash
 # Check if something else is already using port 8000
@@ -138,6 +147,12 @@ ls logs/
 
 **Symptom:** `npm run dev` or `npm run build` exits with an error.
 
+For the Docker quickstart, run the build inside Compose:
+
+```bash
+make build
+```
+
 **Checks:**
 
 **a) Node.js version:**
@@ -163,6 +178,12 @@ Fix any type errors reported before running the build again.
 ## 8. Tests fail
 
 **Symptom:** `./.venv/bin/python -m unittest discover -s tests -v` reports errors or failures.
+
+For the Docker quickstart, run tests inside the API image:
+
+```bash
+make test
+```
 
 **Checks:**
 

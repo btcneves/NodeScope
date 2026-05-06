@@ -83,7 +83,7 @@ make demo
 Com a stack Docker ativa:
 
 ```bash
-docker compose up --build
+docker compose up -d
 make docker-demo
 ```
 
@@ -128,12 +128,12 @@ make demo
 ## Comandos de Inicialização com Docker
 
 ```bash
-docker compose up --build
+docker compose up -d
 make docker-demo
 make smoke
 ```
 
-Última validação Docker: `docker compose up --build -d`, `make smoke` e `make docker-demo` executaram com sucesso.
+Última validação Docker: `docker compose up -d`, `make docker-demo` e `make smoke` executaram com sucesso.
 
 ---
 
@@ -152,6 +152,6 @@ make smoke
 | Plano | Caminho | Quando usar |
 |---|---|---|
 | A | Demo local regtest com `make backend`, `make monitor`, `make frontend`, `make demo` | Caminho principal |
-| B | Docker com `docker compose up --build` e `make docker-demo` | Quando faltar `bitcoin-cli` local ou houver conflito de ambiente |
+| B | Docker com `docker compose up -d`, `make docker-demo` e `make smoke` | Quando faltar `bitcoin-cli` local ou houver conflito de ambiente |
 | C | Acesso público temporário via túnel documentado | Quando avaliadores precisarem abrir o dashboard remotamente |
 | D | API docs, logs NDJSON e capturas reais em `docs/assets/` | Quando a rede/local machine falhar durante a demo |

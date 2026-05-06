@@ -76,7 +76,9 @@ flowchart LR
 git clone https://github.com/btcneves/NodeScope.git
 cd NodeScope
 cp .env.example .env
-docker compose up --build
+docker compose up -d
+make docker-demo
+make smoke
 ```
 
 Serviços disponíveis após a inicialização:
@@ -94,7 +96,7 @@ Serviços disponíveis após a inicialização:
 ```bash
 git clone https://github.com/btcneves/NodeScope.git
 cd NodeScope
-bash scripts/quickstart.sh
+make setup-local
 ```
 
 Em terminais separados:
@@ -151,15 +153,18 @@ Referência completa: [docs/api.md](docs/api.md).
 ## Testes e Validações
 
 ```bash
-make test          # 37 testes Python
-make build         # TypeScript strict + Vite build
+make test          # testes Python dentro do container da API
+make build         # TypeScript strict + Vite build dentro do container Node
 make public-clean  # Verifica artefatos locais e segredos
+make smoke         # valida API/RPC, frontend build e testes em Docker
 ```
 
-Com o backend ativo:
+Para desenvolvimento local sem Docker após `make setup-local`:
 
 ```bash
-make smoke
+make test-local
+make build-local
+make smoke-local
 ```
 
 ## Variáveis de Ambiente

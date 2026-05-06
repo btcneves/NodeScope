@@ -15,7 +15,9 @@ NodeScope includes a Docker Compose stack for a full local demo.
 
 ```bash
 cp .env.example .env
-docker compose up --build
+docker compose up -d
+make docker-demo
+make smoke
 ```
 
 If those host ports are already occupied by local services, edit `.env` before starting:
@@ -41,6 +43,16 @@ docker compose down
 ```bash
 docker compose config
 ```
+
+## Smoke Test
+
+`make smoke` is Dockerized. It checks the host-facing API, confirms Bitcoin Core RPC is connected on regtest, builds the frontend in a Node container and runs Python tests in the API image.
+
+```bash
+make smoke
+```
+
+No host `node_modules`, `tsc`, `fastapi`, `pyzmq` or virtualenv is required.
 
 ## Notes
 

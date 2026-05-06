@@ -42,11 +42,12 @@ make smoke
 open http://localhost:5173
 ```
 
-That is the full stack: Bitcoin Core regtest → ZMQ monitor → FastAPI → React dashboard. No external services, no wallet keys, no mainnet.
+That is the full stack: Bitcoin Core regtest → ZMQ monitor → FastAPI → React dashboard. `make smoke` is fully Dockerized: it validates the API/RPC path, runs the frontend production build inside the Node container, and runs Python tests inside the API image. No local Python packages, `node_modules`, `tsc`, `bitcoin-cli`, external services, wallet keys or mainnet are required on the host.
 
 Replay the event store offline (no Bitcoin Core required):
 
 ```bash
+make setup-local
 make replay-demo
 ```
 
@@ -122,7 +123,9 @@ RPC gives the snapshot. ZMQ gives real time. NodeScope gives interpretation.
 git clone https://github.com/btcneves/NodeScope.git
 cd NodeScope
 cp .env.example .env
-docker compose up --build
+docker compose up -d
+make docker-demo
+make smoke
 ```
 
 Services:
@@ -151,12 +154,14 @@ Validate Compose without starting containers:
 docker compose config
 ```
 
-## Quickstart Without Docker
+## Local Development Without Docker
+
+The Docker quickstart above is the recommended evaluation path. Use local mode only when you intentionally want to run Python, Node and Bitcoin Core on the host.
 
 ```bash
 git clone https://github.com/btcneves/NodeScope.git
 cd NodeScope
-bash scripts/quickstart.sh
+make setup-local
 ```
 
 In separate terminals:
@@ -222,10 +227,12 @@ make build
 make public-clean
 ```
 
-With the backend running:
+These commands run in Docker by default. For host-local validation after `make setup-local`, use:
 
 ```bash
-make smoke
+make test-local
+make build-local
+make smoke-local
 ```
 
 The current suite has **37 Python tests** covering the API, RPC client, engine replay, parser, classifier, monitor payloads and demo assets.

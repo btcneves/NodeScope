@@ -8,22 +8,30 @@ API_PORT ?= 8000
 FRONTEND_PORT ?= 5173
 COMPOSE ?= docker compose
 
-.PHONY: help setup venv backend monitor frontend test build smoke demo replay-demo screenshots demo-screenshots evidence clean public-clean docker-up docker-down docker-demo lint docker-config
+.PHONY: help setup setup-local venv backend monitor frontend test test-local build build-local smoke smoke-local demo replay-demo screenshots demo-screenshots evidence clean public-clean docker-up docker-down docker-demo docker-wait lint docker-config
 
 help:
 	@echo "NodeScope Makefile - Available Targets"
 	@echo "======================================="
 	@echo ""
+	@echo "Docker quickstart:"
+	@echo "  docker compose up -d   Start the full stack"
+	@echo "  make docker-demo       Generate regtest wallet/tx/block activity"
+	@echo "  make smoke             Run Dockerized smoke checks, frontend build and Python tests"
+	@echo ""
 	@echo "Local development:"
-	@echo "  make setup         Create venv and install Python/Node dependencies"
+	@echo "  make setup-local   Create venv and install Python/Node dependencies"
 	@echo "  make backend       Start FastAPI on $${API_HOST:-$(API_HOST)}:$${API_PORT:-$(API_PORT)}"
 	@echo "  make monitor       Start the Bitcoin Core ZMQ monitor"
 	@echo "  make frontend      Start Vite on port $${FRONTEND_PORT:-$(FRONTEND_PORT)}"
 	@echo ""
 	@echo "Validation:"
-	@echo "  make test          Run Python unit tests"
-	@echo "  make build         Compile Python and build the frontend"
-	@echo "  make smoke         Run smoke tests against a running backend"
+	@echo "  make test          Run Python unit tests inside Docker"
+	@echo "  make test-local    Run Python unit tests in the local venv"
+	@echo "  make build         Run frontend build inside Docker"
+	@echo "  make build-local   Compile Python and build the frontend locally"
+	@echo "  make smoke         Run Dockerized smoke tests against the Compose stack"
+	@echo "  make smoke-local   Run smoke tests using local Python and node_modules"
 	@echo "  make screenshots   Capture dashboard/API screenshots (requires running stack)"
 	@echo "  make demo-screenshots Run smoke, demo, then capture screenshots"
 	@echo "  make evidence      Run tests, smoke, demo and screenshot evidence"
@@ -40,7 +48,9 @@ help:
 	@echo "Maintenance:"
 	@echo "  make clean         Remove generated local artifacts"
 
-setup: venv
+setup: setup-local
+
+setup-local: venv
 	$(PIP) install --upgrade pip
 	$(PIP) install -r requirements.txt
 	cd frontend && npm install
@@ -64,17 +74,26 @@ monitor:
 frontend:
 	cd frontend && npm run dev -- --host 0.0.0.0 --port "$(FRONTEND_PORT)"
 
-test:
+test: docker-wait
+	$(COMPOSE) run --rm nodescope-api-test
+
+test-local:
 	$(PYTHON) -m unittest discover -s tests -v
 
 lint:
 	$(PYTHON) -m compileall engine api scripts tests monitor.py
 
-build: lint
+build: docker-wait
+	$(COMPOSE) run --rm nodescope-frontend-build
+
+build-local: lint
 	cd frontend && npm run build
 
-smoke:
+smoke: docker-wait
 	bash scripts/smoke-test.sh
+
+smoke-local:
+	NODESCOPE_SMOKE_MODE=local bash scripts/smoke-test.sh
 
 demo:
 	bash scripts/demo_regtest.sh
@@ -107,9 +126,22 @@ public-clean:
 	bash scripts/check-public-clean.sh
 
 docker-up:
-	$(COMPOSE) up --build
+	$(COMPOSE) up --build -d
 
-docker-demo:
+docker-wait:
+	@echo "Waiting for Docker services..."
+	@for i in $$(seq 1 60); do \
+		if $(COMPOSE) exec -T nodescope-api python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2).read()" >/dev/null 2>&1; then \
+			echo "Docker API is ready"; \
+			exit 0; \
+		fi; \
+		sleep 2; \
+	done; \
+	echo "Docker API did not become ready. Recent service status:"; \
+	$(COMPOSE) ps; \
+	exit 1
+
+docker-demo: docker-wait
 	@set -a; [ ! -f .env ] || . ./.env; set +a; \
 	BITCOIN_CLI="$(COMPOSE) exec -T nodescope-bitcoind bitcoin-cli -regtest -rpcuser=$${BITCOIN_RPC_USER:-nodescope} -rpcpassword=$${BITCOIN_RPC_PASSWORD:-nodescope}" \
 	API_URL="http://127.0.0.1:$${HOST_API_PORT:-$(API_PORT)}" \

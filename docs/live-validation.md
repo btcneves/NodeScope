@@ -217,7 +217,7 @@ This creates a wallet (if needed), mines 101 blocks, sends a transaction, and mi
 make smoke
 ```
 
-See `docs/smoke-tests.md` for the full list of automated checks.
+See `docs/smoke-tests.md` for the full list of automated checks. The default smoke path is Dockerized and should be run after `docker compose up -d` and `make docker-demo`.
 
 ---
 
@@ -228,10 +228,8 @@ Visual evidence must be generated from a real running stack after smoke tests an
 Commands:
 
 ```bash
-./.venv/bin/python -m pip install -r requirements-dev.txt
-./.venv/bin/python -m playwright install chromium
 make smoke
-make demo
+make docker-demo
 make screenshots
 ```
 
@@ -239,9 +237,9 @@ Docker validation path:
 
 ```bash
 docker compose config
-docker compose up --build -d
-make smoke
+docker compose up -d
 make docker-demo
+make smoke
 make screenshots
 ```
 

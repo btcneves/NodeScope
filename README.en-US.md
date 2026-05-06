@@ -12,7 +12,9 @@ NodeScope is a standalone open source dashboard for demonstrating and inspecting
 git clone https://github.com/btcneves/NodeScope.git
 cd NodeScope
 cp .env.example .env
-docker compose up --build
+docker compose up -d
+make docker-demo
+make smoke
 ```
 
 Open:
@@ -24,7 +26,7 @@ Open:
 ## Local Development
 
 ```bash
-bash scripts/quickstart.sh
+make setup-local
 make backend
 make monitor
 make frontend
@@ -39,10 +41,12 @@ make public-clean
 make smoke
 ```
 
+These validation targets run in Docker by default. For host-local development, use `make test-local`, `make build-local`, and `make smoke-local`.
+
 ## Demo
 
 ```bash
-make demo
+make docker-demo
 ```
 
 The demo creates or loads a regtest wallet, mines initial blocks, broadcasts a transaction, mines a block and lets NodeScope show the resulting RPC and ZMQ-derived state.

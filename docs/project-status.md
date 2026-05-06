@@ -88,7 +88,7 @@ The local demo proves:
 - Classification heuristics are conservative and optimized for explainability.
 - API has no built-in authentication; keep it local or behind a trusted reverse proxy.
 - Signet and mainnet are documented as read-only roadmap items, not primary demo scope.
-- `make smoke` requires a running backend; it is expected to fail when the API is offline.
+- `make smoke` requires the Compose stack to be running; use `docker compose up -d` first.
 
 ## Validation Commands
 
@@ -99,16 +99,19 @@ make public-clean
 docker compose config
 ```
 
-With a running backend:
-
-```bash
-make smoke
-```
-
 With a running Docker stack:
 
 ```bash
 make docker-demo
+make smoke
+```
+
+For host-local development after `make setup-local`:
+
+```bash
+make test-local
+make build-local
+make smoke-local
 ```
 
 ## Phase 2 — Final Delivery Readiness
@@ -160,14 +163,15 @@ make docker-config
 make smoke
 make demo
 docker compose config
-docker compose up --build -d
+docker compose up -d
 make docker-demo
+make smoke
 ```
 
 Validation results:
 
 - 37 Python unit tests: 0 failures, 0 errors.
-- `make build`: Python compileall clean; Vite bundle built with no TypeScript errors.
+- `make build`: Vite/TypeScript bundle built inside the Node container.
 - `make public-clean`: CLEAN — 0 issues.
 - `docker compose config`: valid.
 - `make smoke`: PASS=7 FAIL=0 WARN=0.
@@ -187,6 +191,6 @@ Issue found and fixed (2026-05-06):
 3. Merge the PR after review.
 4. Apply the `v1.0.0` tag: `git tag v1.0.0 && git push origin v1.0.0`.
 5. Create the GitHub release from the tag, linking `RELEASE_NOTES_v1.0.0.md`.
-6. Run final live rehearsal on the demo machine using `docker compose up --build` and `make docker-demo`.
+6. Run final live rehearsal on the demo machine using `docker compose up -d`, `make docker-demo`, and `make smoke`.
 
 See `docs/final-delivery-checklist.md` for the full Saturday gate checklist.

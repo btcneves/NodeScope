@@ -102,13 +102,48 @@ services:
       - "${HOST_FRONTEND_PORT:-5173}:5173"
     volumes:
       - ./frontend:/app
-      - nodescope-frontend-node-modules:/app/node_modules
+      - nodescope-frontend-build-node-modules:/app/node_modules
     environment:
       VITE_API_PROXY_TARGET: http://nodescope-api:8000
     command: ["sh", "-c", "npm ci && npm run dev -- --host 0.0.0.0 --port 5173"]
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:5173').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
     logging:
       <<: *default-logging
+
+  nodescope-api-test:
+    image: nodescope-api:latest
+    profiles: ["tools"]
+    depends_on:
+      nodescope-bitcoind:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+    environment:
+      BITCOIN_RPC_URL: http://nodescope-bitcoind:18443
+      BITCOIN_RPC_USER: ${BITCOIN_RPC_USER:-nodescope}
+      BITCOIN_RPC_PASSWORD: ${BITCOIN_RPC_PASSWORD:-nodescope}
+      ZMQ_RAWBLOCK_URL: tcp://nodescope-bitcoind:28332
+      ZMQ_RAWTX_URL: tcp://nodescope-bitcoind:28333
+      NODESCOPE_LOG_DIR: /app/logs
+    command: ["python", "-m", "unittest", "discover", "-s", "tests", "-v"]
+
+  nodescope-frontend-build:
+    image: node:20-alpine
+    profiles: ["tools"]
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - nodescope-frontend-node-modules:/app/node_modules
+    environment:
+      VITE_API_PROXY_TARGET: http://nodescope-api:8000
+    command: ["sh", "-c", "npm ci && npm run build"]
 
 volumes:
   nodescope-bitcoin-data:
   nodescope-frontend-node-modules:
+  nodescope-frontend-build-node-modules:
