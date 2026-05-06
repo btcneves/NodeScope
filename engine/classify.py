@@ -1,4 +1,3 @@
-
 from .models import ClassifiedEvent, RawEvent, TxEvent
 from .parser import parse_block, parse_tx
 

@@ -1,4 +1,3 @@
-
 from .models import BlockEvent, RawEvent, TxEvent, VoutEntry
 
 
