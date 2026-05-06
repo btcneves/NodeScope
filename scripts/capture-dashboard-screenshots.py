@@ -29,12 +29,12 @@ class CaptureTarget:
 
 
 CAPTURE_TARGETS = [
-    CaptureTarget("nodescope-dashboard.png", f"{DASHBOARD_URL}/", ".app"),
-    CaptureTarget("nodescope-command-center.png", f"{DASHBOARD_URL}/", ".kpi-row"),
+    CaptureTarget("nodescope-dashboard.png", f"{DASHBOARD_URL}/", ".intelligence-score-value"),
+    CaptureTarget("nodescope-command-center.png", f"{DASHBOARD_URL}/", ".intelligence-score-value"),
     CaptureTarget(
         "nodescope-transaction-lifecycle.png",
         f"{DASHBOARD_URL}/",
-        ".lifecycle-panel",
+        ".lifecycle-step--active",
     ),
     CaptureTarget("nodescope-api-docs.png", f"{API_URL}/docs", None),
     CaptureTarget("nodescope-demo-page.png", f"{API_URL}/demo", ".shell"),
@@ -68,7 +68,7 @@ def _capture(page: Page, target: CaptureTarget) -> None:
         page.goto(target.url, wait_until="domcontentloaded", timeout=TIMEOUT_MS)
     if target.wait_selector is not None:
         page.wait_for_selector(target.wait_selector, timeout=TIMEOUT_MS)
-    page.wait_for_timeout(1_000)
+    page.wait_for_timeout(2_500)
     output_path = ASSETS_DIR / target.filename
     page.screenshot(path=output_path, full_page=True)
     print(f"saved {_relative(output_path)}")
