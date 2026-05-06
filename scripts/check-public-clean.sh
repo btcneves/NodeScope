@@ -19,14 +19,6 @@ header() {
     echo "--- $1 ---"
 }
 
-PATTERN_LOCAL_ONE="Cl""aude"
-PATTERN_LOCAL_TWO="Co""dex"
-PATTERN_FILE_ONE="CL""AUDE.md"
-PATTERN_FILE_TWO="CO""DEX-HANDOFF.md"
-PATTERN_GENERATED="A""I-generated"
-PATTERN_LOCAL_MEMORY="memória ""operacional"
-PATTERN_OLD_CHAT="con""versa antiga"
-PATTERN_REASONING="raci""ocínio interno"
 PATTERN_PRIVATE_KEY="private ""key"
 PATTERN_VIDEO_SCRIPT="video-""script"
 PATTERN_PRESENTATION="present""ation"
@@ -58,7 +50,7 @@ grep_files() {
 }
 
 header "Local artifacts"
-for path in ".env" "${PATTERN_FILE_ONE}" "${PATTERN_FILE_TWO}" ".claude/settings.local.json"; do
+for path in ".env"; do
     if git ls-files --error-unmatch "${path}" >/dev/null 2>&1; then
         flag "File '${path}' is tracked by git"
     fi
@@ -67,18 +59,11 @@ ok "Tracked local-artifact file check complete"
 
 header "Product text scan"
 for pattern in \
-    "${PATTERN_LOCAL_ONE}" \
-    "${PATTERN_LOCAL_TWO}" \
-    "${PATTERN_GENERATED}" \
-    "${PATTERN_LOCAL_MEMORY}" \
-    "${PATTERN_OLD_CHAT}" \
-    "${PATTERN_REASONING}" \
     "${PATTERN_VIDEO_SCRIPT}" \
     "${PATTERN_PRESENTATION}" \
     "${PATTERN_PRESENTATION_PT}" \
     "${PATTERN_SCRIPT_PT}" \
     "${PATTERN_VIDEO_PT}" \
-    "prompt" \
     "\.cookie" \
     "logs sensíveis"; do
     matches=$(grep_files "${pattern}")

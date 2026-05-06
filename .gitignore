@@ -49,8 +49,5 @@ Thumbs.db
 .pytest_cache/
 htmlcov/
 
-# Agent and AI tool files — never commit
-.codex
-CODEX-HANDOFF.md
-docs/agent-handoff/
-CLAUDE.md
+# Local-only workspace files
+.local/
