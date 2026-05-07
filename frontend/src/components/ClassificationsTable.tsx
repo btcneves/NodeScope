@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { ClassificationItem } from '../types/api'
 import { copyText } from '../utils/clipboard'
+import { useI18n } from '../i18n'
 
 interface Props {
   classifications: ClassificationItem[]
@@ -14,6 +15,7 @@ function kindClass(kind: string): string {
 }
 
 export function ClassificationsTable({ classifications }: Props) {
+  const { t } = useI18n()
   const [copiedKey, setCopiedKey] = useState<string | null>(null)
 
   async function copyValue(key: string, value: string | null | undefined) {
@@ -26,14 +28,14 @@ export function ClassificationsTable({ classifications }: Props) {
   return (
     <div className="panel" style={{ marginBottom: '24px' }}>
       <div className="panel-header">
-        <span className="panel-title">Classifications</span>
+        <span className="panel-title">{t.dashboard.classifications}</span>
         <span style={{ fontSize: '11px', color: 'var(--muted)' }}>
-          {classifications.length} items
+          {classifications.length} {t.dashboard.items}
         </span>
       </div>
       <div className="panel-body">
         {classifications.length === 0 ? (
-          <div className="empty-state">No classifications</div>
+          <div className="empty-state">{t.dashboard.noClassifications}</div>
         ) : (
           classifications.slice(0, 20).map((c, i) => {
             const confidence = c.metadata?.confidence
@@ -41,9 +43,9 @@ export function ClassificationsTable({ classifications }: Props) {
             const identifierValue = c.txid ?? c.hash
             const identifier = identifierValue?.slice(0, 16) ?? '—'
             const identifierTitle = c.txid
-              ? 'Clique para copiar TXID completo'
+              ? t.dashboard.clickCopyTxid
               : c.hash
-                ? 'Clique para copiar hash completo'
+                ? t.dashboard.clickCopyHash
                 : undefined
             const identifierKey = `identifier-${i}`
             const reasonKey = `reason-${i}`
@@ -74,10 +76,10 @@ export function ClassificationsTable({ classifications }: Props) {
                 >
                   {identifier}&hellip;
                 </span>
-                {copiedKey === identifierKey && <span className="copy-feedback">copied</span>}
+                {copiedKey === identifierKey && <span className="copy-feedback">{t.dashboard.copied}</span>}
                 <span
                   className={reason ? 'copyable-text' : undefined}
-                  title={reason ? `Clique para copiar motivo completo: ${reason}` : undefined}
+                  title={reason ? `${t.dashboard.copyReason}: ${reason}` : undefined}
                   onClick={() => void copyValue(reasonKey, reason)}
                   role={reason ? 'button' : undefined}
                   tabIndex={reason ? 0 : undefined}
@@ -99,7 +101,7 @@ export function ClassificationsTable({ classifications }: Props) {
                 >
                   {reason ?? ''}
                 </span>
-                {copiedKey === reasonKey && <span className="copy-feedback">copied</span>}
+                {copiedKey === reasonKey && <span className="copy-feedback">{t.dashboard.copied}</span>}
               </div>
             )
           })

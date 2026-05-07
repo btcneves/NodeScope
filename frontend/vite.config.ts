@@ -18,6 +18,7 @@ export default defineConfig({
       '/demo': { target: apiTarget, changeOrigin: true },
       '/tx/inspect': { target: apiTarget, changeOrigin: true },
       '/policy': { target: apiTarget, changeOrigin: true },
+      '/reorg': { target: apiTarget, changeOrigin: true },
     },
   },
 })

@@ -24,17 +24,9 @@ const STEP_ICONS: Record<string, string> = {
   pending:      '○',
 }
 
-const TIMELINE_LABELS: Record<string, string> = {
-  check_network:            '1. Verify Regtest',
-  ensure_wallet:            '2. Wallet & Funds',
-  broadcast_tx:             '3. Broadcast Tx',
-  mine_block:               '4. Mine Block',
-  invalidate_block:         '5. Invalidate Block',
-  check_tx_after_invalidation: '6. Check Mempool',
-  mine_recovery_block:      '7. Mine Recovery',
-  verify_reconfirmation:    '8. Re-confirm Tx',
-  reconsider_block:         '9. Reconsider Block',
-  build_proof:              '10. Build Proof',
+const REORG_WARNING_KEYS: Record<string, 'warningExperimental' | 'warningRestored'> = {
+  'This scenario is marked experimental. Regtest reorgs are controlled and safe.': 'warningExperimental',
+  'Chain was restored via a new block after invalidation.': 'warningRestored',
 }
 
 interface Props {
@@ -118,7 +110,7 @@ export function ReorgLab({ onInspect }: Props) {
               marginLeft: '10px', fontSize: '10px', padding: '2px 8px',
               background: '#7c3aed22', border: '1px solid #7c3aed', borderRadius: '4px',
               color: '#a78bfa', verticalAlign: 'middle',
-            }}>EXPERIMENTAL</span>
+            }}>{t.reorg.experimentalBadge}</span>
           </h2>
           <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#9ca3af' }}>
             {t.reorg.subtitle}
@@ -160,7 +152,9 @@ export function ReorgLab({ onInspect }: Props) {
           {status}
         </span>
         {data?.network && (
-          <span style={{ fontSize: '11px', color: '#6b7280' }}>network: {data.network}</span>
+          <span style={{ fontSize: '11px', color: '#6b7280' }}>
+            {t.reorg.networkLabel}: {data.network}
+          </span>
         )}
         {data?.error && (
           <span style={{ fontSize: '11px', color: '#ef4444' }}>⚠ {data.error}</span>
@@ -231,7 +225,10 @@ export function ReorgLab({ onInspect }: Props) {
           marginTop: '12px', padding: '10px 14px', borderRadius: '6px',
           background: '#451a0320', border: '1px solid #78350f', fontSize: '11px', color: '#fbbf24',
         }}>
-          {proof.warnings.map((w: string, i: number) => <div key={i}>⚠ {w}</div>)}
+          {proof.warnings.map((w: string, i: number) => {
+            const key = REORG_WARNING_KEYS[w]
+            return <div key={i}>⚠ {key ? t.reorg[key] : w}</div>
+          })}
         </div>
       )}
 
@@ -248,7 +245,18 @@ function StepRow({
   const { t } = useI18n()
   const icon = STEP_ICONS[step.status] ?? '○'
   const color = STATUS_COLORS[step.status] ?? '#6b7280'
-  const label = TIMELINE_LABELS[step.name] ?? step.name
+  const label = {
+    check_network: t.reorg.steps.checkNetwork,
+    ensure_wallet: t.reorg.steps.ensureWallet,
+    broadcast_tx: t.reorg.steps.broadcastTx,
+    mine_block: t.reorg.steps.mineBlock,
+    invalidate_block: t.reorg.steps.invalidateBlock,
+    check_tx_after_invalidation: t.reorg.steps.checkMempool,
+    mine_recovery_block: t.reorg.steps.mineRecovery,
+    verify_reconfirmation: t.reorg.steps.verifyReconfirmation,
+    reconsider_block: t.reorg.steps.reconsiderBlock,
+    build_proof: t.reorg.steps.buildProof,
+  }[step.name] ?? step.name
   const stepTxid = (step.data?.txid ?? txid) as string | undefined
 
   return (
@@ -288,17 +296,18 @@ function ProofCards({ proof, txid, onInspect }: {
   txid?: string
   onInspect?: (txid: string) => void
 }) {
+  const { t } = useI18n()
   const cards = [
-    { label: 'TXID', value: proof.txid, mono: true, canInspect: true },
-    { label: 'Original Block', value: proof.original_block_hash ? proof.original_block_hash.slice(0, 20) + '…' : '—', mono: true },
-    { label: 'Original Height', value: proof.original_block_height ?? '—' },
-    { label: 'Confs Before Reorg', value: proof.confirmations_before_reorg },
-    { label: 'Mempool After Invalidation', value: proof.mempool_status_after_invalidation },
-    { label: 'Final Block', value: proof.final_block_hash ? proof.final_block_hash.slice(0, 20) + '…' : '—', mono: true },
-    { label: 'Final Height', value: proof.final_block_height ?? '—' },
-    { label: 'Final Confirmations', value: proof.final_confirmations },
-    { label: 'Chain Recovery', value: proof.mempool_status_after_recovery },
-    { label: 'Reconsider Block Called', value: proof.reconsider_block_called ? 'yes' : 'no' },
+    { label: <Term term="TXID">{t.reorg.txid}</Term>, key: 'txid', value: proof.txid, mono: true, canInspect: true },
+    { label: <Term term="Block hash">{t.reorg.originalBlock}</Term>, key: 'originalBlock', value: proof.original_block_hash ? proof.original_block_hash.slice(0, 20) + '…' : '—', mono: true },
+    { label: <Term term="Block height">{t.reorg.originalHeight}</Term>, key: 'originalHeight', value: proof.original_block_height ?? '—' },
+    { label: <Term term="Confirmation">{t.reorg.confirmationsBefore}</Term>, key: 'confirmationsBefore', value: proof.confirmations_before_reorg },
+    { label: <Term term="Mempool">{t.reorg.mempoolAfterInvalidation}</Term>, key: 'mempoolAfterInvalidation', value: proof.mempool_status_after_invalidation },
+    { label: <Term term="Block hash">{t.reorg.finalBlock}</Term>, key: 'finalBlock', value: proof.final_block_hash ? proof.final_block_hash.slice(0, 20) + '…' : '—', mono: true },
+    { label: <Term term="Block height">{t.reorg.finalHeight}</Term>, key: 'finalHeight', value: proof.final_block_height ?? '—' },
+    { label: <Term term="Confirmation">{t.reorg.finalConfirmations}</Term>, key: 'finalConfirmations', value: proof.final_confirmations },
+    { label: <Term term="Reorg">{t.reorg.chainRecovery}</Term>, key: 'chainRecovery', value: proof.mempool_status_after_recovery },
+    { label: t.reorg.reconsiderBlockCalled, key: 'reconsiderBlockCalled', value: proof.reconsider_block_called ? t.reorg.yes : t.reorg.no },
   ]
 
   return (
@@ -306,8 +315,8 @@ function ProofCards({ proof, txid, onInspect }: {
       display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
       gap: '8px', marginBottom: '16px',
     }}>
-      {cards.map(({ label, value, mono, canInspect }) => (
-        <div key={label} style={{
+      {cards.map(({ label, key, value, mono, canInspect }) => (
+        <div key={key} style={{
           background: '#111827', border: '1px solid #1f2937', borderRadius: '6px',
           padding: '10px 12px',
         }}>
@@ -329,7 +338,7 @@ function ProofCards({ proof, txid, onInspect }: {
                 border: '1px solid #1d4ed8',
               }}
             >
-              Inspect →
+              {t.reorg.inspectTx}
             </button>
           )}
         </div>

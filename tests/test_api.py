@@ -11,6 +11,7 @@ from api.app import (
     app,
     classifications,
     demo,
+    demo_step,
     health,
     latest_block,
     latest_tx,
@@ -41,6 +42,22 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(str(demo_response.path).endswith("api/static/demo.html"), True)
         stream_response = stream_events(file=str(FIXTURE_FILE))
         self.assertEqual(stream_response.media_type, "text/event-stream")
+
+    def test_demo_step_allows_success_with_null_error_field(self) -> None:
+        with patch("api.app.run_step") as mock_run_step:
+            mock_run_step.return_value = {
+                "id": "check_rpc",
+                "title": "Check Bitcoin Core RPC",
+                "status": "success",
+                "friendly_message": "RPC OK",
+                "technical_output": {"chain": "regtest"},
+                "timestamp": "2026-05-07T00:00:00+00:00",
+                "error": None,
+                "data": {"rpc_ok": True},
+            }
+            result = demo_step("check_rpc")
+        self.assertEqual(result["status"], "success")
+        self.assertIsNone(result["error"])
 
     def test_health_endpoint(self) -> None:
         with patch("api.service.get_client") as mock_get:

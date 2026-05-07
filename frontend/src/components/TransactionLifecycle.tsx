@@ -1,4 +1,6 @@
 import type { MempoolData, BlockData, TxData } from '../types/api'
+import { useI18n } from '../i18n'
+import { Term } from './ui/InfoTooltip'
 
 interface Stage {
   id: string
@@ -22,27 +24,28 @@ export function TransactionLifecycle({
   latestBlock,
   latestTx,
 }: TransactionLifecycleProps) {
+  const { t } = useI18n()
   const hasMempoolTx = (mempool?.size ?? 0) > 0
   const hasBlock = latestBlock !== null
   const hasConfirmed = hasBlock && latestTx !== null
 
   const stages: Stage[] = [
-    { id: 'created', label: 'Created', sub: 'tx built', active: rpcOk },
-    { id: 'broadcast', label: 'Broadcast', sub: 'sent to node', active: rpcOk },
-    { id: 'mempool', label: 'Mempool', sub: `${mempool?.size ?? 0} pending`, active: hasMempoolTx },
-    { id: 'zmq-rawtx', label: 'ZMQ rawtx', sub: 'event captured', active: zmqConnected },
-    { id: 'mined', label: 'Block Mined', sub: `height ${latestBlock?.height ?? '—'}`, active: hasBlock },
-    { id: 'zmq-rawblock', label: 'ZMQ rawblock', sub: 'block event captured', active: hasBlock && zmqConnected },
-    { id: 'confirmed', label: 'Confirmed', sub: 'on-chain', active: hasConfirmed },
+    { id: 'created', label: t.dashboard.lifecycleCreated, sub: t.dashboard.lifecycleTxBuilt, active: rpcOk },
+    { id: 'broadcast', label: t.dashboard.lifecycleBroadcast, sub: t.dashboard.lifecycleSentToNode, active: rpcOk },
+    { id: 'mempool', label: 'Mempool', sub: `${mempool?.size ?? 0} ${t.dashboard.lifecyclePending}`, active: hasMempoolTx },
+    { id: 'zmq-rawtx', label: 'ZMQ rawtx', sub: t.dashboard.lifecycleEventCaptured, active: zmqConnected },
+    { id: 'mined', label: t.dashboard.lifecycleBlockMined, sub: `${t.generic.height} ${latestBlock?.height ?? '—'}`, active: hasBlock },
+    { id: 'zmq-rawblock', label: 'ZMQ rawblock', sub: t.dashboard.lifecycleBlockEventCaptured, active: hasBlock && zmqConnected },
+    { id: 'confirmed', label: t.dashboard.lifecycleConfirmed, sub: t.dashboard.lifecycleOnChain, active: hasConfirmed },
   ]
 
   return (
     <div className="panel lifecycle-panel">
       <div className="panel-header">
-        <span className="panel-title">Transaction Lifecycle</span>
+        <span className="panel-title"><Term term="TXID">{t.dashboard.txLifecycle}</Term></span>
         <span className="live-indicator">
           <span className="live-dot" />
-          live
+          {t.dashboard.live}
         </span>
       </div>
       <div className="lifecycle-body">
@@ -50,7 +53,13 @@ export function TransactionLifecycle({
           <div key={stage.id} className="lifecycle-step-wrap">
             <div className={`lifecycle-step ${stage.active ? 'lifecycle-step--active' : ''}`}>
               <div className="lifecycle-dot" />
-              <div className="lifecycle-label">{stage.label}</div>
+              <div className="lifecycle-label">
+                {stage.id === 'mempool' ? <Term term="Mempool">{stage.label}</Term>
+                  : stage.id === 'zmq-rawtx' ? <Term term="rawtx">{stage.label}</Term>
+                  : stage.id === 'zmq-rawblock' ? <Term term="rawblock">{stage.label}</Term>
+                  : stage.id === 'mined' ? <Term term="Block hash">{stage.label}</Term>
+                  : stage.label}
+              </div>
               <div className="lifecycle-sub">{stage.sub}</div>
             </div>
             {i < stages.length - 1 && (

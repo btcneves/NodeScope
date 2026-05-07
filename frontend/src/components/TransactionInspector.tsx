@@ -9,9 +9,13 @@ import { LearnMore } from './ui/LearnMore'
 // Helpers
 // ---------------------------------------------------------------------------
 
-function fmt(val: number | string | null | undefined, unit = '') {
-  if (val === null || val === undefined) return <span style={{ color: '#6b7280' }}>n/a</span>
-  if (val === 'unavailable') return <span style={{ color: '#9ca3af', fontStyle: 'italic' }}>unavailable</span>
+function fmt(
+  val: number | string | null | undefined,
+  unit = '',
+  labels: { na: string; unavailable: string },
+) {
+  if (val === null || val === undefined) return <span style={{ color: '#6b7280' }}>{labels.na}</span>
+  if (val === 'unavailable') return <span style={{ color: '#9ca3af', fontStyle: 'italic' }}>{labels.unavailable}</span>
   return <span>{String(val)}{unit}</span>
 }
 
@@ -45,6 +49,7 @@ function TxSummaryCard({ tx }: { tx: TxInspectorData }) {
   const { t } = useI18n()
   const confirmed = tx.mempool_status === 'confirmed'
   const inMempool = tx.mempool_status === 'unconfirmed'
+  const labels = { na: t.demo.na, unavailable: t.status.unavailable }
   return (
     <div style={{ background: '#111827', border: '1px solid #1f2937', borderRadius: '8px', padding: '16px', marginBottom: '12px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
@@ -60,26 +65,26 @@ function TxSummaryCard({ tx }: { tx: TxInspectorData }) {
       {tx.wtxid && <Row label={<Term term="WTXID">wtxid</Term>}>
         <span style={{ fontFamily: 'monospace', fontSize: '11px' }}>{tx.wtxid}</span>
       </Row>}
-      <Row label="version / locktime">{tx.version ?? 'n/a'} / {tx.locktime ?? 'n/a'}</Row>
-      <Row label={<>size / <Term term="vbytes">vsize</Term> / <Term term="Weight">weight</Term></>}>
-        {fmt(tx.size, ' B')} / {fmt(tx.vsize, ' vbytes')} / {fmt(tx.weight, ' wu')}
+      <Row label={t.inspector.versionLocktime}>{tx.version ?? t.demo.na} / {tx.locktime ?? t.demo.na}</Row>
+      <Row label={<Term term="vbytes">{t.inspector.sizeVsizeWeight}</Term>}>
+        {fmt(tx.size, ' B', labels)} / {fmt(tx.vsize, ' vbytes', labels)} / {fmt(tx.weight, ' wu', labels)}
       </Row>
-      <Row label={<Term term="Fee">{t.proof.fee}</Term>}>{fmt(tx.fee_btc, ' BTC')}</Row>
-      <Row label={<Term term="Fee rate">{t.proof.feeRate}</Term>}>{fmt(tx.fee_rate_sat_vb, ' sat/vbyte')}</Row>
-      <Row label="total output">{fmt(tx.total_output_btc, ' BTC')}</Row>
+      <Row label={<Term term="Fee">{t.proof.fee}</Term>}>{fmt(tx.fee_btc, ' BTC', labels)}</Row>
+      <Row label={<Term term="Fee rate">{t.proof.feeRate}</Term>}>{fmt(tx.fee_rate_sat_vb, ' sat/vbyte', labels)}</Row>
+      <Row label={<Term term="Output">{t.inspector.totalOutput}</Term>}>{fmt(tx.total_output_btc, ' BTC', labels)}</Row>
       <Row label={`${t.inspector.inputs} / ${t.inspector.outputs}`}>{tx.vin_count} / {tx.vout_count}</Row>
       {tx.replaceable !== null && tx.replaceable !== undefined && (
-        <Row label={<Term term="replaceable">RBF replaceable</Term>}>{tx.replaceable ? t.demo.yes : t.demo.no}</Row>
+        <Row label={<Term term="replaceable">{t.inspector.rbfReplaceable}</Term>}>{tx.replaceable ? t.demo.yes : t.demo.no}</Row>
       )}
       {confirmed && <>
-        <Row label={<Term term="Confirmation">{t.proof.confirmations}</Term>}>{tx.confirmations ?? 'n/a'}</Row>
-        <Row label={<Term term="Block hash">{t.proof.blockHeight}</Term>}>
-          <span style={{ fontFamily: 'monospace', fontSize: '11px' }}>{tx.blockhash ?? 'n/a'}</span>
+        <Row label={<Term term="Confirmation">{t.proof.confirmations}</Term>}>{tx.confirmations ?? t.demo.na}</Row>
+        <Row label={<Term term="Block hash">{t.generic.hash}</Term>}>
+          <span style={{ fontFamily: 'monospace', fontSize: '11px' }}>{tx.blockhash ?? t.demo.na}</span>
         </Row>
-        <Row label={<Term term="Block height">block height</Term>}>{tx.blockheight ?? 'n/a'}</Row>
-        {tx.blocktime && <Row label="block time">{new Date(tx.blocktime * 1000).toISOString()}</Row>}
+        <Row label={<Term term="Block height">{t.proof.blockHeight}</Term>}>{tx.blockheight ?? t.demo.na}</Row>
+        {tx.blocktime && <Row label={t.inspector.blockTime}>{new Date(tx.blocktime * 1000).toISOString()}</Row>}
       </>}
-      {inMempool && <Row label={<Term term="Mempool">{t.proof.mempoolSeen}</Term>}>unconfirmed — pending inclusion in a block</Row>}
+      {inMempool && <Row label={<Term term="Mempool">{t.proof.mempoolSeen}</Term>}>{t.inspector.unconfirmedPending}</Row>}
     </div>
   )
 }
@@ -95,14 +100,14 @@ function VinTable({ vin }: { vin: TxInspectorData['vin'] }) {
       {vin.map((inp, i) => (
         <div key={i} style={{ background: '#0f172a', border: '1px solid #1f2937', borderRadius: '4px', padding: '8px 10px', marginBottom: '4px', fontSize: '11px', fontFamily: 'monospace' }}>
           {inp.coinbase
-            ? <span style={{ color: '#fbbf24' }}>coinbase input</span>
+            ? <span style={{ color: '#fbbf24' }}>{t.inspector.coinbaseInput}</span>
             : <>
               <span style={{ color: '#6b7280' }}>#{i} </span>
               <span style={{ color: '#93c5fd' }}>{inp.prev_txid?.slice(0, 16)}…:{inp.prev_vout}</span>
               {inp.address && <span style={{ color: '#4ade80', marginLeft: '8px' }}>{inp.address}</span>}
               {inp.value !== null && inp.value !== undefined
                 ? <span style={{ color: '#d1d5db', marginLeft: '8px' }}>{inp.value} BTC</span>
-                : <span style={{ color: '#6b7280', marginLeft: '8px', fontStyle: 'italic' }}>value unavailable</span>}
+                : <span style={{ color: '#6b7280', marginLeft: '8px', fontStyle: 'italic' }}>{t.inspector.valueUnavailable}</span>}
             </>}
         </div>
       ))}

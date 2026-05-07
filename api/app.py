@@ -233,7 +233,7 @@ def demo_run() -> dict:
 @app.post("/demo/step/{step_id}")
 def demo_step(step_id: str) -> dict:
     result = run_step(step_id)
-    if "error" in result and result.get("status") not in ("error", "unavailable"):
+    if result.get("error") and result.get("status") not in ("error", "unavailable"):
         raise HTTPException(status_code=400, detail=result["error"])
     return result
 
