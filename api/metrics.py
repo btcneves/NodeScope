@@ -156,6 +156,20 @@ if _PROMETHEUS_AVAILABLE:
         "Storage backend in use (1=sqlite, 0=memory)",
     )
 
+    # Fee estimation
+    FEE_ESTIMATION_RUNS_TOTAL = Counter(
+        "nodescope_fee_estimation_runs_total",
+        "Total fee estimation playground requests",
+    )
+    FEE_ESTIMATION_FAILURES_TOTAL = Counter(
+        "nodescope_fee_estimation_failures_total",
+        "Total fee estimation requests where no feerate was returned",
+    )
+    FEE_ESTIMATION_LAST_SUCCESS_TIMESTAMP = Gauge(
+        "nodescope_fee_estimation_last_success_timestamp_seconds",
+        "Unix timestamp of the last fee estimation that returned at least one feerate",
+    )
+
 
 # ---------------------------------------------------------------------------
 # Public helpers — called by app.py middleware and service functions
@@ -250,6 +264,16 @@ def record_simulation_tx() -> None:
     if not _PROMETHEUS_AVAILABLE:
         return
     SIMULATION_TXS_TOTAL.inc()
+
+
+def record_fee_estimation(*, success: bool) -> None:
+    if not _PROMETHEUS_AVAILABLE:
+        return
+    FEE_ESTIMATION_RUNS_TOTAL.inc()
+    if success:
+        FEE_ESTIMATION_LAST_SUCCESS_TIMESTAMP.set(time.time())
+    else:
+        FEE_ESTIMATION_FAILURES_TOTAL.inc()
 
 
 def update_storage_metrics(

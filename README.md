@@ -232,6 +232,37 @@ Available via `GET /mempool/cluster/compatibility` and in the **Policy Arena** t
 
 ---
 
+## Fee Estimation Playground
+
+The **Fee Estimation Playground** calls Bitcoin Core's `estimatesmartfee` RPC for multiple confirmation targets and displays the results side-by-side.
+
+**What it shows:**
+
+| Target | Fee rate (BTC/kvB) | Fee rate (sat/vB) | Status |
+|---|---|---|---|
+| 1 block | live RPC data | converted | success / limited / unavailable |
+| 3 blocks | live RPC data | converted | success / limited / unavailable |
+| 6 blocks | live RPC data | converted | success / limited / unavailable |
+| 12 blocks | live RPC data | converted | success / limited / unavailable |
+
+**Conversion:** `sat/vB = BTC/kvB × 100,000`
+
+**Estimation modes:** Conservative (higher fee, safer confirmation) and Economical (lower fee, potentially slower).
+
+**Comparison:** When a Guided Demo or Policy Arena scenario has been run, the playground optionally displays those fee rates alongside the estimates.
+
+**Regtest limitations:** In regtest there is no real fee market. `estimatesmartfee` may return `insufficient data` or have no historical transactions to learn from. Results are marked `success`, `limited`, or `unavailable` — no values are invented. This is documented honestly in the UI.
+
+**API endpoints:**
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/fees/estimate` | Fee estimates for 4 confirmation targets |
+| GET | `/fees/estimate?mode=ECONOMICAL` | Economical mode estimates |
+| GET | `/fees/compare` | Estimates + comparison with recent scenario fee rates |
+
+---
+
 ## Persistence and Historical Dashboard
 
 NodeScope automatically persists run metadata to a local SQLite database (`.nodescope/history.db`).

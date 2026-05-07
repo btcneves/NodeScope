@@ -34,6 +34,7 @@ import { ReorgLab } from './components/ReorgLab'
 import { SimulationPanel } from './components/SimulationPanel'
 import AlertingPanel from './components/AlertingPanel'
 import HistoricalDashboard from './components/HistoricalDashboard'
+import { FeeEstimationPlayground } from './components/FeeEstimationPlayground'
 import { Footer } from './components/Footer'
 import { ExplainBox } from './components/ui/ExplainBox'
 import {
@@ -215,6 +216,15 @@ export default function App() {
           {header}
           <main className="main" style={{ maxWidth: '1200px', margin: '0 auto' }}>
             <HistoricalDashboard />
+          </main>
+          <Footer />
+        </div>
+      ) : activeView === 'fee-estimation' ? (
+        <div className="app">
+          {header}
+          <main className="main" style={{ maxWidth: '960px', margin: '0 auto' }}>
+            <ExplainBox text={t.fees.explainBox} />
+            <FeeEstimationPlayground />
           </main>
           <Footer />
         </div>

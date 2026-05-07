@@ -48,6 +48,7 @@ http://localhost:5173
 | Proof Reports | Ready | JSON proof exported per demo/scenario/reorg run; copiável e downloadable. |
 | Persistence (SQLite) | Ready | Local SQLite storage of proof reports, demo/policy/reorg run history. Memory fallback if SQLite unavailable. |
 | Historical Dashboard | Ready | Browser dashboard listing all past runs across Proof Reports, Demo Runs, Policy Runs, and Reorg Runs with copy-proof support. |
+| Fee Estimation Playground | Ready | Live estimatesmartfee from Bitcoin Core for 1/3/6/12-block targets. Shows BTC/kvB and sat/vB. Compares with scenario fee rates. Regtest limitations documented honestly. |
 | PT-BR / EN-US | Ready | Full i18n toggle across all views; persisted via localStorage. |
 | Tooltips | Ready | Hover/focus tooltips on technical terms in all views. |
 | ExplainBox | Ready | Contextual explanation banners per page. |
@@ -93,6 +94,9 @@ The `/metrics` endpoint exposes Prometheus-compatible metrics when `prometheus-c
 - `nodescope_history_reorg_runs_total` — persisted reorg run records (Gauge)
 - `nodescope_storage_up` — 1 if the storage backend (SQLite or memory) is healthy (Gauge)
 - `nodescope_storage_backend_info` — label `backend` identifies the active backend (`sqlite` or `memory`)
+- `nodescope_fee_estimation_runs_total` — fee estimation playground requests
+- `nodescope_fee_estimation_failures_total` — requests where no feerate was returned
+- `nodescope_fee_estimation_last_success_timestamp_seconds` — last successful fee estimation timestamp
 
 ## Benchmark
 
@@ -144,6 +148,7 @@ The following features are planned for future phases and are **not yet implement
 
 | Feature | Status |
 |---|---|
+| Fee Estimation Playground | Ready (PR #8) |
 | Postgres / TimescaleDB for event persistence | Planned |
 | Historical dashboards | Ready (SQLite-backed) |
 | API keys / JWT for hosted deployments | Planned |

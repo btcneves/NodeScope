@@ -269,10 +269,34 @@ Saída: tabela de latência (min/média/mediana/p95/max) por endpoint. Resultado
 
 ---
 
+## Playground de Estimativa de Taxa
+
+O **Playground de Estimativa de Taxa** chama o RPC `estimatesmartfee` do Bitcoin Core para múltiplos alvos de confirmação e exibe os resultados lado a lado.
+
+**O que mostra:**
+- Taxa estimada em BTC/kvB e sat/vB para alvos de 1, 3, 6 e 12 blocos
+- Modo conservador (taxa mais alta, confirmação mais segura) e econômico (taxa mais baixa)
+- Comparação opcional com taxas reais usadas nos cenários da Policy Arena e Guided Demo
+
+**Conversão:** `sat/vB = BTC/kvB × 100.000`
+
+**Limitações do regtest:** Em regtest não há mercado real de taxas. O `estimatesmartfee` pode retornar dados insuficientes. Os resultados são marcados honestamente como `success`, `limited` ou `unavailable` — nenhum valor é inventado.
+
+**Endpoints:**
+
+| Método | Caminho | Descrição |
+|---|---|---|
+| GET | `/fees/estimate` | Estimativas para 4 alvos de confirmação |
+| GET | `/fees/estimate?mode=ECONOMICAL` | Modo econômico |
+| GET | `/fees/compare` | Estimativas + comparação com taxas reais dos cenários |
+
+---
+
 ## Roadmap
 
 | Funcionalidade | Status |
 |---|---|
+| Playground de Estimativa de Taxa | Pronto (PR #8) |
 | Suporte a signet/testnet | Planejado |
 | Visualização de cluster mempool (BC28+) | Planejado |
 | Postgres / TimescaleDB para persistência | Planejado |

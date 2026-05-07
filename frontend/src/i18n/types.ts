@@ -449,6 +449,35 @@ export interface Translations {
     memory: string
   }
 
+  // Fee Estimation Playground
+  fees: {
+    title: string
+    subtitle: string
+    mode: string
+    conservative: string
+    economical: string
+    targetBlocks: string
+    feerateBtcKvb: string
+    feerateSatVb: string
+    status: string
+    errors: string
+    refresh: string
+    compareWithRealFees: string
+    noHistoryAvailable: string
+    regtestWarning: string
+    learnMoreTitle: string
+    learnMoreBody: string
+    estimateUnavailable: string
+    estimateLimited: string
+    comparisonSource: string
+    noFeerates: string
+    runningEstimation: string
+    policyScenarioFee: string
+    conversionNote: string
+    navLabel: string
+    explainBox: string
+  }
+
   // Footer
   footer: {
     copyright: string

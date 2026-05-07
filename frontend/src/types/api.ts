@@ -408,3 +408,37 @@ export interface SimulationData {
   next_tx_in: number | null
   config: SimulationConfig
 }
+
+// --- Fee Estimation Playground ---
+
+export interface FeeEstimateItem {
+  target_blocks: number
+  estimate_mode: string
+  feerate_btc_kvb: number | null
+  feerate_sat_vb: number | null
+  blocks_returned: number | null
+  errors: string[]
+  status: 'success' | 'limited' | 'unavailable' | 'error'
+}
+
+export interface FeeComparisonItem {
+  source: string
+  label: string
+  feerate_sat_vb: number | null
+  feerate_btc_kvb: number | null
+  note: string | null
+}
+
+export interface FeeEstimateData {
+  network: string | null
+  bitcoin_core_version: string | null
+  estimate_mode: string
+  targets: number[]
+  estimates: FeeEstimateItem[]
+  warnings: string[]
+  unavailable_features: string[]
+  generated_at: string
+  compared_fee_rates: FeeComparisonItem[]
+  comparison_available: boolean
+  comparison_note: string | null
+}

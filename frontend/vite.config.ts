@@ -23,6 +23,7 @@ export default defineConfig({
       '/session': { target: apiTarget, changeOrigin: true },
       '/metrics': { target: apiTarget, changeOrigin: true },
       '/history': { target: apiTarget, changeOrigin: true },
+      '/fees': { target: apiTarget, changeOrigin: true },
     },
   },
 })

@@ -11,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import history_service, metrics, simulation_service
+from . import fee_service, history_service, metrics, simulation_service
 from .demo import STATIC_DIR, demo_page, root_redirect
 from .demo_service import (
     get_status as demo_get_status,
@@ -51,6 +51,7 @@ from .schemas import (
     DemoRunHistoryResponse,
     DemoStatusResponse,
     EventTapeResponse,
+    FeeEstimateResponse,
     HealthResponse,
     HistorySummaryResponse,
     IntelligenceSummaryResponse,
@@ -551,3 +552,28 @@ def history_reorg_runs(
 ) -> dict:
     items = history_service.get_reorg_runs(limit=limit, offset=offset)
     return {"items": items, "total_returned": len(items), "limit": limit, "offset": offset}
+
+
+# ---------------------------------------------------------------------------
+# Fee Estimation Playground — read-only endpoints
+# ---------------------------------------------------------------------------
+
+
+@app.get("/fees/estimate", response_model=FeeEstimateResponse)
+def fees_estimate(
+    mode: str = Query(default="CONSERVATIVE", description="CONSERVATIVE or ECONOMICAL"),
+) -> dict:
+    result = fee_service.get_fee_estimates(estimate_mode=mode)
+    any_success = any(e.get("status") == "success" for e in result.get("estimates", []))
+    metrics.record_fee_estimation(success=any_success)
+    return result
+
+
+@app.get("/fees/compare", response_model=FeeEstimateResponse)
+def fees_compare(
+    mode: str = Query(default="CONSERVATIVE", description="CONSERVATIVE or ECONOMICAL"),
+) -> dict:
+    result = fee_service.get_fee_comparison()
+    any_success = any(e.get("status") == "success" for e in result.get("estimates", []))
+    metrics.record_fee_estimation(success=any_success)
+    return result

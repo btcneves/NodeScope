@@ -75,4 +75,9 @@ export const api = {
   },
   historyReorgRuns: (limit = 20, offset = 0) =>
     get<import('../types/api').HistoryListResponse<import('../types/api').ReorgRunHistoryItem>>(`/history/reorg-runs?limit=${limit}&offset=${offset}`),
+  // Fee Estimation Playground
+  feesEstimate: (mode?: string) =>
+    get<import('../types/api').FeeEstimateData>(`/fees/estimate${mode ? `?mode=${mode}` : ''}`),
+  feesCompare: (mode?: string) =>
+    get<import('../types/api').FeeEstimateData>(`/fees/compare${mode ? `?mode=${mode}` : ''}`),
 }
