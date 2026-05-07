@@ -135,3 +135,181 @@ class IntelligenceSummaryResponse(BaseModel):
     classification_summary: dict[str, int]
     latest_block: BlockResponse | None
     latest_tx: TxResponse | None
+
+
+# --- Guided Demo schemas ---
+
+class DemoStepResponse(BaseModel):
+    id: str
+    title: str
+    status: str
+    friendly_message: str
+    technical_output: Any = None
+    timestamp: str | None = None
+    error: str | None = None
+    data: dict[str, Any] = Field(default_factory=dict)
+
+
+class DemoStatusResponse(BaseModel):
+    steps: list[DemoStepResponse]
+    proof: dict[str, Any] | None = None
+    running: bool
+
+
+class DemoProofResponse(BaseModel):
+    proof: dict[str, Any] | None
+
+
+# --- Transaction Inspector Premium ---
+
+class TxVinResponse(BaseModel):
+    coinbase: bool = False
+    coinbase_hex: str | None = None
+    prev_txid: str | None = None
+    prev_vout: int | None = None
+    sequence: int | None = None
+    value: float | None = None
+    address: str | None = None
+
+
+class TxVoutResponse(BaseModel):
+    n: int | None = None
+    value: float
+    address: str | None = None
+    script_type: str | None = None
+
+
+class TxInspectorResponse(BaseModel):
+    txid: str
+    wtxid: str | None = None
+    version: int | None = None
+    locktime: int | None = None
+    size: int | None = None
+    vsize: int | None = None
+    weight: int | None = None
+    fee_btc: Any = None
+    fee_rate_sat_vb: Any = None
+    confirmations: int | None = None
+    blockhash: str | None = None
+    blockheight: int | None = None
+    blocktime: int | None = None
+    time: int | None = None
+    mempool_status: str
+    replaceable: bool | None = None
+    total_output_btc: float | None = None
+    vin: list[TxVinResponse] = Field(default_factory=list)
+    vout: list[TxVoutResponse] = Field(default_factory=list)
+    vin_count: int = 0
+    vout_count: int = 0
+    related_zmq_events: list[dict[str, Any]] = Field(default_factory=list)
+    rpc_validation_status: str
+    warnings: list[str] = Field(default_factory=list)
+    unavailable_features: list[str] = Field(default_factory=list)
+
+
+# --- ZMQ Event Tape ---
+
+class TapeEventResponse(BaseModel):
+    ts: str | None = None
+    event: str
+    topic: str
+    txid: str | None = None
+    blockhash: str | None = None
+    short_id: str | None = None
+    height: int | None = None
+    vsize: int | None = None
+    has_op_return: bool | None = None
+    script_types: list[str] = Field(default_factory=list)
+    validation_status: str = "seen"
+
+
+class EventTapeResponse(BaseModel):
+    items: list[TapeEventResponse]
+    total: int
+    limit: int
+    topic_filter: str | None = None
+    txid_filter: str | None = None
+    source: str
+
+
+# --- Mempool Policy Arena ---
+
+class PolicyStepResponse(BaseModel):
+    id: str
+    title: str
+    status: str
+    friendly_message: str
+    technical_output: Any = None
+    timestamp: str | None = None
+    error: str | None = None
+    data: dict[str, Any] = Field(default_factory=dict)
+
+
+class PolicyScenarioResponse(BaseModel):
+    id: str
+    title: str
+    description: str
+    status: str
+    running: bool
+    steps: list[PolicyStepResponse]
+    proof: dict[str, Any] | None = None
+
+
+class PolicyScenarioSummary(BaseModel):
+    id: str
+    title: str
+    description: str
+    status: str
+    running: bool
+    step_count: int
+    has_proof: bool
+
+
+class ScenariosListResponse(BaseModel):
+    scenarios: list[PolicyScenarioSummary]
+
+
+class PolicyProofResponse(BaseModel):
+    scenario_id: str
+    proof: dict[str, Any] | None
+
+
+# --- Reorg Lab ---
+
+class ReorgStepResponse(BaseModel):
+    name: str
+    status: str
+    message: str
+    technical: Any = None
+    data: dict[str, Any] = Field(default_factory=dict)
+    timestamp: str | None = None
+
+
+class ReorgStatusResponse(BaseModel):
+    status: str
+    running: bool
+    network: str | None = None
+    steps: list[ReorgStepResponse] = Field(default_factory=list)
+    proof: dict[str, Any] | None = None
+    error: str | None = None
+    warning: str | None = None
+
+
+class ReorgProofResponse(BaseModel):
+    proof: dict[str, Any] | None
+
+
+# --- Cluster Mempool Compatibility ---
+
+class ClusterRpcResult(BaseModel):
+    rpc: str
+    supported: bool
+    reason: str | None = None
+
+
+class ClusterCompatibilityResponse(BaseModel):
+    bitcoin_core_version: str | None = None
+    supported: bool
+    rpcs: list[ClusterRpcResult] = Field(default_factory=list)
+    message: str
+    note: str | None = None

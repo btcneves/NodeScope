@@ -12,7 +12,7 @@ import type {
   TxData,
   IntelligenceData,
 } from './types/api'
-import { Header } from './components/Header'
+import { Header, type ActiveView } from './components/Header'
 import { KpiRow } from './components/KpiRow'
 import { MempoolPanel } from './components/MempoolPanel'
 import { LiveFeed } from './components/LiveFeed'
@@ -26,6 +26,11 @@ import { ReplayEnginePanel } from './components/ReplayEnginePanel'
 import { RpcZmqSyncPanel } from './components/RpcZmqSyncPanel'
 import { IntelligenceSummaryPanel } from './components/IntelligenceSummaryPanel'
 import { DemoView } from './components/DemoView'
+import { GuidedDemo } from './components/GuidedDemo'
+import { TransactionInspector } from './components/TransactionInspector'
+import { ZmqEventTape } from './components/ZmqEventTape'
+import { MempoolPolicyArena } from './components/MempoolPolicyArena'
+import { ReorgLab } from './components/ReorgLab'
 
 export default function App() {
   const [health, setHealth] = useState<HealthData | null>(null)
@@ -36,7 +41,10 @@ export default function App() {
   const [latestBlock, setLatestBlock] = useState<BlockData | null>(null)
   const [latestTx, setLatestTx] = useState<TxData | null>(null)
   const [intelligence, setIntelligence] = useState<IntelligenceData | null>(null)
+  const [activeView, setActiveView] = useState<ActiveView>('dashboard')
   const [demoView, setDemoView] = useState(false)
+  // Inspector txid — shared between ZMQ tape and inspector view
+  const [inspectorTxid, setInspectorTxid] = useState('')
   const { events: sseEvents, connected: sseConnected } = useSSE('/events/stream')
 
   const fetchAll = async () => {
@@ -69,6 +77,12 @@ export default function App() {
   const rpcOk = health?.rpc_ok ?? false
   const apiOk = health !== null
 
+  // Navigate to inspector with a given txid
+  const handleInspect = (txid: string) => {
+    setInspectorTxid(txid)
+    setActiveView('inspector')
+  }
+
   if (demoView) {
     return (
       <DemoView
@@ -84,16 +98,78 @@ export default function App() {
     )
   }
 
+  const header = (
+    <Header
+      network={network}
+      apiOk={apiOk}
+      rpcOk={rpcOk}
+      sseConnected={sseConnected}
+      onRefresh={() => { void fetchAll() }}
+      activeView={activeView}
+      onSetView={setActiveView}
+      onDemoView={() => setDemoView(true)}
+    />
+  )
+
+  if (activeView === 'guided-demo') {
+    return (
+      <div className="app">
+        {header}
+        <main className="main" style={{ maxWidth: '860px', margin: '0 auto' }}>
+          <GuidedDemo />
+        </main>
+      </div>
+    )
+  }
+
+  if (activeView === 'inspector') {
+    return (
+      <div className="app">
+        {header}
+        <main className="main" style={{ maxWidth: '860px', margin: '0 auto' }}>
+          <TransactionInspector initialTxid={inspectorTxid} />
+        </main>
+      </div>
+    )
+  }
+
+  if (activeView === 'zmq-tape') {
+    return (
+      <div className="app">
+        {header}
+        <main className="main" style={{ maxWidth: '960px', margin: '0 auto' }}>
+          <ZmqEventTape onInspectTxid={handleInspect} />
+        </main>
+      </div>
+    )
+  }
+
+  if (activeView === 'policy-arena') {
+    return (
+      <div className="app">
+        {header}
+        <main className="main" style={{ maxWidth: '1100px', margin: '0 auto' }}>
+          <MempoolPolicyArena />
+        </main>
+      </div>
+    )
+  }
+
+  if (activeView === 'reorg-lab') {
+    return (
+      <div className="app">
+        {header}
+        <main className="main" style={{ maxWidth: '900px', margin: '0 auto' }}>
+          <ReorgLab onInspect={handleInspect} />
+        </main>
+      </div>
+    )
+  }
+
+  // Default: dashboard
   return (
     <div className="app">
-      <Header
-        network={network}
-        apiOk={apiOk}
-        rpcOk={rpcOk}
-        sseConnected={sseConnected}
-        onRefresh={() => { void fetchAll() }}
-        onDemoView={() => setDemoView(true)}
-      />
+      {header}
       <main className="main">
         <KpiRow summary={summary} mempool={mempool} health={health} />
         <div className="grid-2">

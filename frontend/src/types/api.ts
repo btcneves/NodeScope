@@ -99,3 +99,226 @@ export interface IntelligenceData {
   latest_block: BlockData | null
   latest_tx: TxData | null
 }
+
+// --- Transaction Inspector Premium ---
+
+export interface TxVin {
+  coinbase: boolean
+  coinbase_hex?: string | null
+  prev_txid?: string | null
+  prev_vout?: number | null
+  sequence?: number | null
+  value?: number | null
+  address?: string | null
+}
+
+export interface TxVout {
+  n?: number | null
+  value: number
+  address?: string | null
+  script_type?: string | null
+}
+
+export interface TxInspectorData {
+  txid: string
+  wtxid?: string | null
+  version?: number | null
+  locktime?: number | null
+  size?: number | null
+  vsize?: number | null
+  weight?: number | null
+  fee_btc: number | string | null
+  fee_rate_sat_vb: number | string | null
+  confirmations?: number | null
+  blockhash?: string | null
+  blockheight?: number | null
+  blocktime?: number | null
+  time?: number | null
+  mempool_status: 'confirmed' | 'unconfirmed' | 'not_found' | 'unknown'
+  replaceable?: boolean | null
+  total_output_btc?: number | null
+  vin: TxVin[]
+  vout: TxVout[]
+  vin_count: number
+  vout_count: number
+  related_zmq_events: unknown[]
+  rpc_validation_status: 'validated' | 'not_found' | 'rpc_unavailable'
+  warnings: string[]
+  unavailable_features: string[]
+}
+
+// --- ZMQ Event Tape ---
+
+export interface TapeEvent {
+  ts?: string | null
+  event: string
+  topic: 'rawtx' | 'rawblock'
+  txid?: string | null
+  blockhash?: string | null
+  short_id?: string | null
+  height?: number | null
+  vsize?: number | null
+  has_op_return?: boolean | null
+  script_types: string[]
+  validation_status: string
+}
+
+export interface EventTapeData {
+  items: TapeEvent[]
+  total: number
+  limit: number
+  topic_filter?: string | null
+  txid_filter?: string | null
+  source: string
+}
+
+// --- Guided Demo types ---
+
+export type StepStatus = 'pending' | 'running' | 'success' | 'error' | 'unavailable' | 'experimental'
+
+export interface DemoStep {
+  id: string
+  title: string
+  status: StepStatus
+  friendly_message: string
+  technical_output: unknown
+  timestamp: string | null
+  error: string | null
+  data: Record<string, unknown>
+}
+
+export interface DemoProof {
+  scenario_name: string
+  network: string
+  bitcoin_core_version: unknown
+  rpc_ok: boolean
+  zmq_rawtx_ok: boolean
+  zmq_rawblock_ok: boolean
+  wallet: string
+  mining_address: string | null
+  destination_address: string | null
+  txid: string | null
+  wtxid: string | null
+  amount_btc: number | null
+  fee_btc: number | null
+  fee_rate_sat_vb: number | string
+  vsize_vbytes: number | string
+  weight_wu: number | string
+  mempool_seen: boolean
+  rawtx_event_seen: boolean
+  rawblock_event_seen: boolean
+  block_height: number | null
+  block_hash: string | null
+  confirmations: number
+  timestamps: Record<string, string | null>
+  success: boolean
+  warnings: string[]
+  unavailable_features: string[]
+}
+
+export interface DemoStatusData {
+  steps: DemoStep[]
+  proof: DemoProof | null
+  running: boolean
+}
+
+// --- Mempool Policy Arena ---
+
+export interface PolicyStep {
+  id: string
+  title: string
+  status: StepStatus
+  friendly_message: string
+  technical_output: unknown
+  timestamp: string | null
+  error: string | null
+  data: Record<string, unknown>
+}
+
+export interface PolicyScenario {
+  id: string
+  title: string
+  description: string
+  status: 'idle' | 'running' | 'success' | 'error' | 'experimental'
+  running: boolean
+  steps: PolicyStep[]
+  proof: Record<string, unknown> | null
+}
+
+export interface PolicyScenarioSummary {
+  id: string
+  title: string
+  description: string
+  status: string
+  running: boolean
+  step_count: number
+  has_proof: boolean
+}
+
+export interface ScenariosListData {
+  scenarios: PolicyScenarioSummary[]
+}
+
+export interface PolicyProofData {
+  scenario_id: string
+  proof: Record<string, unknown> | null
+}
+
+// --- Reorg Lab ---
+
+export interface ReorgStep {
+  name: string
+  status: StepStatus
+  message: string
+  technical: unknown
+  data: Record<string, unknown>
+  timestamp: string | null
+}
+
+export interface ReorgProof {
+  scenario: string
+  title: string
+  network: string
+  experimental: boolean
+  txid: string | null
+  amount_btc: number
+  original_block_hash: string | null
+  original_block_height: number | null
+  confirmations_before_reorg: number
+  invalidated_block_hash: string | null
+  mempool_status_after_invalidation: string
+  final_block_hash: string | null
+  final_block_height: number | null
+  final_confirmations: number
+  mempool_status_after_recovery: string
+  reconsider_block_called: boolean
+  success: boolean
+  warnings: string[]
+  unavailable_features: string[]
+}
+
+export interface ReorgStatusData {
+  status: 'idle' | 'running' | 'success' | 'error' | 'unavailable' | 'experimental'
+  running: boolean
+  network: string | null
+  steps: ReorgStep[]
+  proof: ReorgProof | null
+  error: string | null
+  warning: string | null
+}
+
+// --- Cluster Mempool Compatibility ---
+
+export interface ClusterRpcResult {
+  rpc: string
+  supported: boolean
+  reason: string | null
+}
+
+export interface ClusterCompatibilityData {
+  bitcoin_core_version: string | null
+  supported: boolean
+  rpcs: ClusterRpcResult[]
+  message: string
+  note: string | null
+}

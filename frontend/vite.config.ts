@@ -15,6 +15,9 @@ export default defineConfig({
       '/blocks': { target: apiTarget, changeOrigin: true },
       '/tx': { target: apiTarget, changeOrigin: true },
       '/intelligence': { target: apiTarget, changeOrigin: true },
+      '/demo': { target: apiTarget, changeOrigin: true },
+      '/tx/inspect': { target: apiTarget, changeOrigin: true },
+      '/policy': { target: apiTarget, changeOrigin: true },
     },
   },
 })

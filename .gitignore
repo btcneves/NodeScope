@@ -51,3 +51,12 @@ htmlcov/
 
 # Local-only workspace files
 .local/
+
+# Private operational files — never publish
+AGENTS.md
+PROJECT_MEMORY.md
+CLAUDE.md
+PRIVATE_NOTES.md
+.ai/
+.codex/
+.claude/
