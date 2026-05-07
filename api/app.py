@@ -6,7 +6,7 @@ import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -80,6 +80,30 @@ from .service import (
     get_tx_premium,
     iter_live_events_sse,
 )
+
+# ---------------------------------------------------------------------------
+# Optional API key protection for state-changing endpoints
+# ---------------------------------------------------------------------------
+
+_REQUIRE_API_KEY: bool = os.environ.get("NODESCOPE_REQUIRE_API_KEY", "false").lower() == "true"
+_API_KEY: str = os.environ.get("NODESCOPE_API_KEY", "")
+
+
+async def _verify_api_key(
+    x_nodescope_api_key: str | None = Header(default=None, alias="X-NodeScope-API-Key"),
+) -> None:
+    if not _REQUIRE_API_KEY:
+        return
+    if not _API_KEY:
+        raise HTTPException(
+            status_code=503,
+            detail="API key protection is enabled but no key is configured on the server",
+        )
+    if x_nodescope_api_key != _API_KEY:
+        raise HTTPException(status_code=401, detail="Invalid or missing X-NodeScope-API-Key header")
+
+
+_PROTECTED = [Depends(_verify_api_key)]
 
 
 @asynccontextmanager
@@ -283,13 +307,13 @@ def demo_status() -> dict:
     return demo_get_status()
 
 
-@app.post("/demo/run", response_model=DemoStatusResponse)
+@app.post("/demo/run", response_model=DemoStatusResponse, dependencies=_PROTECTED)
 def demo_run() -> dict:
     metrics.record_demo_run()
     return start_full_demo()
 
 
-@app.post("/demo/step/{step_id}")
+@app.post("/demo/step/{step_id}", dependencies=_PROTECTED)
 def demo_step(step_id: str) -> dict:
     result = run_step(step_id)
     if result.get("error") and result.get("status") not in ("error", "unavailable"):
@@ -297,7 +321,7 @@ def demo_step(step_id: str) -> dict:
     return result
 
 
-@app.post("/demo/reset", response_model=DemoStatusResponse)
+@app.post("/demo/reset", response_model=DemoStatusResponse, dependencies=_PROTECTED)
 def demo_reset() -> dict:
     return reset_demo()
 
@@ -321,7 +345,9 @@ def policy_scenarios() -> dict:
     return {"scenarios": list_scenarios()}
 
 
-@app.post("/policy/run/{scenario_id}", response_model=PolicyScenarioResponse)
+@app.post(
+    "/policy/run/{scenario_id}", response_model=PolicyScenarioResponse, dependencies=_PROTECTED
+)
 def policy_run(scenario_id: str) -> dict:
     metrics.record_policy_scenario(scenario_id)
     result = run_scenario(scenario_id)
@@ -338,7 +364,9 @@ def policy_status(scenario_id: str) -> dict:
     return result
 
 
-@app.post("/policy/reset/{scenario_id}", response_model=PolicyScenarioResponse)
+@app.post(
+    "/policy/reset/{scenario_id}", response_model=PolicyScenarioResponse, dependencies=_PROTECTED
+)
 def policy_reset_one(scenario_id: str) -> dict:
     result = reset_scenario(scenario_id)
     if result is None:
@@ -346,7 +374,7 @@ def policy_reset_one(scenario_id: str) -> dict:
     return result
 
 
-@app.post("/policy/reset", response_model=ScenariosListResponse)
+@app.post("/policy/reset", response_model=ScenariosListResponse, dependencies=_PROTECTED)
 def policy_reset_all_endpoint() -> dict:
     return {"scenarios": policy_reset_all()}
 
@@ -376,13 +404,13 @@ def reorg_status() -> dict:
     return reorg_get_status()
 
 
-@app.post("/reorg/run", response_model=ReorgStatusResponse)
+@app.post("/reorg/run", response_model=ReorgStatusResponse, dependencies=_PROTECTED)
 def reorg_run_endpoint() -> dict:
     metrics.record_reorg_run()
     return reorg_run()
 
 
-@app.post("/reorg/reset", response_model=ReorgStatusResponse)
+@app.post("/reorg/reset", response_model=ReorgStatusResponse, dependencies=_PROTECTED)
 def reorg_reset_endpoint() -> dict:
     return reorg_reset()
 
@@ -412,17 +440,17 @@ def simulation_status() -> dict:
     return simulation_service.get_status()
 
 
-@app.post("/simulation/start", response_model=SimulationStatusResponse)
+@app.post("/simulation/start", response_model=SimulationStatusResponse, dependencies=_PROTECTED)
 def simulation_start() -> dict:
     return simulation_service.start()
 
 
-@app.post("/simulation/stop", response_model=SimulationStatusResponse)
+@app.post("/simulation/stop", response_model=SimulationStatusResponse, dependencies=_PROTECTED)
 def simulation_stop() -> dict:
     return simulation_service.stop()
 
 
-@app.put("/simulation/config", response_model=SimulationStatusResponse)
+@app.put("/simulation/config", response_model=SimulationStatusResponse, dependencies=_PROTECTED)
 def simulation_config(req: SimulationConfigRequest) -> dict:
     return simulation_service.configure(
         block_interval=req.block_interval,
@@ -435,7 +463,7 @@ def simulation_config(req: SimulationConfigRequest) -> dict:
 # ---------------------------------------------------------------------------
 
 
-@app.post("/session/reset")
+@app.post("/session/reset", dependencies=_PROTECTED)
 def session_reset() -> dict:
     log_dir = os.environ.get("NODESCOPE_LOG_DIR", "/app/logs")
     today = datetime.date.today().isoformat()

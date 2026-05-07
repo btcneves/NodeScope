@@ -400,4 +400,19 @@ export const enUS: Translations = {
     time: 'Time',
     unknown: 'Unknown',
   },
+
+  footer: {
+    copyright: '© 2026 Pedro Neves · NodeScope',
+    github: 'GitHub',
+    repository: 'Repository',
+    docs: 'Docs',
+    projectStatus: 'Project Status',
+    roadmap: 'Roadmap',
+    security: 'Security',
+    license: 'License',
+    contact: 'Contact',
+    tagline: 'Bitcoin Core observability, learning, and proof-based demos.',
+    disclaimer:
+      'Independent educational/professional Bitcoin Core lab. Not affiliated with Bitcoin Core maintainers.',
+  },
 }

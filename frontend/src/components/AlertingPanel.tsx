@@ -91,14 +91,6 @@ export default function AlertingPanel() {
       // Not critical
     }
 
-    // --- Reorg Lab experimental (persistent info) ---
-    newAlerts.push({
-      id: 'reorg_experimental',
-      severity: 'info',
-      title: t.alerts.reorgExperimental,
-      description: t.alerts.reorgExperimentalDesc,
-    })
-
     setAlerts(newAlerts)
     setLastCheck(new Date())
   }
@@ -110,17 +102,16 @@ export default function AlertingPanel() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const hasCritical = alerts.some((a) => a.severity === 'critical')
-  const hasWarning = alerts.some((a) => a.severity === 'warning')
+  const actionable = alerts.filter((a) => a.severity === 'critical' || a.severity === 'warning')
+  const allGood = actionable.length === 0
+  const hasCritical = actionable.some((a) => a.severity === 'critical')
+  const hasWarning = actionable.some((a) => a.severity === 'warning')
   const panelBorder = hasCritical
     ? '1px solid rgba(239,68,68,0.4)'
     : hasWarning
       ? '1px solid rgba(245,158,11,0.3)'
       : '1px solid rgba(34,197,94,0.3)'
   const panelHeaderColor = hasCritical ? '#ef4444' : hasWarning ? '#f59e0b' : '#22c55e'
-
-  const meaningful = alerts.filter((a) => a.id !== 'reorg_experimental' && a.id !== 'cluster_unavailable')
-  const allGood = meaningful.length === 0
 
   return (
     <div
@@ -143,14 +134,14 @@ export default function AlertingPanel() {
         )}
       </div>
 
-      {allGood && alerts.filter((a) => a.id !== 'reorg_experimental').length === 0 ? (
+      {allGood ? (
         <div style={{ color: '#22c55e', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
           <span>✓</span>
           <span>{t.alerts.allGood}</span>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {alerts.map((alert) => (
+          {actionable.map((alert) => (
             <div
               key={alert.id}
               style={{
