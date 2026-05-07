@@ -66,19 +66,23 @@ def benchmark(base_url: str, runs: int) -> list[dict]:
             statuses.append(status)
 
         ok_statuses = [s for s in statuses if 200 <= s < 300]
-        results.append({
-            "endpoint": path,
-            "label": label,
-            "method": method,
-            "runs": runs,
-            "success_rate": len(ok_statuses) / runs,
-            "min_ms": round(min(latencies), 2),
-            "max_ms": round(max(latencies), 2),
-            "mean_ms": round(statistics.mean(latencies), 2),
-            "median_ms": round(statistics.median(latencies), 2),
-            "p95_ms": round(sorted(latencies)[max(0, int(runs * 0.95) - 1)], 2) if runs >= 2 else latencies[0],
-            "last_status": statuses[-1],
-        })
+        results.append(
+            {
+                "endpoint": path,
+                "label": label,
+                "method": method,
+                "runs": runs,
+                "success_rate": len(ok_statuses) / runs,
+                "min_ms": round(min(latencies), 2),
+                "max_ms": round(max(latencies), 2),
+                "mean_ms": round(statistics.mean(latencies), 2),
+                "median_ms": round(statistics.median(latencies), 2),
+                "p95_ms": round(sorted(latencies)[max(0, int(runs * 0.95) - 1)], 2)
+                if runs >= 2
+                else latencies[0],
+                "last_status": statuses[-1],
+            }
+        )
     return results
 
 
@@ -113,7 +117,9 @@ def print_table(results: list[dict], base_url: str, runs: int) -> None:
         )
         print(row)
     print()
-    print("Note: latency includes local network round-trip. Run with backend on same host for best accuracy.")
+    print(
+        "Note: latency includes local network round-trip. Run with backend on same host for best accuracy."
+    )
     print("Environment: regtest (Bitcoin Core), Docker Compose or local uvicorn.")
     print()
 
@@ -146,7 +152,9 @@ def main() -> int:
     results = benchmark(args.base_url, args.runs)
 
     if args.json:
-        print(json.dumps({"base_url": args.base_url, "runs": args.runs, "results": results}, indent=2))
+        print(
+            json.dumps({"base_url": args.base_url, "runs": args.runs, "results": results}, indent=2)
+        )
     else:
         print_table(results, args.base_url, args.runs)
 
