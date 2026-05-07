@@ -381,6 +381,31 @@ export interface Translations {
     whyMatters: string
   }
 
+  // Alerting panel
+  alerts: {
+    title: string
+    allGood: string
+    rpcOffline: string
+    rpcOfflineDesc: string
+    zmqStale: string
+    zmqStaleDesc: string
+    demoFailure: string
+    demoFailureDesc: string
+    simulationError: string
+    simulationErrorDesc: string
+    clusterUnavailable: string
+    clusterUnavailableDesc: string
+    reorgExperimental: string
+    reorgExperimentalDesc: string
+    metricsUnavailable: string
+    metricsUnavailableDesc: string
+    severity: {
+      critical: string
+      warning: string
+      info: string
+    }
+  }
+
   // Generic
   generic: {
     error: string

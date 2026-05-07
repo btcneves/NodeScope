@@ -2,15 +2,16 @@ from __future__ import annotations
 
 import datetime
 import os
+import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import simulation_service
+from . import metrics, simulation_service
 from .demo import STATIC_DIR, demo_page, root_redirect
 from .demo_service import (
     get_status as demo_get_status,
@@ -87,6 +88,25 @@ async def lifespan(app: FastAPI):
     yield
 
 
+# ---------------------------------------------------------------------------
+# Metrics middleware — records per-request counters and latency
+# ---------------------------------------------------------------------------
+
+_SKIP_METRICS_PATHS = {"/metrics", "/", "/demo", "/static"}
+
+
+async def metrics_middleware(request: Request, call_next):  # type: ignore[no-untyped-def]
+    if request.url.path in _SKIP_METRICS_PATHS or request.url.path.startswith("/static"):
+        return await call_next(request)
+    start = time.perf_counter()
+    response = await call_next(request)
+    duration = time.perf_counter() - start
+    # Normalise dynamic segments so cardinality stays bounded
+    endpoint = request.url.path
+    metrics.record_http_request(request.method, endpoint, response.status_code, duration)
+    return response
+
+
 app = FastAPI(
     title="NodeScope API",
     version="0.2.0",
@@ -105,6 +125,7 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT"],
     allow_headers=["*"],
 )
+app.middleware("http")(metrics_middleware)
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
@@ -127,7 +148,9 @@ def demo():
 
 @app.get("/health", response_model=HealthResponse)
 def health(log_dir: str | None = None, file: str | None = None) -> dict:
-    return build_health(log_dir=_resolve_path(log_dir), file=_resolve_path(file))
+    result = build_health(log_dir=_resolve_path(log_dir), file=_resolve_path(file))
+    metrics.set_rpc_up(bool(result.get("rpc_ok")))
+    return result
 
 
 @app.get("/summary", response_model=SummaryResponse)
@@ -137,7 +160,17 @@ def summary(log_dir: str | None = None, file: str | None = None) -> dict:
 
 @app.get("/mempool/summary", response_model=MempoolSummaryResponse)
 def mempool_summary() -> dict:
-    return get_mempool_summary()
+    result = get_mempool_summary()
+    if result.get("rpc_ok"):
+        try:
+            from .rpc import get_client
+
+            mi = get_client().getmempoolinfo()
+            bi = get_client().getblockchaininfo()
+            metrics.update_chain_metrics(mi, bi)
+        except Exception:
+            pass
+    return result
 
 
 @app.get("/events/recent", response_model=RecentEventsResponse)
@@ -230,6 +263,17 @@ def event_tape_by_txid(txid: str, log_dir: str | None = None) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Prometheus metrics endpoint
+# ---------------------------------------------------------------------------
+
+
+@app.get("/metrics", include_in_schema=False)
+def prometheus_metrics() -> Response:
+    body, content_type = metrics.get_metrics_response()
+    return Response(content=body, media_type=content_type)
+
+
+# ---------------------------------------------------------------------------
 # Guided Demo endpoints
 # ---------------------------------------------------------------------------
 
@@ -241,6 +285,7 @@ def demo_status() -> dict:
 
 @app.post("/demo/run", response_model=DemoStatusResponse)
 def demo_run() -> dict:
+    metrics.record_demo_run()
     return start_full_demo()
 
 
@@ -260,7 +305,10 @@ def demo_reset() -> dict:
 @app.get("/demo/proof", response_model=DemoProofResponse)
 def demo_proof() -> dict:
     status = demo_get_status()
-    return {"proof": status.get("proof")}
+    proof = status.get("proof")
+    if proof and proof.get("success"):
+        metrics.record_proof_report("guided_demo")
+    return {"proof": proof}
 
 
 # ---------------------------------------------------------------------------
@@ -275,6 +323,7 @@ def policy_scenarios() -> dict:
 
 @app.post("/policy/run/{scenario_id}", response_model=PolicyScenarioResponse)
 def policy_run(scenario_id: str) -> dict:
+    metrics.record_policy_scenario(scenario_id)
     result = run_scenario(scenario_id)
     if result is None:
         raise HTTPException(status_code=404, detail=f"Unknown scenario: {scenario_id}")
@@ -312,6 +361,8 @@ def policy_proof(scenario_id: str) -> dict:
         "cpfp_package",
     ]:
         raise HTTPException(status_code=404, detail=f"Unknown scenario: {scenario_id}")
+    if proof and proof.get("success"):
+        metrics.record_proof_report(f"policy_{scenario_id}")
     return {"scenario_id": scenario_id, "proof": proof}
 
 
@@ -327,6 +378,7 @@ def reorg_status() -> dict:
 
 @app.post("/reorg/run", response_model=ReorgStatusResponse)
 def reorg_run_endpoint() -> dict:
+    metrics.record_reorg_run()
     return reorg_run()
 
 

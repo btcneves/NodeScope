@@ -326,6 +326,58 @@ Technical terms across the interface include interactive tooltips. Hover over (o
 
 ---
 
+## Observability
+
+### Prometheus Metrics
+
+NodeScope exposes a Prometheus-compatible `/metrics` endpoint when `prometheus-client` is installed (included in `requirements.txt`):
+
+```bash
+curl http://127.0.0.1:8000/metrics
+```
+
+Key metrics:
+
+| Metric | Type | Description |
+|---|---|---|
+| `nodescope_http_requests_total` | Counter | HTTP requests by method/endpoint/status |
+| `nodescope_http_request_duration_seconds` | Histogram | Request latency |
+| `nodescope_rpc_up` | Gauge | 1 if Bitcoin Core RPC is reachable |
+| `nodescope_rpc_requests_total` | Counter | RPC calls to Bitcoin Core |
+| `nodescope_zmq_rawtx_events_total` | Counter | rawtx ZMQ events captured |
+| `nodescope_zmq_rawblock_events_total` | Counter | rawblock ZMQ events captured |
+| `nodescope_mempool_tx_count` | Gauge | Transactions in the mempool |
+| `nodescope_chain_height` | Gauge | Current best chain height |
+| `nodescope_demo_runs_total` | Counter | Guided Demo full runs |
+| `nodescope_policy_scenarios_total` | Counter | Policy Arena runs by scenario |
+| `nodescope_reorg_runs_total` | Counter | Reorg Lab runs |
+| `nodescope_proof_reports_total` | Counter | Proof reports generated |
+
+### Operational Alerting
+
+The dashboard includes an **Operational Alerts** panel that polls the API every 15 seconds and surfaces:
+
+- Bitcoin Core RPC offline (critical)
+- Live simulation errors (warning)
+- Cluster mempool RPCs unavailable (info — expected on BC26)
+- Reorg Lab experimental note (info)
+
+Alerts are displayed in EN-US or PT-BR according to the active language toggle.
+
+### Benchmark
+
+Measure API latency against a running stack:
+
+```bash
+python3 scripts/benchmark_nodescope.py
+# or
+make benchmark
+```
+
+Output: latency table (min/mean/median/p95/max) per endpoint. Results vary by host.
+
+---
+
 ## Limitations
 
 - **Regtest-only** for demo scenarios. Mainnet/signet/testnet observability is possible with configuration changes but not validated in this release.
@@ -333,18 +385,25 @@ Technical terms across the interface include interactive tooltips. Hover over (o
 - **Reorg Lab** is marked **experimental**: the scenario is reproducible in regtest but may behave differently depending on wallet state.
 - **CPFP child construction** requires the parent output to be tracked in the wallet (`listunspent minconf=0`). If not found, a fallback path is used and the proof records it.
 - **ZMQ events** are stored as NDJSON in `logs/`. There is no persistence across container restarts.
+- **Prometheus metrics** require `prometheus-client` (included in `requirements.txt`). If not installed, `/metrics` returns a plain-text unavailability notice.
 
 ---
 
 ## Roadmap
 
-- [ ] Signet/testnet support with real peer-to-peer propagation
-- [ ] Cluster mempool visualization (pending Bitcoin Core 28+ upgrade)
-- [ ] Mempool eviction scenario
-- [ ] Multi-node topology (propagation delay simulation)
-- [ ] Fee estimation analysis (`estimatesmartfee`)
-- [ ] Descriptor wallet support
-- [ ] Lightning channel funding transaction inspection
+| Feature | Status |
+|---|---|
+| Signet/testnet support | Planned |
+| Cluster mempool visualization (Bitcoin Core 28+) | Planned |
+| Mempool eviction scenario | Planned |
+| Multi-node topology | Planned |
+| Postgres / TimescaleDB for event persistence | Planned |
+| Historical dashboards | Planned |
+| API keys / JWT for hosted deployments | Planned |
+| OpenTelemetry traces | Planned |
+| Kubernetes manifests / Helm chart | Planned |
+| Grafana integration | Planned |
+| Fee estimation analysis (`estimatesmartfee`) | Planned |
 
 ---
 

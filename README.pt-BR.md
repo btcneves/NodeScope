@@ -214,13 +214,65 @@ NodeScope/
 
 Detalhes: [docs/troubleshooting.md](docs/troubleshooting.md).
 
+## Observabilidade
+
+### Métricas Prometheus
+
+O NodeScope expõe um endpoint `/metrics` compatível com Prometheus quando `prometheus-client` está instalado (incluído em `requirements.txt`):
+
+```bash
+curl http://127.0.0.1:8000/metrics
+```
+
+Métricas principais:
+
+| Métrica | Tipo | Descrição |
+|---|---|---|
+| `nodescope_http_requests_total` | Counter | Requisições HTTP por método/endpoint/status |
+| `nodescope_rpc_up` | Gauge | 1 se o Bitcoin Core RPC está acessível |
+| `nodescope_zmq_rawtx_events_total` | Counter | Eventos rawtx ZMQ capturados |
+| `nodescope_zmq_rawblock_events_total` | Counter | Eventos rawblock ZMQ capturados |
+| `nodescope_mempool_tx_count` | Gauge | Transações na mempool |
+| `nodescope_chain_height` | Gauge | Altura atual da cadeia |
+| `nodescope_demo_runs_total` | Counter | Execuções completas da Guided Demo |
+| `nodescope_proof_reports_total` | Counter | Relatórios de prova gerados |
+
+### Alertas Operacionais
+
+O dashboard inclui um painel de **Alertas Operacionais** que verifica o estado da API a cada 15 segundos e exibe:
+
+- Bitcoin Core RPC offline (crítico)
+- Erros na simulação ao vivo (aviso)
+- RPCs de cluster mempool indisponíveis (info — esperado no BC26)
+- Nota experimental do Reorg Lab (info)
+
+Os alertas são exibidos em PT-BR ou EN-US conforme o idioma selecionado.
+
+### Benchmark Reproduzível
+
+```bash
+python3 scripts/benchmark_nodescope.py
+# ou
+make benchmark
+```
+
+Saída: tabela de latência (min/média/mediana/p95/max) por endpoint. Resultados variam conforme o ambiente.
+
+---
+
 ## Roadmap
 
-- Modo observador read-only em signet.
-- Export de métricas persistentes.
-- Heurísticas de classificação mais ricas.
-- Filtros no dashboard por tipo de evento, confidence e script type.
-- Autenticação para deploys remotos.
+| Funcionalidade | Status |
+|---|---|
+| Suporte a signet/testnet | Planejado |
+| Visualização de cluster mempool (BC28+) | Planejado |
+| Postgres / TimescaleDB para persistência | Planejado |
+| Dashboards históricos | Planejado |
+| API keys / JWT para deploys remotos | Planejado |
+| OpenTelemetry traces | Planejado |
+| Kubernetes / Helm | Planejado |
+| Integração com Grafana | Planejado |
+| Suporte multi-nó | Planejado |
 
 Ver [ROADMAP.md](ROADMAP.md) para o planejamento detalhado.
 
