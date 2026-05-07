@@ -12,7 +12,7 @@ export function LiveFeed({ sseEvents, connected }: Props) {
   return (
     <div className="panel">
       <div className="panel-header">
-        <span className="panel-title"><Term term="ZMQ">{t.dashboard.liveEvents}</Term></span>
+        <span className="panel-title"><Term text={t.panelDesc.liveFeed}>{t.dashboard.liveEvents}</Term></span>
         <span className="live-indicator">
           <span
             className="live-dot"

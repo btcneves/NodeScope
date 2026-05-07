@@ -15,7 +15,7 @@ export function LearnMore({ children, title }: Props) {
       border: '1px solid #1e3a5f',
       borderRadius: 6,
       padding: '8px 14px',
-      marginTop: 12,
+      marginTop: 10,
       fontFamily: 'monospace',
     }}>
       <summary style={{

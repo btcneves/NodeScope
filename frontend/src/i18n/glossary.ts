@@ -108,6 +108,16 @@ export const glossary: GlossaryEntry[] = [
     'en-US': 'ZMQ event published when a new block is connected to the chain. Contains raw block bytes.',
   },
   {
+    term: 'Normal transaction',
+    'pt-BR': 'Transação padrão que atende à taxa mínima de relay. Entra na mempool imediatamente e é confirmada no próximo bloco minerado.',
+    'en-US': 'Standard transaction meeting the minimum relay fee. Enters the mempool immediately and confirms in the next mined block.',
+  },
+  {
+    term: 'Low fee',
+    'pt-BR': 'Transação com taxa próxima do mínimo (1 sat/vbyte). Pode demorar para confirmar ou ser despejada se a mempool encher.',
+    'en-US': 'Transaction with fee rate near the minimum threshold (1 sat/vbyte). May be slow to confirm or evicted if the mempool fills.',
+  },
+  {
     term: 'RBF',
     'pt-BR': 'Replace-By-Fee (BIP125): permite substituir uma transação não confirmada por outra com taxa maior.',
     'en-US': 'Replace-By-Fee (BIP125): allows replacing an unconfirmed transaction with a higher-fee version.',

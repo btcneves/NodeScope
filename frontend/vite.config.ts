@@ -19,6 +19,8 @@ export default defineConfig({
       '/tx/inspect': { target: apiTarget, changeOrigin: true },
       '/policy': { target: apiTarget, changeOrigin: true },
       '/reorg': { target: apiTarget, changeOrigin: true },
+      '/simulation': { target: apiTarget, changeOrigin: true },
+      '/session': { target: apiTarget, changeOrigin: true },
     },
   },
 })

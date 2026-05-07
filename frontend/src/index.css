@@ -17,6 +17,26 @@
   padding: 0;
 }
 
+/* Thin dark scrollbar — webkit */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+::-webkit-scrollbar-corner { background: transparent; }
+
+/* Thin dark scrollbar — Firefox */
+* { scrollbar-width: thin; scrollbar-color: #30363d transparent; }
+
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 body {
   background: var(--bg);
   color: var(--text);
@@ -397,59 +417,17 @@ body {
 /* ── Node Health Score ───────────────────────────────────────────── */
 
 .health-score-panel {
-  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
 }
 
 .health-score-body {
-  padding: 20px 24px 16px;
-}
-
-.health-score-number {
-  font-size: 56px;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-  margin-bottom: 12px;
-}
-
-.health-score-number[data-label="healthy"]  { color: var(--accent-bright); }
-.health-score-number[data-label="degraded"] { color: var(--warn); }
-.health-score-number[data-label="critical"] { color: var(--error); }
-
-.health-score-bar-wrap {
-  background: var(--border);
-  border-radius: 4px;
-  height: 6px;
-  width: 100%;
-  margin-bottom: 12px;
-  overflow: hidden;
-}
-
-.health-score-bar {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 0.4s ease;
-}
-
-.health-score-bar[data-label="healthy"]  { background: var(--accent-bright); }
-.health-score-bar[data-label="degraded"] { background: var(--warn); }
-.health-score-bar[data-label="critical"] { background: var(--error); }
-
-.health-score-breakdown {
+  padding: 20px 20px 18px;
+  flex: 1;
   display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  justify-content: center;
 }
-
-.hs-item {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 4px;
-}
-
-.hs-item.ok   { background: rgba(63, 184, 134, 0.12); color: var(--accent-bright); }
-.hs-item.fail { background: rgba(139, 148, 158, 0.12); color: var(--muted); }
 
 .badge-health-healthy  { background: rgba(63, 184, 134, 0.15); color: var(--accent-bright); }
 .badge-health-degraded { background: rgba(227, 179, 65, 0.15); color: var(--warn); }
@@ -494,10 +472,15 @@ body {
   transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
 }
 
-.lifecycle-step--active .lifecycle-dot {
+.lifecycle-step--active .lifecycle-dot,
+.lifecycle-step--active-vert.lifecycle-step--active .lifecycle-dot {
   background: var(--accent-bright);
   border-color: var(--accent-bright);
   box-shadow: 0 0 8px var(--accent-bright);
+}
+
+.lifecycle-step--active-vert.lifecycle-step--active .lifecycle-label {
+  color: var(--text);
 }
 
 .lifecycle-label {
@@ -797,6 +780,8 @@ body {
 
 .intelligence-panel {
   margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .intelligence-loading {

@@ -31,9 +31,10 @@ const REORG_WARNING_KEYS: Record<string, 'warningExperimental' | 'warningRestore
 
 interface Props {
   onInspect?: (txid: string) => void
+  onGoToDashboard?: () => void
 }
 
-export function ReorgLab({ onInspect }: Props) {
+export function ReorgLab({ onInspect, onGoToDashboard }: Props) {
   const { t } = useI18n()
   const [data, setData] = useState<ReorgStatusData | null>(null)
   const [loading, setLoading] = useState(false)
@@ -116,7 +117,7 @@ export function ReorgLab({ onInspect }: Props) {
             {t.reorg.subtitle}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <button
             onClick={() => { void handleRun() }}
             disabled={loading || data?.running}
@@ -139,6 +140,18 @@ export function ReorgLab({ onInspect }: Props) {
           >
             {t.actions.reset}
           </button>
+          {status !== 'idle' && !data?.running && onGoToDashboard && (
+            <button
+              onClick={onGoToDashboard}
+              style={{
+                padding: '5px 12px', fontSize: '11px', background: 'transparent',
+                color: '#60a5fa', border: '1px solid #1e3a5f', borderRadius: '4px',
+                cursor: 'pointer', fontFamily: 'monospace',
+              }}
+            >
+              {t.reorg.viewOnDashboard}
+            </button>
+          )}
         </div>
       </div>
 

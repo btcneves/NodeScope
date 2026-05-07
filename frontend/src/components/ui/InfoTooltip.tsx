@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { useI18n } from '../../i18n'
 import { getGlossaryEntry } from '../../i18n/glossary'
 
@@ -8,10 +9,16 @@ interface Props {
   size?: number
 }
 
+interface TooltipCoords {
+  top?: number
+  bottom?: number
+  left: number
+}
+
 export function InfoTooltip({ term, text, size = 13 }: Props) {
   const { lang } = useI18n()
   const [visible, setVisible] = useState(false)
-  const [pos, setPos] = useState<'above' | 'below'>('below')
+  const [coords, setCoords] = useState<TooltipCoords>({ left: 0 })
   const ref = useRef<HTMLSpanElement>(null)
 
   const tip = text ?? (term ? getGlossaryEntry(term, lang) : undefined)
@@ -20,11 +27,44 @@ export function InfoTooltip({ term, text, size = 13 }: Props) {
   const show = () => {
     if (ref.current) {
       const rect = ref.current.getBoundingClientRect()
-      setPos(rect.bottom + 120 > window.innerHeight ? 'above' : 'below')
+      const tooltipHeight = 80
+      const willOverflow = rect.bottom + tooltipHeight + 8 > window.innerHeight
+      setCoords({
+        left: rect.left + rect.width / 2,
+        top: willOverflow ? undefined : rect.bottom + 6,
+        bottom: willOverflow ? window.innerHeight - rect.top + 6 : undefined,
+      })
     }
     setVisible(true)
   }
   const hide = () => setVisible(false)
+
+  const tooltip = visible ? createPortal(
+    <span style={{
+      position: 'fixed',
+      top: coords.top,
+      bottom: coords.bottom,
+      left: coords.left,
+      transform: 'translateX(-50%)',
+      background: '#1e293b',
+      color: '#e2e8f0',
+      border: '1px solid #334155',
+      borderRadius: 6,
+      padding: '6px 10px',
+      fontSize: 11,
+      fontFamily: 'monospace',
+      maxWidth: 260,
+      minWidth: 140,
+      zIndex: 99999,
+      pointerEvents: 'none',
+      lineHeight: 1.5,
+      whiteSpace: 'normal',
+      boxShadow: '0 4px 16px #00000066',
+    }}>
+      {tip}
+    </span>,
+    document.body
+  ) : null
 
   return (
     <span
@@ -56,39 +96,14 @@ export function InfoTooltip({ term, text, size = 13 }: Props) {
       }}>
         i
       </span>
-      {visible && (
-        <span style={{
-          position: 'absolute',
-          [pos === 'below' ? 'top' : 'bottom']: '100%',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          marginTop: pos === 'below' ? 4 : undefined,
-          marginBottom: pos === 'above' ? 4 : undefined,
-          background: '#1e293b',
-          color: '#e2e8f0',
-          border: '1px solid #334155',
-          borderRadius: 6,
-          padding: '6px 10px',
-          fontSize: 11,
-          fontFamily: 'monospace',
-          maxWidth: 260,
-          minWidth: 140,
-          zIndex: 9999,
-          pointerEvents: 'none',
-          lineHeight: 1.5,
-          whiteSpace: 'normal',
-          boxShadow: '0 4px 16px #00000066',
-        }}>
-          {tip}
-        </span>
-      )}
+      {tooltip}
     </span>
   )
 }
 
 interface TermProps {
   children: React.ReactNode
-  term: string
+  term?: string
   text?: string
 }
 

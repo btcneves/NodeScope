@@ -44,7 +44,8 @@ export const enUS: Translations = {
 
   header: {
     title: 'NodeScope',
-    demoView: 'Demo View',
+    newSession: '↺ New Session',
+    newSessionConfirm: 'Clear all captured events and start a new observation session?',
     apiStatus: 'API',
     rpcStatus: 'RPC',
     sseStatus: 'SSE',
@@ -62,6 +63,22 @@ export const enUS: Translations = {
     yes: 'yes',
     no: 'no',
     na: 'n/a',
+    stepDesc: {
+      check_rpc: 'Verifies the Bitcoin Core RPC connection is reachable and responds to getblockchaininfo.',
+      check_zmq: 'Queries getzmqnotifications to confirm ZMQ push sockets are configured for rawtx and rawblock channels.',
+      create_or_load_wallet: 'Creates or loads the nodescope_demo descriptor wallet used for sending and receiving in the demo.',
+      generate_mining_address: 'Derives a new bech32 (P2WPKH) address from the wallet to receive block subsidy rewards.',
+      mine_initial_blocks: 'Mines 101 blocks so the coinbase outputs are mature (≥100 confirmations) and spendable.',
+      create_destination_address: 'Derives a second wallet address to act as the recipient of the demo transaction.',
+      send_demo_transaction: 'Broadcasts a 0.001 BTC transaction from the wallet to the destination address via sendtoaddress RPC.',
+      detect_mempool_entry: 'Calls getmempoolentry to confirm the transaction is in the node\'s unconfirmed transaction pool.',
+      detect_zmq_rawtx: 'Captures the ZMQ rawtx push event that Bitcoin Core emits when a transaction enters the mempool.',
+      decode_transaction: 'Calls getrawtransaction + decoderawtransaction to extract inputs, outputs, fee, vbytes, weight and script types.',
+      mine_confirmation_block: 'Mines 1 block via generatetoaddress to include the transaction and produce its first confirmation.',
+      detect_zmq_rawblock: 'Captures the ZMQ rawblock push event that Bitcoin Core emits when a new block is connected to the chain.',
+      confirm_transaction: 'Calls gettransaction to verify the transaction has ≥1 confirmation and is now permanently on-chain.',
+      generate_proof_report: 'Assembles all collected data (RPC calls, ZMQ events, TXID, fees, block height, confirmations) into an exportable proof.',
+    },
   },
 
   proof: {
@@ -149,6 +166,11 @@ export const enUS: Translations = {
     noteRbf: 'RBF requires walletrbf=1 in bitcoind config; otherwise it is marked experimental.',
     noteCpfp: 'CPFP child construction uses the raw transaction pipeline and may fall back if the parent UTXO is not wallet-tracked.',
     noteStatus: 'Experimental means the scenario was attempted with a graceful fallback. Error means the scenario stopped.',
+    descNormal: 'Send a standard transaction, observe mempool entry, mine a block and confirm.',
+    descLowFee: 'Send with fee_rate=1 sat/vbyte, compare fee data vs a normal tx. Uses sendtoaddress fee_rate param (BC 26+).',
+    descRbf: 'Send a replaceable transaction, then use bumpfee to replace it with a higher-fee version before it confirms.',
+    descCpfp: 'Send a low-fee parent, then construct a child that spends the unconfirmed output with a higher fee to boost the package rate.',
+    viewOnDashboard: '↗ View on Dashboard',
   },
 
   reorg: {
@@ -182,6 +204,7 @@ export const enUS: Translations = {
     warningRestored: 'Chain was restored via a new block after invalidation.',
     yes: 'yes',
     no: 'no',
+    viewOnDashboard: '↗ View on Dashboard',
     steps: {
       checkNetwork: '1. Verify Regtest',
       ensureWallet: '2. Wallet & Funds',
@@ -209,6 +232,28 @@ export const enUS: Translations = {
     ancestors: 'Ancestors',
     descendants: 'Descendants',
     refresh: 'Refresh',
+  },
+
+  simulation: {
+    title: 'Live Simulation',
+    subtitle: 'Auto-mines blocks and broadcasts transactions to keep the node active',
+    running: 'running',
+    stopped: 'stopped',
+    start: 'Start',
+    stop: 'Stop',
+    blocksMined: 'Blocks',
+    txsSent: 'Txs',
+    errors: 'Errors',
+    nextBlock: 'Next block',
+    nextTx: 'Next tx',
+    blockInterval: 'Block interval',
+    txInterval: 'Tx interval',
+    seconds: 's',
+    configure: 'Configure',
+    lastBlock: 'Last block',
+    lastTx: 'Last tx',
+    height: 'height',
+    noActivity: 'Not started',
   },
 
   dashboard: {
@@ -267,6 +312,33 @@ export const enUS: Translations = {
     lifecycleBlockEventCaptured: 'block event captured',
     lifecycleConfirmed: 'Confirmed',
     lifecycleOnChain: 'on-chain',
+    lifecycleWaiting: 'waiting for next transaction',
+    lifecycleTracking: 'tracking',
+    mempoolPressure: 'Mempool pressure',
+    latestSignal: 'Latest signal',
+    replaySource: 'Source file',
+    replayTotal: 'Total events',
+    replayOther: 'Other events',
+    replayIgnored: 'Ignored lines',
+    replaySkipped: 'Skipped events',
+    replayable: 'replayable',
+  },
+
+  panelDesc: {
+    intelligence: 'Aggregated view of node health, connectivity status, mempool pressure and recent event classification. Derived from live RPC and ZMQ data.',
+    replayEngine: 'Reads the NDJSON event log written by the monitor. Shows how many ZMQ events have been captured and are available for replay or analysis.',
+    nodeHealth: 'Composite health score (0–100) computed from RPC connectivity, ZMQ subscription, mempool access and recent block activity.',
+    liveFeed: 'Real-time stream of ZMQ events as they arrive from Bitcoin Core — rawtx (new transactions) and rawblock (new blocks).',
+    events: 'Recent events captured from the ZMQ stream and stored in the event log. Includes transaction and block events.',
+    classifications: 'Each captured event is classified by type (coinbase, complex, simple, etc.) using heuristics applied to the decoded transaction.',
+    rpcZmqSync: 'Compares the latest block height seen via RPC with the latest rawblock event from ZMQ to detect drift between the two data sources.',
+  },
+
+  healthScore: {
+    rpc: 'RPC connection to Bitcoin Core is active. Contributes +40 to the health score. Without RPC the node cannot be queried.',
+    zmq: 'ZMQ event stream is connected and receiving events. Contributes +30. Without ZMQ, live transaction and block events are unavailable.',
+    mempool: 'Mempool data is accessible via RPC. Contributes +20. Indicates the node is processing and accepting transactions.',
+    blocks: 'Recent block activity detected (score ≥ 90). Contributes +10. Confirms the chain is actively progressing.',
   },
 
   explain: {
@@ -281,6 +353,8 @@ export const enUS: Translations = {
   },
 
   learn: {
+    normalTx: 'A standard Bitcoin transaction has one or more inputs (spending UTXOs) and outputs. Its fee rate (sat/vbyte) determines mempool priority. Miners select transactions in descending fee-rate order. The default minimum relay fee is 1 sat/vbyte — any transaction meeting this threshold enters the mempool and waits for inclusion in a block.',
+    lowFee: 'Transactions below the minimum relay fee are rejected outright by Bitcoin Core. Transactions just above the minimum may linger in the mempool when blocks are full, or be evicted when the mempool size limit (default 300 MB) is reached, dropping the lowest fee-rate entries first. Use RBF (bump fee) or CPFP (child transaction) to accelerate a stuck low-fee transaction.',
     rbf: 'Replace-By-Fee (BIP125): a sender can broadcast a new version of an unconfirmed transaction with a higher fee. Bitcoin Core replaces the original in the mempool if the new transaction pays at least the incremental relay fee. Miners prioritize higher-fee transactions, so RBF helps stuck transactions get confirmed faster.',
     cpfp: 'Child-Pays-For-Parent: when a parent transaction carries a low fee, a child transaction spending one of its outputs can include a high enough fee to make the combined fee rate attractive for miners. Miners evaluate the package together, so the child "pulls" the parent into the next block.',
     reorg: 'A chain reorganization occurs when a competing chain with more cumulative proof-of-work becomes the canonical chain. Bitcoin Core switches to the longer chain, reverting any blocks that are no longer in the main chain. Transactions from reverted blocks return to the mempool and await re-confirmation.',

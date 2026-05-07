@@ -62,5 +62,7 @@ export function useSSE(url: string) {
     }
   }, [url])
 
-  return { events, connected }
+  const clearEvents = () => setEvents([])
+
+  return { events, connected, clearEvents }
 }
