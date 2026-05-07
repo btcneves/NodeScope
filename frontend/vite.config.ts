@@ -22,6 +22,7 @@ export default defineConfig({
       '/simulation': { target: apiTarget, changeOrigin: true },
       '/session': { target: apiTarget, changeOrigin: true },
       '/metrics': { target: apiTarget, changeOrigin: true },
+      '/history': { target: apiTarget, changeOrigin: true },
     },
   },
 })

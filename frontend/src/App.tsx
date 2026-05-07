@@ -33,6 +33,7 @@ import { MempoolPolicyArena } from './components/MempoolPolicyArena'
 import { ReorgLab } from './components/ReorgLab'
 import { SimulationPanel } from './components/SimulationPanel'
 import AlertingPanel from './components/AlertingPanel'
+import HistoricalDashboard from './components/HistoricalDashboard'
 import { Footer } from './components/Footer'
 import { ExplainBox } from './components/ui/ExplainBox'
 import {
@@ -206,6 +207,14 @@ export default function App() {
           <main className="main" style={{ maxWidth: '900px', margin: '0 auto' }}>
             <ExplainBox text={t.explain.reorgLab} />
             <ReorgLab onInspect={handleInspect} onGoToDashboard={() => setActiveView('dashboard')} />
+          </main>
+          <Footer />
+        </div>
+      ) : activeView === 'history' ? (
+        <div className="app">
+          {header}
+          <main className="main" style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            <HistoricalDashboard />
           </main>
           <Footer />
         </div>

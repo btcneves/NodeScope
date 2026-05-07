@@ -75,6 +75,8 @@ flowchart LR
 | CI com testes, build e public-clean | Pronto |
 | Node Health Score visual | Pronto |
 | Transaction Lifecycle animado | Pronto |
+| Persistência SQLite com fallback em memória | Pronto |
+| Dashboard Histórico (Demo, Policy, Reorg, Provas) | Pronto |
 
 ## Início Rápido com Docker
 
@@ -237,6 +239,12 @@ Métricas principais:
 | `nodescope_chain_height` | Gauge | Altura atual da cadeia |
 | `nodescope_demo_runs_total` | Counter | Execuções completas da Guided Demo |
 | `nodescope_proof_reports_total` | Counter | Relatórios de prova gerados |
+| `nodescope_history_proof_reports_total` | Gauge | Provas persistidas no armazenamento |
+| `nodescope_history_demo_runs_total` | Gauge | Registros de demo persistidos |
+| `nodescope_history_policy_runs_total` | Gauge | Registros de policy runs persistidos |
+| `nodescope_history_reorg_runs_total` | Gauge | Registros de reorg runs persistidos |
+| `nodescope_storage_up` | Gauge | 1 se o backend de armazenamento está saudável |
+| `nodescope_storage_backend_info` | Info | Backend ativo (`sqlite` ou `memory`) |
 
 ### Alertas Operacionais
 
@@ -268,7 +276,7 @@ Saída: tabela de latência (min/média/mediana/p95/max) por endpoint. Resultado
 | Suporte a signet/testnet | Planejado |
 | Visualização de cluster mempool (BC28+) | Planejado |
 | Postgres / TimescaleDB para persistência | Planejado |
-| Dashboards históricos | Planejado |
+| Dashboards históricos | Pronto (SQLite) |
 | API keys / JWT para deploys remotos | Planejado |
 | OpenTelemetry traces | Planejado |
 | Kubernetes / Helm | Planejado |

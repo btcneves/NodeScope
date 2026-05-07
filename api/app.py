@@ -11,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import metrics, simulation_service
+from . import history_service, metrics, simulation_service
 from .demo import STATIC_DIR, demo_page, root_redirect
 from .demo_service import (
     get_status as demo_get_status,
@@ -48,15 +48,20 @@ from .schemas import (
     ClassificationsResponse,
     ClusterCompatibilityResponse,
     DemoProofResponse,
+    DemoRunHistoryResponse,
     DemoStatusResponse,
     EventTapeResponse,
     HealthResponse,
+    HistorySummaryResponse,
     IntelligenceSummaryResponse,
     MempoolSummaryResponse,
     PolicyProofResponse,
+    PolicyRunHistoryResponse,
     PolicyScenarioResponse,
+    ProofReportHistoryResponse,
     RecentEventsResponse,
     ReorgProofResponse,
+    ReorgRunHistoryResponse,
     ReorgStatusResponse,
     ScenariosListResponse,
     SimulationConfigRequest,
@@ -478,3 +483,71 @@ def session_reset() -> dict:
     simulation_service.reset_stats()
 
     return {"ok": True, "truncated": truncated, "file": log_path}
+
+
+# ---------------------------------------------------------------------------
+# History — read-only endpoints
+# ---------------------------------------------------------------------------
+
+
+@app.get("/history/summary", response_model=HistorySummaryResponse)
+def history_summary() -> dict:
+    data = history_service.get_history_summary()
+    metrics.update_storage_metrics(
+        proof_reports=data.get("proof_reports", 0),
+        demo_runs=data.get("demo_runs", 0),
+        policy_runs=data.get("policy_runs", 0),
+        reorg_runs=data.get("reorg_runs", 0),
+        storage_up=bool(data.get("storage_up")),
+        backend=data.get("storage_backend", "memory"),
+    )
+    return data
+
+
+@app.get("/history/proofs", response_model=ProofReportHistoryResponse)
+def history_proofs(
+    limit: int = Query(default=20, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
+    source: str | None = Query(default=None),
+    success: bool | None = Query(default=None),
+) -> dict:
+    items = history_service.get_proof_reports(
+        limit=limit, offset=offset, source=source, success=success
+    )
+    return {"items": items, "total_returned": len(items), "limit": limit, "offset": offset}
+
+
+@app.get("/history/proofs/{report_id}", response_model=ProofReportHistoryResponse)
+def history_proof_by_id(report_id: int) -> dict:
+    item = history_service.get_proof_report(report_id)
+    if item is None:
+        raise HTTPException(status_code=404, detail="Proof report not found")
+    return {"items": [item], "total_returned": 1, "limit": 1, "offset": 0}
+
+
+@app.get("/history/demo-runs", response_model=DemoRunHistoryResponse)
+def history_demo_runs(
+    limit: int = Query(default=20, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
+) -> dict:
+    items = history_service.get_demo_runs(limit=limit, offset=offset)
+    return {"items": items, "total_returned": len(items), "limit": limit, "offset": offset}
+
+
+@app.get("/history/policy-runs", response_model=PolicyRunHistoryResponse)
+def history_policy_runs(
+    limit: int = Query(default=20, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
+    scenario: str | None = Query(default=None),
+) -> dict:
+    items = history_service.get_policy_runs(limit=limit, offset=offset, scenario_id=scenario)
+    return {"items": items, "total_returned": len(items), "limit": limit, "offset": offset}
+
+
+@app.get("/history/reorg-runs", response_model=ReorgRunHistoryResponse)
+def history_reorg_runs(
+    limit: int = Query(default=20, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
+) -> dict:
+    items = history_service.get_reorg_runs(limit=limit, offset=offset)
+    return {"items": items, "total_returned": len(items), "limit": limit, "offset": offset}

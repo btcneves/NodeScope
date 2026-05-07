@@ -58,4 +58,21 @@ export const api = {
   },
   // Session
   sessionReset: () => post<{ ok: boolean; truncated: boolean; file: string }>('/session/reset'),
+  // History
+  historySummary: () => get<import('../types/api').HistorySummary>('/history/summary'),
+  historyProofs: (limit = 20, offset = 0, source?: string, success?: boolean) => {
+    const params = new URLSearchParams({ limit: String(limit), offset: String(offset) })
+    if (source) params.set('source', source)
+    if (success !== undefined) params.set('success', String(success))
+    return get<import('../types/api').HistoryListResponse<import('../types/api').ProofReportHistoryItem>>(`/history/proofs?${params}`)
+  },
+  historyDemoRuns: (limit = 20, offset = 0) =>
+    get<import('../types/api').HistoryListResponse<import('../types/api').DemoRunHistoryItem>>(`/history/demo-runs?limit=${limit}&offset=${offset}`),
+  historyPolicyRuns: (limit = 20, offset = 0, scenario?: string) => {
+    const params = new URLSearchParams({ limit: String(limit), offset: String(offset) })
+    if (scenario) params.set('scenario', scenario)
+    return get<import('../types/api').HistoryListResponse<import('../types/api').PolicyRunHistoryItem>>(`/history/policy-runs?${params}`)
+  },
+  historyReorgRuns: (limit = 20, offset = 0) =>
+    get<import('../types/api').HistoryListResponse<import('../types/api').ReorgRunHistoryItem>>(`/history/reorg-runs?limit=${limit}&offset=${offset}`),
 }

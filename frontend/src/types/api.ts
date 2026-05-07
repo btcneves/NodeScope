@@ -172,6 +172,70 @@ export interface EventTapeData {
   source: string
 }
 
+// --- History ---
+
+export interface HistorySummary {
+  proof_reports: number
+  demo_runs: number
+  policy_runs: number
+  reorg_runs: number
+  storage_backend: string
+  storage_up: boolean
+  init_error?: string | null
+}
+
+export interface ProofReportHistoryItem {
+  id?: number | null
+  scenario_name?: string | null
+  source?: string | null
+  status?: string | null
+  success: boolean
+  txid?: string | null
+  block_hash?: string | null
+  block_height?: number | null
+  summary?: Record<string, unknown> | null
+  created_at?: string | null
+}
+
+export interface DemoRunHistoryItem {
+  id?: number | null
+  status?: string | null
+  success: boolean
+  txid?: string | null
+  duration_ms?: number | null
+  proof_report_id?: number | null
+  created_at?: string | null
+}
+
+export interface PolicyRunHistoryItem {
+  id?: number | null
+  scenario_id?: string | null
+  status?: string | null
+  success: boolean
+  txids: string[]
+  fee_data?: Record<string, unknown> | null
+  proof_report_id?: number | null
+  created_at?: string | null
+}
+
+export interface ReorgRunHistoryItem {
+  id?: number | null
+  status?: string | null
+  success: boolean
+  txid?: string | null
+  original_block_hash?: string | null
+  final_block_hash?: string | null
+  proof_report_id?: number | null
+  created_at?: string | null
+}
+
+export interface HistoryListResponse<T> {
+  items: T[]
+  total_returned: number
+  limit: number
+  offset: number
+}
+
 // --- Guided Demo types ---
 
 export type StepStatus = 'pending' | 'running' | 'success' | 'error' | 'unavailable' | 'experimental'

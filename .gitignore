@@ -53,6 +53,12 @@ htmlcov/
 # Local-only workspace files
 .local/
 
+# Local persistence (SQLite history DB — never commit)
+.nodescope/
+*.sqlite
+*.sqlite3
+*.db
+
 # Private operational files — never publish
 AGENTS.md
 PROJECT_MEMORY.md

@@ -3,11 +3,11 @@
 ## Delivery Status
 
 Status: Hackathon-ready
-Release: v1.0.1
+Release: v1.1.0
 Docker quickstart: validated
 Smoke test: passing (PASS=15 FAIL=0 WARN=0)
 Frontend build: passing (TypeScript + Vite)
-Python tests: passing (38 unit tests)
+Python tests: passing (54 unit tests — 38 prior + 16 storage)
 CI: passing (GitHub Actions — backend, frontend Node 18/20/24, public-clean check)
 
 ## Official Evaluator Flow
@@ -46,6 +46,8 @@ http://localhost:5173
 | Reorg Lab | Ready (experimental) | 10-step controlled reorg via invalidateblock/reconsiderblock in regtest. |
 | Cluster Mempool Detector | Ready | Detects getmempoolcluster/getmempoolfeeratediagram availability; unavailable on BC26 (documented). |
 | Proof Reports | Ready | JSON proof exported per demo/scenario/reorg run; copiável e downloadable. |
+| Persistence (SQLite) | Ready | Local SQLite storage of proof reports, demo/policy/reorg run history. Memory fallback if SQLite unavailable. |
+| Historical Dashboard | Ready | Browser dashboard listing all past runs across Proof Reports, Demo Runs, Policy Runs, and Reorg Runs with copy-proof support. |
 | PT-BR / EN-US | Ready | Full i18n toggle across all views; persisted via localStorage. |
 | Tooltips | Ready | Hover/focus tooltips on technical terms in all views. |
 | ExplainBox | Ready | Contextual explanation banners per page. |
@@ -85,6 +87,12 @@ The `/metrics` endpoint exposes Prometheus-compatible metrics when `prometheus-c
 - `nodescope_proof_reports_total` — proof reports generated
 - `nodescope_simulation_blocks_total` — auto-mined blocks
 - `nodescope_simulation_txs_total` — auto-sent transactions
+- `nodescope_history_proof_reports_total` — persisted proof reports (Gauge)
+- `nodescope_history_demo_runs_total` — persisted demo run records (Gauge)
+- `nodescope_history_policy_runs_total` — persisted policy run records (Gauge)
+- `nodescope_history_reorg_runs_total` — persisted reorg run records (Gauge)
+- `nodescope_storage_up` — 1 if the storage backend (SQLite or memory) is healthy (Gauge)
+- `nodescope_storage_backend_info` — label `backend` identifies the active backend (`sqlite` or `memory`)
 
 ## Benchmark
 
@@ -99,6 +107,26 @@ make benchmark
 Output: latency table (min/mean/median/p95/max) per endpoint.
 Results vary by environment. Numbers should be validated locally, not assumed from documentation.
 
+## History API Endpoints
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/history/summary` | Storage health and row counts per table |
+| GET | `/history/proofs` | Paginated list of proof reports (`limit`, `offset`, `source`, `success` filters) |
+| GET | `/history/proofs/{report_id}` | Single proof report by ID |
+| GET | `/history/demo-runs` | Paginated demo run history |
+| GET | `/history/policy-runs` | Paginated policy run history (optional `scenario_id` filter) |
+| GET | `/history/reorg-runs` | Paginated reorg run history |
+
+Storage backend is selected via environment variables:
+
+```
+NODESCOPE_STORAGE_BACKEND=sqlite|memory   (default: sqlite)
+NODESCOPE_SQLITE_PATH=.nodescope/history.db
+```
+
+If SQLite initialisation fails, the API transparently falls back to an in-memory store and records the error in `/history/summary`. All history endpoints remain functional in either backend.
+
 ## Known Limitations
 
 - The official demo uses Bitcoin Core regtest only; signet/mainnet operation is intentionally out of scope.
@@ -107,6 +135,8 @@ Results vary by environment. Numbers should be validated locally, not assumed fr
 - Cluster mempool RPCs (`getmempoolcluster`, `getmempoolfeeratediagram`) require Bitcoin Core v28+. BC26 returns `unavailable` (documented).
 - Reorg Lab is experimental and runs only in regtest. Not suitable for production.
 - `prometheus-client` must be installed for `/metrics` to return Prometheus data (included in `requirements.txt`).
+- SQLite history database is local to the container volume. History does not survive `docker compose down -v` unless the volume is preserved.
+- History stores run metadata only, not full event logs or raw NDJSON. For full event replay, use `logs/`.
 
 ## Roadmap
 
@@ -115,7 +145,7 @@ The following features are planned for future phases and are **not yet implement
 | Feature | Status |
 |---|---|
 | Postgres / TimescaleDB for event persistence | Planned |
-| Historical dashboards | Planned |
+| Historical dashboards | Ready (SQLite-backed) |
 | API keys / JWT for hosted deployments | Planned |
 | OpenTelemetry traces (RPC, ZMQ, API) | Planned |
 | Multi-node support | Planned |

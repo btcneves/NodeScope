@@ -232,6 +232,37 @@ Available via `GET /mempool/cluster/compatibility` and in the **Policy Arena** t
 
 ---
 
+## Persistence and Historical Dashboard
+
+NodeScope automatically persists run metadata to a local SQLite database (`.nodescope/history.db`).
+Every Guided Demo, Policy Arena scenario, and Reorg Lab run stores:
+
+- Proof report JSON (scenario name, source, status, TXIDs, block data)
+- Run record (status, duration, linked proof report ID)
+
+The **Historical Dashboard** tab in the UI shows a paginated view of all past runs with:
+
+- Summary cards: row counts per table and storage health (SQLite or memory)
+- Proof Reports table: scenario, source, success/fail badge, TXID, block height, timestamp
+- Demo Runs, Policy Runs, Reorg Runs tables with full metadata
+- Copy Proof JSON button for any proof report
+
+**API endpoints:**
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/history/summary` | Storage health and counts |
+| GET | `/history/proofs` | Paginated proof reports |
+| GET | `/history/proofs/{id}` | Single proof report by ID |
+| GET | `/history/demo-runs` | Demo run history |
+| GET | `/history/policy-runs` | Policy run history |
+| GET | `/history/reorg-runs` | Reorg run history |
+
+Storage backend is configurable via `NODESCOPE_STORAGE_BACKEND=sqlite|memory`. If SQLite fails,
+the API falls back to an in-memory store transparently — no service disruption.
+
+---
+
 ## Proof Reports
 
 Every major scenario generates a Proof Report — a JSON document containing:
@@ -353,6 +384,12 @@ Key metrics:
 | `nodescope_policy_scenarios_total` | Counter | Policy Arena runs by scenario |
 | `nodescope_reorg_runs_total` | Counter | Reorg Lab runs |
 | `nodescope_proof_reports_total` | Counter | Proof reports generated |
+| `nodescope_history_proof_reports_total` | Gauge | Persisted proof reports in storage |
+| `nodescope_history_demo_runs_total` | Gauge | Persisted demo run records |
+| `nodescope_history_policy_runs_total` | Gauge | Persisted policy run records |
+| `nodescope_history_reorg_runs_total` | Gauge | Persisted reorg run records |
+| `nodescope_storage_up` | Gauge | 1 if the storage backend is healthy |
+| `nodescope_storage_backend_info` | Info | Active storage backend label (`sqlite` or `memory`) |
 
 ### Operational Alerting
 
@@ -386,6 +423,7 @@ Output: latency table (min/mean/median/p95/max) per endpoint. Results vary by ho
 - **Reorg Lab** is marked **experimental**: the scenario is reproducible in regtest but may behave differently depending on wallet state.
 - **CPFP child construction** requires the parent output to be tracked in the wallet (`listunspent minconf=0`). If not found, a fallback path is used and the proof records it.
 - **ZMQ events** are stored as NDJSON in `logs/`. There is no persistence across container restarts.
+- **SQLite history** (`.nodescope/history.db`) is local to the container volume. History does not survive `docker compose down -v` unless the volume is preserved.
 - **Prometheus metrics** require `prometheus-client` (included in `requirements.txt`). If not installed, `/metrics` returns a plain-text unavailability notice.
 
 ---
@@ -399,7 +437,7 @@ Output: latency table (min/mean/median/p95/max) per endpoint. Results vary by ho
 | Mempool eviction scenario | Planned |
 | Multi-node topology | Planned |
 | Postgres / TimescaleDB for event persistence | Planned |
-| Historical dashboards | Planned |
+| Historical dashboards | Ready (SQLite-backed) |
 | API keys / JWT for hosted deployments | Planned |
 | OpenTelemetry traces | Planned |
 | Kubernetes manifests / Helm chart | Planned |
