@@ -10,7 +10,7 @@ COMPOSE_FILE ?= docker-compose.yml
 export COMPOSE_FILE
 COMPOSE ?= docker compose
 
-.PHONY: help setup setup-local venv backend monitor frontend test test-local build build-local smoke smoke-local demo replay-demo screenshots clean public-clean docker-up docker-down docker-demo docker-full-demo docker-wait lint docker-config benchmark
+.PHONY: help setup setup-local venv backend monitor frontend test test-local build build-local smoke smoke-local demo replay-demo screenshots clean public-clean docker-up docker-down docker-demo docker-full-demo docker-wait lint docker-config benchmark load-smoke
 
 help:
 	@echo "NodeScope Makefile - Available Targets"
@@ -143,6 +143,9 @@ docker-config:
 
 benchmark:
 	python3 scripts/benchmark_nodescope.py
+
+load-smoke:
+	python3 scripts/load_smoke.py --concurrency 5 --requests 100
 
 clean:
 	find . -type d -name __pycache__ -not -path "./.venv/*" -exec rm -rf {} + 2>/dev/null || true
