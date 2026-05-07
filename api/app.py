@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import datetime
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -383,15 +385,12 @@ def simulation_config(req: SimulationConfigRequest) -> dict:
 
 @app.post("/session/reset")
 def session_reset() -> dict:
-    import os as _os
-    import datetime as _dt
-
-    log_dir = _os.environ.get("NODESCOPE_LOG_DIR", "/app/logs")
-    today = _dt.date.today().isoformat()
-    log_path = _os.path.join(log_dir, f"{today}-monitor.ndjson")
+    log_dir = os.environ.get("NODESCOPE_LOG_DIR", "/app/logs")
+    today = datetime.date.today().isoformat()
+    log_path = os.path.join(log_dir, f"{today}-monitor.ndjson")
 
     truncated = False
-    if _os.path.exists(log_path):
+    if os.path.exists(log_path):
         with open(log_path, "w", encoding="utf-8") as f:
             f.truncate(0)
         truncated = True
