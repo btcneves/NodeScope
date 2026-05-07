@@ -40,6 +40,8 @@ READ_ONLY_ENDPOINTS = [
     "/mempool/cluster/compatibility",
     "/simulation/status",
     "/mempool/summary",
+    "/fees/estimate",
+    "/fees/compare",
 ]
 
 

@@ -152,6 +152,36 @@ export const glossary: GlossaryEntry[] = [
     'pt-BR': 'Indica se uma transação sinaliza RBF (sequência < 0xFFFFFFFE). Pode ser substituída por taxa maior.',
     'en-US': 'Indicates whether a transaction signals RBF (sequence < 0xFFFFFFFE). Can be replaced with a higher fee.',
   },
+  {
+    term: 'estimatesmartfee',
+    'pt-BR': 'RPC do Bitcoin Core que estima a taxa mínima (BTC/kvB) para confirmação em N blocos, com base no histórico de blocos.',
+    'en-US': 'Bitcoin Core RPC that estimates the minimum fee rate (BTC/kvB) for confirmation within N blocks, based on block history.',
+  },
+  {
+    term: 'confirmation target',
+    'pt-BR': 'Número de blocos dentro do qual a transação deve ser confirmada. Menor alvo = maior taxa estimada.',
+    'en-US': 'Number of blocks within which the transaction should confirm. Lower target = higher estimated fee.',
+  },
+  {
+    term: 'sat/vB',
+    'pt-BR': 'Satoshis por vbyte — unidade padrão de taxa em Bitcoin. 1 sat/vB = 100.000 BTC/kvB.',
+    'en-US': 'Satoshis per virtual byte — the standard Bitcoin fee rate unit. 1 sat/vB = 100,000 BTC/kvB.',
+  },
+  {
+    term: 'BTC/kvB',
+    'pt-BR': 'Bitcoin por kilovbyte — unidade retornada pelo RPC estimatesmartfee. Converta para sat/vB multiplicando por 100.000.',
+    'en-US': 'Bitcoin per kilovirtual-byte — the unit returned by estimatesmartfee. Convert to sat/vB by multiplying by 100,000.',
+  },
+  {
+    term: 'economical mode',
+    'pt-BR': 'Modo de estimativa que prioriza taxa mais baixa, aceitando confirmação potencialmente mais lenta.',
+    'en-US': 'Fee estimation mode that prioritises a lower fee, accepting potentially slower confirmation.',
+  },
+  {
+    term: 'conservative mode',
+    'pt-BR': 'Modo de estimativa mais cauteloso que sugere taxa mais alta para maior probabilidade de confirmação rápida.',
+    'en-US': 'More cautious estimation mode that suggests a higher fee for a better chance of fast confirmation.',
+  },
 ]
 
 export function getGlossaryEntry(term: string, lang: Lang): string | undefined {

@@ -434,3 +434,40 @@ class ReorgRunHistoryResponse(BaseModel):
     total_returned: int
     limit: int
     offset: int
+
+
+# ---------------------------------------------------------------------------
+# Fee Estimation Playground
+# ---------------------------------------------------------------------------
+
+
+class FeeEstimateItem(BaseModel):
+    target_blocks: int
+    estimate_mode: str
+    feerate_btc_kvb: float | None = None
+    feerate_sat_vb: float | None = None
+    blocks_returned: int | None = None
+    errors: list[str] = Field(default_factory=list)
+    status: str  # success | limited | unavailable | error
+
+
+class FeeComparisonItem(BaseModel):
+    source: str
+    label: str
+    feerate_sat_vb: float | None = None
+    feerate_btc_kvb: float | None = None
+    note: str | None = None
+
+
+class FeeEstimateResponse(BaseModel):
+    network: str | None = None
+    bitcoin_core_version: str | None = None
+    estimate_mode: str
+    targets: list[int] = Field(default_factory=list)
+    estimates: list[FeeEstimateItem] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+    unavailable_features: list[str] = Field(default_factory=list)
+    generated_at: str
+    compared_fee_rates: list[FeeComparisonItem] = Field(default_factory=list)
+    comparison_available: bool = False
+    comparison_note: str | None = None

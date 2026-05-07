@@ -1,7 +1,7 @@
 import { useI18n } from '../i18n'
 import type { Lang } from '../i18n'
 
-export type ActiveView = 'dashboard' | 'guided-demo' | 'inspector' | 'zmq-tape' | 'policy-arena' | 'reorg-lab' | 'history'
+export type ActiveView = 'dashboard' | 'guided-demo' | 'inspector' | 'zmq-tape' | 'policy-arena' | 'reorg-lab' | 'history' | 'fee-estimation'
 
 interface Props {
   network: string
@@ -29,7 +29,8 @@ export function Header({ network, apiOk, rpcOk, sseConnected, onRefresh, activeV
     { id: 'zmq-tape',     label: t.nav.zmqTape },
     { id: 'policy-arena', label: t.nav.policyArena },
     { id: 'reorg-lab',    label: t.nav.reorgLab },
-    { id: 'history',      label: t.history.title },
+    { id: 'history',        label: t.history.title },
+    { id: 'fee-estimation', label: t.fees.navLabel },
   ]
 
   const networkClass = ['mainnet', 'regtest', 'signet', 'testnet'].includes(network)

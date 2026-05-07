@@ -429,6 +429,43 @@ export const enUS: Translations = {
     memory: 'Memory (ephemeral)',
   },
 
+  fees: {
+    title: 'Fee Estimation Playground',
+    subtitle: 'Live estimatesmartfee from Bitcoin Core — confirmation targets and fee rates',
+    mode: 'Estimate mode',
+    conservative: 'Conservative',
+    economical: 'Economical',
+    targetBlocks: 'Target (blocks)',
+    feerateBtcKvb: 'Fee rate (BTC/kvB)',
+    feerateSatVb: 'Fee rate (sat/vB)',
+    status: 'Status',
+    errors: 'Errors / Notes',
+    refresh: '↻ Refresh',
+    compareWithRealFees: 'Compare with scenario fee rates',
+    noHistoryAvailable: 'No scenario runs available for comparison. Run a demo or policy scenario first.',
+    regtestWarning:
+      'Running in regtest: estimatesmartfee has no real fee market. ' +
+      'Results may be unavailable. This does not represent mainnet fee conditions.',
+    learnMoreTitle: 'How does fee estimation work?',
+    learnMoreBody:
+      'Bitcoin Core\'s estimatesmartfee predicts the minimum fee rate (sat/vB) needed for ' +
+      'a transaction to confirm within a target number of blocks. ' +
+      'It analyses past block data — in regtest there is no real market, so results are often unavailable. ' +
+      'On mainnet or signet, this is a critical tool for wallets to avoid overpaying or getting stuck.',
+    estimateUnavailable: 'unavailable',
+    estimateLimited: 'limited — insufficient data',
+    comparisonSource: 'Comparison source',
+    noFeerates: 'No fee rate estimates available for this environment.',
+    runningEstimation: 'Fetching estimates…',
+    policyScenarioFee: 'Scenario fee rate',
+    conversionNote: 'Conversion: BTC/kvB × 100,000 = sat/vB',
+    navLabel: 'Fee Estimation',
+    explainBox:
+      'The Fee Estimation Playground calls Bitcoin Core\'s estimatesmartfee RPC for different ' +
+      'confirmation targets and shows the results side-by-side. In regtest there is no real fee market, ' +
+      'so results are honestly marked as unavailable or limited.',
+  },
+
   footer: {
     copyright: '© 2026 Pedro Neves · NodeScope',
     github: 'GitHub',

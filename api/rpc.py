@@ -172,6 +172,11 @@ class RPCClient:
     def gettransaction(self, txid: str) -> dict[str, Any]:
         return self.call("gettransaction", [txid])  # type: ignore[return-value]
 
+    def estimatesmartfee(
+        self, conf_target: int, estimate_mode: str = "CONSERVATIVE"
+    ) -> dict[str, Any]:
+        return self.call("estimatesmartfee", [conf_target, estimate_mode])  # type: ignore[return-value]
+
     def invalidateblock(self, blockhash: str) -> None:
         self.call("invalidateblock", [blockhash])
 

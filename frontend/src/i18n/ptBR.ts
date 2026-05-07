@@ -429,6 +429,46 @@ export const ptBR: Translations = {
     memory: 'Memória (efêmero)',
   },
 
+  fees: {
+    title: 'Playground de Estimativa de Taxa',
+    subtitle: 'estimatesmartfee ao vivo do Bitcoin Core — alvos de confirmação e taxas',
+    mode: 'Modo de estimativa',
+    conservative: 'Conservador',
+    economical: 'Econômico',
+    targetBlocks: 'Alvo (blocos)',
+    feerateBtcKvb: 'Taxa (BTC/kvB)',
+    feerateSatVb: 'Taxa (sat/vB)',
+    status: 'Status',
+    errors: 'Erros / Notas',
+    refresh: '↻ Atualizar',
+    compareWithRealFees: 'Comparar com taxas reais dos cenários',
+    noHistoryAvailable:
+      'Nenhuma execução de cenário disponível para comparação. Execute uma demo ou cenário de política primeiro.',
+    regtestWarning:
+      'Rodando em regtest: o estimatesmartfee não possui mercado real de taxas. ' +
+      'Os resultados podem ser indisponíveis. Isso não representa as condições da mainnet.',
+    learnMoreTitle: 'Como funciona a estimativa de taxa?',
+    learnMoreBody:
+      'O estimatesmartfee do Bitcoin Core prevê a taxa mínima (sat/vB) necessária para ' +
+      'que uma transação confirme dentro de um número-alvo de blocos. ' +
+      'Ele analisa dados de blocos anteriores — em regtest não há mercado real, então os resultados ' +
+      'geralmente ficam indisponíveis. Na mainnet ou signet, é uma ferramenta essencial para carteiras ' +
+      'evitarem pagar a mais ou ficarem presas.',
+    estimateUnavailable: 'indisponível',
+    estimateLimited: 'limitado — dados insuficientes',
+    comparisonSource: 'Fonte de comparação',
+    noFeerates: 'Nenhuma estimativa de taxa disponível para este ambiente.',
+    runningEstimation: 'Buscando estimativas…',
+    policyScenarioFee: 'Taxa do cenário',
+    conversionNote: 'Conversão: BTC/kvB × 100.000 = sat/vB',
+    navLabel: 'Estimativa de Taxa',
+    explainBox:
+      'O Playground de Estimativa de Taxa chama o RPC estimatesmartfee do Bitcoin Core para ' +
+      'diferentes alvos de confirmação e exibe os resultados lado a lado. ' +
+      'Em regtest não há mercado real de taxas, então os resultados são marcados honestamente ' +
+      'como indisponíveis ou limitados.',
+  },
+
   footer: {
     copyright: '© 2026 Pedro Neves · NodeScope',
     github: 'GitHub',
