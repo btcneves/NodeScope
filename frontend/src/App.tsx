@@ -32,6 +32,7 @@ import { ZmqEventTape } from './components/ZmqEventTape'
 import { MempoolPolicyArena } from './components/MempoolPolicyArena'
 import { ReorgLab } from './components/ReorgLab'
 import { SimulationPanel } from './components/SimulationPanel'
+import AlertingPanel from './components/AlertingPanel'
 import { ExplainBox } from './components/ui/ExplainBox'
 import {
   I18nContext,
@@ -209,6 +210,7 @@ export default function App() {
           {header}
           <main className="main">
             <ExplainBox text={t.explain.dashboard} />
+            <AlertingPanel />
             <KpiRow summary={summary} mempool={mempool} health={health} />
             <div className="grid-2">
               <NodeHealthScore

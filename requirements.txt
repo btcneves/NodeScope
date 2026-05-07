@@ -2,3 +2,4 @@ pyzmq>=25.0
 fastapi>=0.136.0
 uvicorn>=0.45.0
 httpx>=0.28.1
+prometheus-client>=0.21

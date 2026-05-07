@@ -364,6 +364,30 @@ export const ptBR: Translations = {
     whyMatters: 'Por que isso importa',
   },
 
+  alerts: {
+    title: 'Alertas Operacionais',
+    allGood: 'Todos os sistemas operacionais',
+    rpcOffline: 'Bitcoin Core RPC offline',
+    rpcOfflineDesc: 'A API não consegue se conectar ao Bitcoin Core via RPC. Verifique se o bitcoind está em execução e acessível.',
+    zmqStale: 'Stream ZMQ parado',
+    zmqStaleDesc: 'Nenhum evento ZMQ recebido recentemente. O monitor pode ter desconectado do socket ZMQ.',
+    demoFailure: 'Guided Demo reportou falhas',
+    demoFailureDesc: 'Uma ou mais etapas da Guided Demo terminaram com erro. Execute Reset e tente novamente.',
+    simulationError: 'Erros na simulação ao vivo',
+    simulationErrorDesc: 'A simulação de mineração automática encontrou erros. Verifique os logs para detalhes.',
+    clusterUnavailable: 'RPCs de cluster mempool indisponíveis',
+    clusterUnavailableDesc: 'Bitcoin Core v28+ é necessário para RPCs de cluster mempool. O ambiente atual usa uma versão anterior.',
+    reorgExperimental: 'Reorg Lab é experimental',
+    reorgExperimentalDesc: 'O Reorg Lab funciona apenas em regtest. Os resultados podem variar. Não adequado para uso em produção.',
+    metricsUnavailable: 'Métricas Prometheus indisponíveis',
+    metricsUnavailableDesc: 'prometheus-client não está instalado. Instale-o para habilitar o endpoint /metrics.',
+    severity: {
+      critical: 'Crítico',
+      warning: 'Aviso',
+      info: 'Info',
+    },
+  },
+
   generic: {
     error: 'Erro',
     noData: 'Sem dados',

@@ -21,6 +21,7 @@ export default defineConfig({
       '/reorg': { target: apiTarget, changeOrigin: true },
       '/simulation': { target: apiTarget, changeOrigin: true },
       '/session': { target: apiTarget, changeOrigin: true },
+      '/metrics': { target: apiTarget, changeOrigin: true },
     },
   },
 })
