@@ -374,9 +374,7 @@ def _sub_check_mempool(
 
 
 def _sub_confirm_tx(scenario_id: str, txid: str, step_id: str = "confirm_tx") -> bool:
-    _set_step(
-        scenario_id, step_id, "running", f"Verifying confirmation for {txid[:12]}…"
-    )
+    _set_step(scenario_id, step_id, "running", f"Verifying confirmation for {txid[:12]}…")
     try:
         w_rpc = _wallet_rpc()
         tx = w_rpc.gettransaction(txid)
@@ -412,9 +410,7 @@ def _sub_confirm_tx(scenario_id: str, txid: str, step_id: str = "confirm_tx") ->
             )
             return False
     except RPCError as exc:
-        _set_step(
-            scenario_id, step_id, "error", "gettransaction failed.", error=str(exc)
-        )
+        _set_step(scenario_id, step_id, "error", "gettransaction failed.", error=str(exc))
         return False
 
 
@@ -641,9 +637,7 @@ def _run_low_fee_transaction(scenario_id: str) -> None:
     _set_step(scenario_id, "compare_fee_rate", "running", "Comparing fee rate data…")
     low_fee_data = _get_step_data(scenario_id, "check_mempool")
     actual_rate = low_fee_data.get("fee_rate_sat_vb")
-    requested_rate = _get_step_data(scenario_id, "send_low_fee_tx").get(
-        "requested_fee_rate", "n/a"
-    )
+    requested_rate = _get_step_data(scenario_id, "send_low_fee_tx").get("requested_fee_rate", "n/a")
     is_fallback = _get_step_data(scenario_id, "send_low_fee_tx").get("fallback", False)
     comparison = {
         "requested_fee_rate": requested_rate,
@@ -684,9 +678,7 @@ def _build_proof_low_fee(scenario_id: str) -> None:
         confirm_data = _get_step_data(scenario_id, "confirm_tx")
         mine_data = _get_step_data(scenario_id, "mine_block")
         tx_data = _get_step_data(scenario_id, "send_low_fee_tx")
-        comparison = _get_step_data(scenario_id, "compare_fee_rate").get(
-            "comparison", {}
-        )
+        comparison = _get_step_data(scenario_id, "compare_fee_rate").get("comparison", {})
         proof = {
             "scenario": "low_fee_transaction",
             "title": SCENARIO_META["low_fee_transaction"]["title"],
@@ -775,9 +767,7 @@ def _run_rbf_replacement(scenario_id: str) -> None:
     if not entry:
         _finish_scenario(scenario_id, False)
         return
-    original_fee_rate = _get_step_data(scenario_id, "verify_in_mempool").get(
-        "fee_rate_sat_vb"
-    )
+    original_fee_rate = _get_step_data(scenario_id, "verify_in_mempool").get("fee_rate_sat_vb")
 
     # bump_fee
     _set_step(
@@ -831,11 +821,7 @@ def _run_rbf_replacement(scenario_id: str) -> None:
         new_entry = w_rpc.getmempoolentry(new_txid)
         new_fee_btc = new_entry.get("fees", {}).get("base", 0.0)
         new_vsize = new_entry.get("vsize", 0)
-        new_rate = (
-            round(new_fee_btc * 1e8 / new_vsize, 2)
-            if new_fee_btc and new_vsize
-            else None
-        )
+        new_rate = round(new_fee_btc * 1e8 / new_vsize, 2) if new_fee_btc and new_vsize else None
         _set_step(
             scenario_id,
             "verify_replacement",
@@ -912,9 +898,7 @@ def _run_rbf_replacement(scenario_id: str) -> None:
     _finish_scenario(scenario_id, True)
 
 
-def _mine_and_confirm_rbf_fallback(
-    scenario_id: str, txid: str, original_fee_rate: Any
-) -> None:
+def _mine_and_confirm_rbf_fallback(scenario_id: str, txid: str, original_fee_rate: Any) -> None:
     """Fallback when bumpfee fails — skip replacement steps, mine and confirm original."""
     _set_step(
         scenario_id,
@@ -1002,9 +986,7 @@ def _build_proof_rbf(scenario_id: str) -> None:
         )
 
 
-def _build_proof_rbf_fallback(
-    scenario_id: str, txid: str, original_fee_rate: Any
-) -> None:
+def _build_proof_rbf_fallback(scenario_id: str, txid: str, original_fee_rate: Any) -> None:
     _set_step(scenario_id, "build_proof", "running", "Assembling proof (fallback)…")
     try:
         mine_data = _get_step_data(scenario_id, "mine_block")
@@ -1065,9 +1047,7 @@ def _run_cpfp_package(scenario_id: str) -> None:
         w_rpc = _wallet_rpc()
         parent_dest = w_rpc.getnewaddress("cpfp_parent_dest", "bech32")
         try:
-            parent_txid = w_rpc.sendtoaddress(
-                parent_dest, POLICY_AMOUNT, fee_rate=LOW_FEE_RATE
-            )
+            parent_txid = w_rpc.sendtoaddress(parent_dest, POLICY_AMOUNT, fee_rate=LOW_FEE_RATE)
             used_fee_rate = LOW_FEE_RATE
         except RPCError:
             parent_txid = w_rpc.sendtoaddress(parent_dest, POLICY_AMOUNT)
@@ -1103,9 +1083,7 @@ def _run_cpfp_package(scenario_id: str) -> None:
     if not parent_entry:
         _finish_scenario(scenario_id, False)
         return
-    parent_fee_rate = _get_step_data(scenario_id, "verify_parent").get(
-        "fee_rate_sat_vb"
-    )
+    parent_fee_rate = _get_step_data(scenario_id, "verify_parent").get("fee_rate_sat_vb")
     parent_vsize = _get_step_data(scenario_id, "verify_parent").get("vsize")
     parent_fee_btc = _get_step_data(scenario_id, "verify_parent").get("fee_btc")
 
@@ -1137,9 +1115,7 @@ def _run_cpfp_package(scenario_id: str) -> None:
 
         # Create child tx: spend parent output, send to a new address
         child_dest = w_rpc.getnewaddress("cpfp_child_dest", "bech32")
-        child_amount = round(
-            parent_utxo["amount"] - 0.00005, 8
-        )  # leave ~5000 sat fee margin
+        child_amount = round(parent_utxo["amount"] - 0.00005, 8)  # leave ~5000 sat fee margin
         if child_amount <= 0:
             child_amount = 0.00001
 
@@ -1185,25 +1161,19 @@ def _run_cpfp_package(scenario_id: str) -> None:
     child_txid = _get_step_data(scenario_id, "build_child_tx").get("child_txid")
 
     # verify_cpfp — check both in mempool, compute package fee rate
-    _set_step(
-        scenario_id, "verify_cpfp", "running", "Verifying CPFP package in mempool…"
-    )
+    _set_step(scenario_id, "verify_cpfp", "running", "Verifying CPFP package in mempool…")
     try:
         w_rpc = _wallet_rpc()
         child_entry = w_rpc.getmempoolentry(child_txid)
         child_fee = child_entry.get("fees", {}).get("base", 0.0)
         child_vsize = child_entry.get("vsize", 0)
         child_fee_rate = (
-            round(child_fee * 1e8 / child_vsize, 2)
-            if child_fee and child_vsize
-            else None
+            round(child_fee * 1e8 / child_vsize, 2) if child_fee and child_vsize else None
         )
         package_fee = (parent_fee_btc or 0.0) + (child_fee or 0.0)
         package_vsize = (parent_vsize or 0) + (child_vsize or 0)
         package_rate = (
-            round(package_fee * 1e8 / package_vsize, 2)
-            if package_fee and package_vsize
-            else None
+            round(package_fee * 1e8 / package_vsize, 2) if package_fee and package_vsize else None
         )
         _set_step(
             scenario_id,
@@ -1242,9 +1212,7 @@ def _run_cpfp_package(scenario_id: str) -> None:
         return
 
     # confirm_cpfp — verify both parent and child confirmed
-    _set_step(
-        scenario_id, "confirm_cpfp", "running", "Verifying parent and child confirmed…"
-    )
+    _set_step(scenario_id, "confirm_cpfp", "running", "Verifying parent and child confirmed…")
     try:
         w_rpc = _wallet_rpc()
         parent_tx = w_rpc.gettransaction(parent_txid)
@@ -1282,9 +1250,7 @@ def _run_cpfp_package(scenario_id: str) -> None:
     _finish_scenario(scenario_id, True)
 
 
-def _mine_cpfp_fallback(
-    scenario_id: str, parent_txid: str, parent_fee_rate: Any
-) -> None:
+def _mine_cpfp_fallback(scenario_id: str, parent_txid: str, parent_fee_rate: Any) -> None:
     _set_step(
         scenario_id,
         "verify_cpfp",
@@ -1342,9 +1308,7 @@ def _build_proof_cpfp(scenario_id: str, parent_txid: str, child_txid: str) -> No
             ),
             "child_fee_rate_sat_vb": verify_data.get("child_fee_rate_sat_vb"),
             "package_fee_rate_sat_vb": verify_data.get("package_fee_rate_sat_vb"),
-            "parent_fee_btc": _get_step_data(scenario_id, "verify_parent").get(
-                "fee_btc"
-            ),
+            "parent_fee_btc": _get_step_data(scenario_id, "verify_parent").get("fee_btc"),
             "child_fee_btc": verify_data.get("child_fee_btc"),
             "cpfp_applied": True,
             "parent_confirmed": confirm_data.get("parent_confirmed", False),
@@ -1377,9 +1341,7 @@ def _build_proof_cpfp(scenario_id: str, parent_txid: str, child_txid: str) -> No
         )
 
 
-def _build_proof_cpfp_fallback(
-    scenario_id: str, parent_txid: str, parent_fee_rate: Any
-) -> None:
+def _build_proof_cpfp_fallback(scenario_id: str, parent_txid: str, parent_fee_rate: Any) -> None:
     _set_step(scenario_id, "build_proof", "running", "Assembling partial proof…")
     try:
         mine_data = _get_step_data(scenario_id, "mine_block")
@@ -1400,9 +1362,7 @@ def _build_proof_cpfp_fallback(
             "unavailable_features": [
                 "cpfp_child_tx — child construction via raw tx pipeline failed"
             ],
-            "warnings": [
-                "CPFP child could not be submitted; parent confirmed standalone"
-            ],
+            "warnings": ["CPFP child could not be submitted; parent confirmed standalone"],
         }
         with _state_lock:
             _state["scenarios"][scenario_id]["proof"] = proof

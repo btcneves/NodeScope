@@ -19,9 +19,7 @@ EngineState = EngineSnapshot
 DEFAULT_STREAM_EVENT_TYPES = ("zmq_rawtx", "zmq_rawblock")
 
 
-def load_engine_state(
-    log_dir: PathLike | None = None, file: PathLike | None = None
-) -> EngineState:
+def load_engine_state(log_dir: PathLike | None = None, file: PathLike | None = None) -> EngineState:
     return load_snapshot(log_dir=log_dir, file=file)
 
 
@@ -40,9 +38,7 @@ def _build_raw_event(obj: Any) -> RawEvent | None:
         return None
     if any(field not in obj for field in ("ts", "level", "origin", "event", "data")):
         return None
-    if not all(
-        isinstance(obj[field], str) for field in ("ts", "level", "origin", "event")
-    ):
+    if not all(isinstance(obj[field], str) for field in ("ts", "level", "origin", "event")):
         return None
     if not isinstance(obj["data"], dict):
         return None
@@ -55,9 +51,7 @@ def _build_raw_event(obj: Any) -> RawEvent | None:
     )
 
 
-def _paginate[T](
-    items: list[T], limit: int, offset: int
-) -> tuple[list[T], int, int, int]:
+def _paginate[T](items: list[T], limit: int, offset: int) -> tuple[list[T], int, int, int]:
     effective_limit = max(1, limit)
     effective_offset = max(0, offset)
     total = len(items)
@@ -113,15 +107,11 @@ def serialize_tx(result: ClassifiedEvent | None) -> dict[str, Any] | None:
         "has_op_return": result.tx.has_op_return,
         "kind": result.kind,
         "metadata": result.metadata,
-        "vout": [
-            {"value": item.value, "address": item.address} for item in result.tx.vout
-        ],
+        "vout": [{"value": item.value, "address": item.address} for item in result.tx.vout],
     }
 
 
-def build_health(
-    log_dir: PathLike | None = None, file: PathLike | None = None
-) -> dict[str, Any]:
+def build_health(log_dir: PathLike | None = None, file: PathLike | None = None) -> dict[str, Any]:
     state = load_engine_state(log_dir=log_dir, file=file)
     rpc_ok = False
     chain: str | None = None
@@ -178,9 +168,7 @@ def get_mempool_summary() -> dict[str, Any]:
         }
 
 
-def build_summary(
-    log_dir: PathLike | None = None, file: PathLike | None = None
-) -> dict[str, Any]:
+def build_summary(log_dir: PathLike | None = None, file: PathLike | None = None) -> dict[str, Any]:
     state = load_engine_state(log_dir=log_dir, file=file)
     return {
         "project": PROJECT_NAME,
@@ -197,9 +185,7 @@ def build_summary(
         "op_return_count": state.analytics.op_return_count,
         "script_type_counts": state.analytics.script_type_counts,
         "available_event_types": sorted(state.analytics.event_type_counts.keys()),
-        "available_classification_kinds": sorted(
-            state.analytics.classification_counts.keys()
-        ),
+        "available_classification_kinds": sorted(state.analytics.classification_counts.keys()),
         "latest_block": serialize_block(state.latest_block),
         "latest_tx": serialize_tx(state.latest_tx),
     }
@@ -321,9 +307,7 @@ def get_intelligence_summary(
         import datetime
 
         try:
-            ts = datetime.datetime.fromisoformat(
-                state.latest_block.block.ts.replace("Z", "+00:00")
-            )
+            ts = datetime.datetime.fromisoformat(state.latest_block.block.ts.replace("Z", "+00:00"))
             age = (datetime.datetime.now(datetime.UTC) - ts).total_seconds()
             if age < 60:
                 block_points = 10
@@ -345,9 +329,7 @@ def get_intelligence_summary(
         "rpc_status": "online" if rpc_ok else "offline",
         "zmq_status": "subscribed" if zmq_active else "no_events",
         "sse_status": "streaming",
-        "mempool_pressure": _compute_mempool_pressure(
-            mempool_size, mempool_bytes, mempool_rpc_ok
-        ),
+        "mempool_pressure": _compute_mempool_pressure(mempool_size, mempool_bytes, mempool_rpc_ok),
         "latest_signal": latest_signal,
         "event_store": {
             "replayable": True,
@@ -375,15 +357,11 @@ def get_tx_by_txid(
 # ---------------------------------------------------------------------------
 
 
-def _find_zmq_events_for_txid(
-    txid: str, log_dir: PathLike | None = None
-) -> list[dict[str, Any]]:
+def _find_zmq_events_for_txid(txid: str, log_dir: PathLike | None = None) -> list[dict[str, Any]]:
     """Scan NDJSON store for zmq_rawtx events matching this txid."""
     import os as _os
 
-    base = (
-        Path(log_dir) if log_dir else Path(_os.environ.get("NODESCOPE_LOG_DIR", "logs"))
-    )
+    base = Path(log_dir) if log_dir else Path(_os.environ.get("NODESCOPE_LOG_DIR", "logs"))
     results: list[dict[str, Any]] = []
     if not base.is_dir():
         return results
@@ -394,10 +372,7 @@ def _find_zmq_events_for_txid(
                     ev = json.loads(line)
                 except json.JSONDecodeError:
                     continue
-                if (
-                    ev.get("event") == "zmq_rawtx"
-                    and ev.get("data", {}).get("txid") == txid
-                ):
+                if ev.get("event") == "zmq_rawtx" and ev.get("data", {}).get("txid") == txid:
                     results.append(
                         {
                             "ts": ev.get("ts"),
@@ -466,9 +441,7 @@ def get_tx_premium(txid: str, log_dir: PathLike | None = None) -> dict[str, Any]
         if base_fee is not None:
             fee_btc = round(float(base_fee), 8)
 
-    vsize: int | None = raw.get("vsize") or (
-        mempool_entry.get("vsize") if mempool_entry else None
-    )
+    vsize: int | None = raw.get("vsize") or (mempool_entry.get("vsize") if mempool_entry else None)
     weight: int | None = raw.get("weight")
     size: int | None = raw.get("size")
 
@@ -480,9 +453,7 @@ def get_tx_premium(txid: str, log_dir: PathLike | None = None) -> dict[str, Any]
         unavailable.append("fee — requires wallet knowledge or mempool entry")
 
     # confirmations and block info
-    confirmations: int | None = raw.get("confirmations") or wallet_tx.get(
-        "confirmations"
-    )
+    confirmations: int | None = raw.get("confirmations") or wallet_tx.get("confirmations")
     blockhash: str | None = raw.get("blockhash") or wallet_tx.get("blockhash")
     blockheight: int | None = wallet_tx.get("blockheight")
     blocktime: int | None = raw.get("blocktime") or wallet_tx.get("blocktime")
@@ -516,9 +487,7 @@ def get_tx_premium(txid: str, log_dir: PathLike | None = None) -> dict[str, Any]
                 entry["value"] = prevout.get("value")
                 entry["address"] = prevout.get("scriptPubKey", {}).get("address")
             else:
-                unavailable.append(
-                    "input values — prevout data not available without txindex"
-                )
+                unavailable.append("input values — prevout data not available without txindex")
         vin_list.append(entry)
 
     vout_list: list[dict[str, Any]] = []
@@ -546,9 +515,7 @@ def get_tx_premium(txid: str, log_dir: PathLike | None = None) -> dict[str, Any]
             "No zmq_rawtx event found in NDJSON store for this txid (may be async or store empty)"
         )
 
-    replaceable: bool | None = (
-        mempool_entry.get("bip125-replaceable") if mempool_entry else None
-    )
+    replaceable: bool | None = mempool_entry.get("bip125-replaceable") if mempool_entry else None
 
     return {
         "txid": txid,
@@ -597,9 +564,7 @@ def get_event_tape(
     """Return recent ZMQ events formatted for the event tape UI."""
     import os as _os
 
-    base = (
-        Path(log_dir) if log_dir else Path(_os.environ.get("NODESCOPE_LOG_DIR", "logs"))
-    )
+    base = Path(log_dir) if log_dir else Path(_os.environ.get("NODESCOPE_LOG_DIR", "logs"))
     events: list[dict[str, Any]] = []
 
     if base.is_dir():
@@ -679,9 +644,7 @@ def _select_stream_file(
     if file is not None:
         return Path(file)
     base_dir = (
-        Path(log_dir)
-        if log_dir is not None
-        else Path(__file__).resolve().parent.parent / "logs"
+        Path(log_dir) if log_dir is not None else Path(__file__).resolve().parent.parent / "logs"
     )
     files = sorted(base_dir.glob("*.ndjson"))
     return files[-1] if files else None
@@ -751,9 +714,7 @@ def iter_live_events_sse(
                     "ping",
                     {
                         "project": PROJECT_NAME,
-                        "source": str(current_path)
-                        if current_path is not None
-                        else None,
+                        "source": str(current_path) if current_path is not None else None,
                     },
                 )
                 last_ping = now
@@ -788,11 +749,7 @@ def get_cluster_compatibility() -> dict:
             results.append({"rpc": rpc_name, "supported": True, "reason": None})
         except RPCError as exc:
             err = str(exc)
-            if (
-                "Method not found" in err
-                or "-32601" in err
-                or "not found" in err.lower()
-            ):
+            if "Method not found" in err or "-32601" in err or "not found" in err.lower():
                 results.append(
                     {
                         "rpc": rpc_name,

@@ -151,9 +151,7 @@ def classifications(
 
 
 @app.get("/events/stream")
-def stream_events(
-    log_dir: str | None = None, file: str | None = None
-) -> StreamingResponse:
+def stream_events(log_dir: str | None = None, file: str | None = None) -> StreamingResponse:
     return StreamingResponse(
         iter_live_events_sse(log_dir=_resolve_path(log_dir), file=_resolve_path(file)),
         media_type="text/event-stream",
@@ -177,9 +175,7 @@ def latest_tx(log_dir: str | None = None, file: str | None = None) -> dict | Non
 
 @app.get("/intelligence/summary", response_model=IntelligenceSummaryResponse)
 def intelligence_summary(log_dir: str | None = None, file: str | None = None) -> dict:
-    return get_intelligence_summary(
-        log_dir=_resolve_path(log_dir), file=_resolve_path(file)
-    )
+    return get_intelligence_summary(log_dir=_resolve_path(log_dir), file=_resolve_path(file))
 
 
 @app.get("/tx/inspect/{txid}", response_model=TxInspectorResponse)
@@ -189,13 +185,9 @@ def tx_inspect(txid: str, log_dir: str | None = None) -> dict:
 
 @app.get("/tx/{txid}", response_model=TxResponse)
 def tx_by_id(txid: str, log_dir: str | None = None, file: str | None = None) -> dict:
-    result = get_tx_by_txid(
-        txid=txid, log_dir=_resolve_path(log_dir), file=_resolve_path(file)
-    )
+    result = get_tx_by_txid(txid=txid, log_dir=_resolve_path(log_dir), file=_resolve_path(file))
     if result is None:
-        raise HTTPException(
-            status_code=404, detail=f"Transaction {txid} not found in event store"
-        )
+        raise HTTPException(status_code=404, detail=f"Transaction {txid} not found in event store")
     return result
 
 

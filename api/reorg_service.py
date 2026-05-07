@@ -325,9 +325,7 @@ def _execute_reorg() -> None:
             },
         )
     except RPCError as exc:
-        _add_step(
-            "mine_recovery_block", "error", f"Mining recovery block failed: {exc}"
-        )
+        _add_step("mine_recovery_block", "error", f"Mining recovery block failed: {exc}")
         with _state_lock:
             _state["status"] = "error"
             _state["error"] = str(exc)
@@ -339,9 +337,7 @@ def _execute_reorg() -> None:
         tx_final = w_rpc.gettransaction(txid)
         final_confirmations = tx_final.get("confirmations", 0)
         final_blockhash = tx_final.get("blockhash")
-        mempool_status_after_recovery = (
-            "confirmed" if final_confirmations > 0 else "unconfirmed"
-        )
+        mempool_status_after_recovery = "confirmed" if final_confirmations > 0 else "unconfirmed"
         step_status = "success" if final_confirmations > 0 else "error"
         _add_step(
             "verify_reconfirmation",

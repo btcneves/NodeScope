@@ -27,9 +27,7 @@ class RPCClient:
     ) -> None:
         self._url = url or os.environ.get("BITCOIN_RPC_URL", _DEFAULT_URL)
         self._user = user or os.environ.get("BITCOIN_RPC_USER", _DEFAULT_USER)
-        self._password = password or os.environ.get(
-            "BITCOIN_RPC_PASSWORD", _DEFAULT_PASS
-        )
+        self._password = password or os.environ.get("BITCOIN_RPC_PASSWORD", _DEFAULT_PASS)
         self._id = 0
 
     def call(self, method: str, params: list[Any] | None = None) -> Any:
@@ -142,9 +140,7 @@ class RPCClient:
         params: list[Any] = [minconf, maxconf, addresses or []]
         return self.call("listunspent", params)  # type: ignore[return-value]
 
-    def createrawtransaction(
-        self, inputs: list[dict[str, Any]], outputs: dict[str, Any]
-    ) -> str:
+    def createrawtransaction(self, inputs: list[dict[str, Any]], outputs: dict[str, Any]) -> str:
         return self.call("createrawtransaction", [inputs, outputs])  # type: ignore[return-value]
 
     def fundrawtransaction(

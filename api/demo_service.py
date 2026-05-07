@@ -212,9 +212,7 @@ def _step_check_rpc() -> None:
             },
         )
     except RPCError as exc:
-        _set_step(
-            "check_rpc", "error", "Cannot reach Bitcoin Core RPC.", error=str(exc)
-        )
+        _set_step("check_rpc", "error", "Cannot reach Bitcoin Core RPC.", error=str(exc))
 
 
 def _step_check_zmq() -> None:
@@ -279,9 +277,7 @@ def _step_create_or_load_wallet() -> None:
             data={"wallet": DEMO_WALLET},
         )
     except RPCError as exc:
-        _set_step(
-            "create_or_load_wallet", "error", "Wallet setup failed.", error=str(exc)
-        )
+        _set_step("create_or_load_wallet", "error", "Wallet setup failed.", error=str(exc))
 
 
 def _wallet_rpc() -> RPCClient:
@@ -375,9 +371,7 @@ def _step_create_destination_address() -> None:
 
 
 def _step_send_demo_transaction() -> None:
-    _set_step(
-        "send_demo_transaction", "running", f"Sending {DEMO_AMOUNT} BTC to destination…"
-    )
+    _set_step("send_demo_transaction", "running", f"Sending {DEMO_AMOUNT} BTC to destination…")
     dest = _get_step_data("create_destination_address").get("destination_address")
     if not dest:
         _set_step(
@@ -398,15 +392,11 @@ def _step_send_demo_transaction() -> None:
             data={"txid": txid, "amount": DEMO_AMOUNT, "destination_address": dest},
         )
     except RPCError as exc:
-        _set_step(
-            "send_demo_transaction", "error", "sendtoaddress failed.", error=str(exc)
-        )
+        _set_step("send_demo_transaction", "error", "sendtoaddress failed.", error=str(exc))
 
 
 def _step_detect_mempool_entry() -> None:
-    _set_step(
-        "detect_mempool_entry", "running", "Checking mempool for the transaction…"
-    )
+    _set_step("detect_mempool_entry", "running", "Checking mempool for the transaction…")
     txid = _get_step_data("send_demo_transaction").get("txid")
     if not txid:
         _set_step(
@@ -509,9 +499,7 @@ def _step_detect_zmq_rawtx() -> None:
                 },
             )
     except Exception as exc:
-        _set_step(
-            "detect_zmq_rawtx", "error", "Error checking event store.", error=str(exc)
-        )
+        _set_step("detect_zmq_rawtx", "error", "Error checking event store.", error=str(exc))
 
 
 def _step_decode_transaction() -> None:
@@ -553,9 +541,7 @@ def _step_decode_transaction() -> None:
             },
         )
     except RPCError as exc:
-        _set_step(
-            "decode_transaction", "error", "getrawtransaction failed.", error=str(exc)
-        )
+        _set_step("decode_transaction", "error", "getrawtransaction failed.", error=str(exc))
 
 
 def _step_mine_confirmation_block() -> None:
@@ -587,9 +573,7 @@ def _step_mine_confirmation_block() -> None:
 
 def _step_detect_zmq_rawblock() -> None:
     """Same pattern as detect_zmq_rawtx — check NDJSON store for rawblock event."""
-    _set_step(
-        "detect_zmq_rawblock", "running", "Checking for rawblock event in event store…"
-    )
+    _set_step("detect_zmq_rawblock", "running", "Checking for rawblock event in event store…")
     block_hash = _get_step_data("mine_confirmation_block").get("block_hash")
     if not block_hash:
         _set_step(
@@ -698,9 +682,7 @@ def _step_confirm_transaction() -> None:
                 error=f"confirmations={confirmations}",
             )
     except RPCError as exc:
-        _set_step(
-            "confirm_transaction", "error", "gettransaction failed.", error=str(exc)
-        )
+        _set_step("confirm_transaction", "error", "gettransaction failed.", error=str(exc))
 
 
 def _step_generate_proof_report() -> None:
@@ -714,9 +696,7 @@ def _step_generate_proof_report() -> None:
 
         txid = _collect("send_demo_transaction", "txid")
         fee_btc = _collect("detect_mempool_entry", "fee")
-        vsize = _collect("detect_mempool_entry", "vsize") or _collect(
-            "decode_transaction", "vsize"
-        )
+        vsize = _collect("detect_mempool_entry", "vsize") or _collect("decode_transaction", "vsize")
         weight = _collect("decode_transaction", "weight")
         fee_rate = _collect("detect_mempool_entry", "fee_rate_sat_vb")
 
@@ -729,9 +709,7 @@ def _step_generate_proof_report() -> None:
             "zmq_rawblock_ok": _collect("check_zmq", "zmq_rawblock_ok", False),
             "wallet": DEMO_WALLET,
             "mining_address": _collect("generate_mining_address", "mining_address"),
-            "destination_address": _collect(
-                "create_destination_address", "destination_address"
-            ),
+            "destination_address": _collect("create_destination_address", "destination_address"),
             "txid": txid,
             "wtxid": _collect("decode_transaction", "wtxid"),
             "amount_btc": _collect("send_demo_transaction", "amount"),
@@ -741,15 +719,11 @@ def _step_generate_proof_report() -> None:
             "weight_wu": weight if weight is not None else "unavailable",
             "mempool_seen": _collect("detect_mempool_entry", "mempool_seen", False),
             "rawtx_event_seen": _collect("detect_zmq_rawtx", "rawtx_seen", False),
-            "rawblock_event_seen": _collect(
-                "detect_zmq_rawblock", "rawblock_seen", False
-            ),
+            "rawblock_event_seen": _collect("detect_zmq_rawblock", "rawblock_seen", False),
             "block_height": _collect("mine_confirmation_block", "block_height"),
             "block_hash": _collect("mine_confirmation_block", "block_hash"),
             "confirmations": _collect("confirm_transaction", "confirmations", 0),
-            "timestamps": {
-                sid: _state["steps"][sid].get("timestamp") for sid in STEP_IDS
-            },
+            "timestamps": {sid: _state["steps"][sid].get("timestamp") for sid in STEP_IDS},
             "success": _collect("confirm_transaction", "confirmations", 0) > 0,
             "warnings": [],
             "unavailable_features": [],
@@ -757,17 +731,11 @@ def _step_generate_proof_report() -> None:
 
         # Flag honest unavailability
         if proof["fee_rate_sat_vb"] == "unavailable":
-            proof["unavailable_features"].append(
-                "fee_rate_sat_vb — requires mempool entry data"
-            )
+            proof["unavailable_features"].append("fee_rate_sat_vb — requires mempool entry data")
         if not proof["rawtx_event_seen"]:
-            proof["warnings"].append(
-                "ZMQ rawtx event not yet confirmed in event store (async)"
-            )
+            proof["warnings"].append("ZMQ rawtx event not yet confirmed in event store (async)")
         if not proof["rawblock_event_seen"]:
-            proof["warnings"].append(
-                "ZMQ rawblock event not yet confirmed in event store (async)"
-            )
+            proof["warnings"].append("ZMQ rawblock event not yet confirmed in event store (async)")
 
         with _state_lock:
             _state["proof"] = proof
