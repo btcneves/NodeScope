@@ -419,4 +419,19 @@ export interface Translations {
     time: string
     unknown: string
   }
+
+  // Footer
+  footer: {
+    copyright: string
+    github: string
+    repository: string
+    docs: string
+    projectStatus: string
+    roadmap: string
+    security: string
+    license: string
+    contact: string
+    tagline: string
+    disclaimer: string
+  }
 }

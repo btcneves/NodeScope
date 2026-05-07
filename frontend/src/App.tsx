@@ -33,6 +33,7 @@ import { MempoolPolicyArena } from './components/MempoolPolicyArena'
 import { ReorgLab } from './components/ReorgLab'
 import { SimulationPanel } from './components/SimulationPanel'
 import AlertingPanel from './components/AlertingPanel'
+import { Footer } from './components/Footer'
 import { ExplainBox } from './components/ui/ExplainBox'
 import {
   I18nContext,
@@ -179,6 +180,7 @@ export default function App() {
             <ExplainBox text={t.explain.inspector} />
             <TransactionInspector initialTxid={inspectorTxid} />
           </main>
+          <Footer />
         </div>
       ) : activeView === 'zmq-tape' ? (
         <div className="app">
@@ -187,6 +189,7 @@ export default function App() {
             <ExplainBox text={t.explain.zmqTape} />
             <ZmqEventTape onInspectTxid={handleInspect} />
           </main>
+          <Footer />
         </div>
       ) : activeView === 'policy-arena' ? (
         <div className="app">
@@ -195,6 +198,7 @@ export default function App() {
             <ExplainBox text={t.explain.policyArena} />
             <MempoolPolicyArena onGoToDashboard={() => setActiveView('dashboard')} />
           </main>
+          <Footer />
         </div>
       ) : activeView === 'reorg-lab' ? (
         <div className="app">
@@ -203,6 +207,7 @@ export default function App() {
             <ExplainBox text={t.explain.reorgLab} />
             <ReorgLab onInspect={handleInspect} onGoToDashboard={() => setActiveView('dashboard')} />
           </main>
+          <Footer />
         </div>
       ) : (
         // Default: dashboard
@@ -243,6 +248,7 @@ export default function App() {
             </div>
             <ClassificationsTable classifications={classifications} />
           </main>
+          <Footer />
         </div>
       )}
     </I18nContext.Provider>

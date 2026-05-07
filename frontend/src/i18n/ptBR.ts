@@ -400,4 +400,19 @@ export const ptBR: Translations = {
     time: 'Tempo',
     unknown: 'Desconhecido',
   },
+
+  footer: {
+    copyright: '© 2026 Pedro Neves · NodeScope',
+    github: 'GitHub',
+    repository: 'Repositório',
+    docs: 'Documentação',
+    projectStatus: 'Status do Projeto',
+    roadmap: 'Roadmap',
+    security: 'Segurança',
+    license: 'Licença',
+    contact: 'Contato',
+    tagline: 'Observabilidade, aprendizado e demonstrações auditáveis com Bitcoin Core.',
+    disclaimer:
+      'Laboratório educacional/profissional independente de Bitcoin Core. Não afiliado aos mantenedores do Bitcoin Core.',
+  },
 }
