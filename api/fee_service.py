@@ -25,9 +25,7 @@ def _convert_feerate(feerate_btc_kvb: float) -> float:
     return round(feerate_btc_kvb * _BTC_KVB_TO_SAT_VB, 4)
 
 
-def _estimate_target(
-    conf_target: int, estimate_mode: str
-) -> dict[str, Any]:
+def _estimate_target(conf_target: int, estimate_mode: str) -> dict[str, Any]:
     """Call estimatesmartfee for a single target and return a normalised dict."""
     client = get_client()
     try:
@@ -143,13 +141,17 @@ def get_fee_comparison() -> dict[str, Any]:
         proof = demo_state.get("proof") or {}
         fee_rate = proof.get("fee_rate_sat_vb")
         if fee_rate is not None:
-            compared.append({
-                "source": "guided_demo",
-                "label": "Guided Demo",
-                "feerate_sat_vb": fee_rate,
-                "feerate_btc_kvb": round(fee_rate / _BTC_KVB_TO_SAT_VB, 8) if fee_rate else None,
-                "note": "Fee rate of the most recent Guided Demo transaction",
-            })
+            compared.append(
+                {
+                    "source": "guided_demo",
+                    "label": "Guided Demo",
+                    "feerate_sat_vb": fee_rate,
+                    "feerate_btc_kvb": round(fee_rate / _BTC_KVB_TO_SAT_VB, 8)
+                    if fee_rate
+                    else None,
+                    "note": "Fee rate of the most recent Guided Demo transaction",
+                }
+            )
     except Exception:
         pass
 
@@ -167,13 +169,17 @@ def get_fee_comparison() -> dict[str, Any]:
                 continue
             fee_rate = proof.get("fee_rate_sat_vb")
             if fee_rate is not None:
-                compared.append({
-                    "source": scenario_id,
-                    "label": label,
-                    "feerate_sat_vb": fee_rate,
-                    "feerate_btc_kvb": round(fee_rate / _BTC_KVB_TO_SAT_VB, 8) if fee_rate else None,
-                    "note": f"Fee rate from {label} scenario",
-                })
+                compared.append(
+                    {
+                        "source": scenario_id,
+                        "label": label,
+                        "feerate_sat_vb": fee_rate,
+                        "feerate_btc_kvb": round(fee_rate / _BTC_KVB_TO_SAT_VB, 8)
+                        if fee_rate
+                        else None,
+                        "note": f"Fee rate from {label} scenario",
+                    }
+                )
     except Exception:
         pass
 

@@ -51,9 +51,7 @@ class EstimateTargetTests(unittest.TestCase):
         return mock_client
 
     def test_success_with_feerate(self):
-        mock_client = self._make_mock_client(
-            return_value={"feerate": 0.0001, "blocks": 3}
-        )
+        mock_client = self._make_mock_client(return_value={"feerate": 0.0001, "blocks": 3})
         with patch("api.fee_service.get_client", return_value=mock_client):
             result = _estimate_target(3, "CONSERVATIVE")
 
@@ -76,9 +74,7 @@ class EstimateTargetTests(unittest.TestCase):
         self.assertTrue(len(result["errors"]) > 0)
 
     def test_unavailable_no_feerate_no_errors(self):
-        mock_client = self._make_mock_client(
-            return_value={"blocks": 1}
-        )
+        mock_client = self._make_mock_client(return_value={"blocks": 1})
         with patch("api.fee_service.get_client", return_value=mock_client):
             result = _estimate_target(1, "CONSERVATIVE")
 
@@ -87,9 +83,7 @@ class EstimateTargetTests(unittest.TestCase):
         self.assertIsNone(result["feerate_sat_vb"])
 
     def test_rpc_error_becomes_error_status(self):
-        mock_client = self._make_mock_client(
-            side_effect=RPCError("connection failed")
-        )
+        mock_client = self._make_mock_client(side_effect=RPCError("connection failed"))
         with patch("api.fee_service.get_client", return_value=mock_client):
             result = _estimate_target(6, "CONSERVATIVE")
 
@@ -98,9 +92,7 @@ class EstimateTargetTests(unittest.TestCase):
         self.assertTrue(len(result["errors"]) > 0)
 
     def test_target_and_mode_preserved(self):
-        mock_client = self._make_mock_client(
-            return_value={"feerate": 0.0002, "blocks": 6}
-        )
+        mock_client = self._make_mock_client(return_value={"feerate": 0.0002, "blocks": 6})
         with patch("api.fee_service.get_client", return_value=mock_client):
             result = _estimate_target(6, "ECONOMICAL")
 
