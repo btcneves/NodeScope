@@ -44,14 +44,16 @@ function statusDot(status: string) {
 }
 
 function StatusChip({ status }: { status: string }) {
+  const { t } = useI18n()
   const color = STATUS_COLOR[status] ?? '#6b7280'
+  const label = status in t.status ? t.status[status as keyof typeof t.status] : status
   return (
     <span style={{
       padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 700,
       background: color + '22', color, border: `1px solid ${color}55`,
       textTransform: 'uppercase', letterSpacing: '0.04em', fontFamily: 'monospace',
     }}>
-      {status}
+      {label}
     </span>
   )
 }
@@ -423,9 +425,11 @@ export function MempoolPolicyArena() {
           </span>
         ))}
         <span style={{ color: '#4b5563', marginLeft: 'auto' }}>
-          Statuses: {['idle', 'running', 'success', 'error', 'experimental'].map(s => (
+          {t.policy.statusLegend}: {['idle', 'running', 'success', 'error', 'experimental'].map(s => (
             <span key={s} style={{ marginLeft: '6px' }}>
-              {statusDot(s)}<span style={{ color: '#6b7280' }}>{s}</span>
+              {statusDot(s)}<span style={{ color: '#6b7280' }}>
+                {s in t.status ? t.status[s as keyof typeof t.status] : s}
+              </span>
             </span>
           ))}
         </span>
@@ -464,11 +468,11 @@ export function MempoolPolicyArena() {
 
       {/* Notes */}
       <div style={{ marginTop: '20px', padding: '12px 16px', background: '#0a0f1a', borderRadius: '6px', border: '1px solid #1f2937', fontSize: '11px', color: '#6b7280' }}>
-        <div style={{ marginBottom: '4px', color: '#9ca3af', fontWeight: 600 }}>Notes</div>
-        <div>• All scenarios run on <strong style={{ color: '#d1d5db' }}>regtest</strong> — no real funds, no mainnet.</div>
-        <div>• RBF requires <code style={{ color: '#93c5fd' }}>walletrbf=1</code> in bitcoind config; otherwise marked <StatusChip status="experimental" />.</div>
-        <div>• CPFP child construction uses raw tx pipeline (createrawtransaction → fundrawtransaction → sign → send); may fall back if parent UTXO not wallet-tracked.</div>
-        <div>• <StatusChip status="experimental" /> = attempted but fell back gracefully. <StatusChip status="error" /> = step failed and scenario stopped.</div>
+        <div style={{ marginBottom: '4px', color: '#9ca3af', fontWeight: 600 }}>{t.policy.notesTitle}</div>
+        <div>• <Term term="Regtest">{t.policy.noteRegtest}</Term></div>
+        <div>• <Term term="RBF">{t.policy.noteRbf}</Term></div>
+        <div>• <Term term="CPFP">{t.policy.noteCpfp}</Term></div>
+        <div>• <StatusChip status="experimental" /> / <StatusChip status="error" /> — {t.policy.noteStatus}</div>
       </div>
     </div>
   )

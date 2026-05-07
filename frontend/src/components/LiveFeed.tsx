@@ -1,4 +1,6 @@
 import type { useSSE } from '../hooks/useSSE'
+import { useI18n } from '../i18n'
+import { Term } from './ui/InfoTooltip'
 
 interface Props {
   sseEvents: ReturnType<typeof useSSE>['events']
@@ -6,21 +8,22 @@ interface Props {
 }
 
 export function LiveFeed({ sseEvents, connected }: Props) {
+  const { t } = useI18n()
   return (
     <div className="panel">
       <div className="panel-header">
-        <span className="panel-title">Live Events</span>
+        <span className="panel-title"><Term term="ZMQ">{t.dashboard.liveEvents}</Term></span>
         <span className="live-indicator">
           <span
             className="live-dot"
             style={{ background: connected ? 'var(--accent-bright)' : 'var(--error)' }}
           />
-          {connected ? 'connected' : 'connecting...'}
+          {connected ? t.status.connected : t.zmq.connecting}
         </span>
       </div>
       <div className="panel-body">
         {sseEvents.length === 0 ? (
-          <div className="empty-state">Waiting for events&hellip;</div>
+          <div className="empty-state">{t.dashboard.waitingEvents}</div>
         ) : (
           sseEvents.slice(0, 10).map((ev, i) => {
             const evType: string = (ev.payload?.event?.event as string | undefined) ?? 'event'

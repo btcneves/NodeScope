@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import type { TxData } from '../types/api'
 import { copyText } from '../utils/clipboard'
+import { useI18n } from '../i18n'
+import { Term } from './ui/InfoTooltip'
 
 interface Props {
   tx: TxData | null
@@ -15,6 +17,7 @@ function kindBadgeClass(kind: string): string {
 }
 
 export function TxPanel({ tx }: Props) {
+  const { t } = useI18n()
   const [copied, setCopied] = useState(false)
 
   async function copyTxid() {
@@ -28,18 +31,18 @@ export function TxPanel({ tx }: Props) {
   return (
     <div className="panel">
       <div className="panel-header">
-        <span className="panel-title">Latest Transaction</span>
+        <span className="panel-title"><Term term="TXID">{t.dashboard.latestTx}</Term></span>
       </div>
       <div className="panel-body">
         {!tx ? (
-          <div className="empty-state">No transactions yet</div>
+          <div className="empty-state">{t.dashboard.noTransactions}</div>
         ) : (
           <>
             <div className="event-row">
-              <span className="kpi-label" style={{ minWidth: '60px' }}>TXID</span>
+              <span className="kpi-label" style={{ minWidth: '60px' }}><Term term="TXID">TXID</Term></span>
               <span
                 className="event-hash mono copyable-text"
-                title="Clique para copiar TXID completo"
+                title={t.dashboard.clickCopyTxid}
                 onClick={copyTxid}
                 role="button"
                 tabIndex={0}
@@ -52,22 +55,22 @@ export function TxPanel({ tx }: Props) {
               >
                 {trunc(tx.txid)}
               </span>
-              {copied && <span className="copy-feedback">copied</span>}
+              {copied && <span className="copy-feedback">{t.dashboard.copied}</span>}
             </div>
             <div className="event-row">
               <span className="kpi-label" style={{ minWidth: '60px' }}>Kind</span>
               <span className={`badge badge-${kindBadgeClass(tx.kind)}`}>{tx.kind}</span>
             </div>
             <div className="event-row">
-              <span className="kpi-label" style={{ minWidth: '60px' }}>Inputs</span>
+              <span className="kpi-label" style={{ minWidth: '60px' }}><Term term="Input">{t.inspector.inputs}</Term></span>
               <span>{tx.inputs}</span>
             </div>
             <div className="event-row">
-              <span className="kpi-label" style={{ minWidth: '60px' }}>Outputs</span>
+              <span className="kpi-label" style={{ minWidth: '60px' }}><Term term="Output">{t.inspector.outputs}</Term></span>
               <span>{tx.outputs}</span>
             </div>
             <div className="event-row">
-              <span className="kpi-label" style={{ minWidth: '60px' }}>Total Out</span>
+              <span className="kpi-label" style={{ minWidth: '60px' }}><Term term="Output">{t.inspector.totalOutput}</Term></span>
               <span className="mono">{tx.total_out.toFixed(8)} BTC</span>
             </div>
           </>

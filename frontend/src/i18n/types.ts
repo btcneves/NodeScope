@@ -100,6 +100,14 @@ export interface Translations {
     inspect: string
     decoding: string
     basic: string
+    versionLocktime: string
+    sizeVsizeWeight: string
+    totalOutput: string
+    rbfReplaceable: string
+    blockTime: string
+    unconfirmedPending: string
+    coinbaseInput: string
+    valueUnavailable: string
     inputs: string
     outputs: string
     scriptSig: string
@@ -144,6 +152,12 @@ export interface Translations {
     result: string
     txid: string
     feeRate: string
+    statusLegend: string
+    notesTitle: string
+    noteRegtest: string
+    noteRbf: string
+    noteCpfp: string
+    noteStatus: string
   }
 
   // Reorg Lab
@@ -163,6 +177,33 @@ export interface Translations {
     inMempoolAfter: string
     reorgDepth: string
     blocksAdded: string
+    experimentalBadge: string
+    networkLabel: string
+    inspectTx: string
+    originalBlock: string
+    originalHeight: string
+    mempoolAfterInvalidation: string
+    finalBlock: string
+    finalHeight: string
+    finalConfirmations: string
+    chainRecovery: string
+    reconsiderBlockCalled: string
+    warningExperimental: string
+    warningRestored: string
+    yes: string
+    no: string
+    steps: {
+      checkNetwork: string
+      ensureWallet: string
+      broadcastTx: string
+      mineBlock: string
+      invalidateBlock: string
+      checkMempool: string
+      mineRecovery: string
+      verifyReconfirmation: string
+      reconsiderBlock: string
+      buildProof: string
+    }
   }
 
   // Cluster Mempool
@@ -202,6 +243,42 @@ export interface Translations {
     replayEngine: string
     rpcZmqSync: string
     classifications: string
+    live: string
+    rpcOffline: string
+    noBlocks: string
+    noTransactions: string
+    copied: string
+    clickCopyHash: string
+    clickCopyTxid: string
+    transactions: string
+    usage: string
+    minFee: string
+    rpcSnapshot: string
+    classified: string
+    byEngine: string
+    eventStore: string
+    totalInLog: string
+    status: string
+    subscribed: string
+    snapshot: string
+    inSync: string
+    blocksBehind: string
+    nodeHealthScore: string
+    liveEvents: string
+    waitingEvents: string
+    items: string
+    noClassifications: string
+    copyReason: string
+    lifecycleCreated: string
+    lifecycleTxBuilt: string
+    lifecycleBroadcast: string
+    lifecycleSentToNode: string
+    lifecyclePending: string
+    lifecycleEventCaptured: string
+    lifecycleBlockMined: string
+    lifecycleBlockEventCaptured: string
+    lifecycleConfirmed: string
+    lifecycleOnChain: string
   }
 
   // Explain boxes

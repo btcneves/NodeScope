@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import type { BlockData } from '../types/api'
 import { copyText } from '../utils/clipboard'
+import { useI18n } from '../i18n'
+import { Term } from './ui/InfoTooltip'
 
 interface Props {
   block: BlockData | null
@@ -19,6 +21,7 @@ function relTime(ts: string): string {
 }
 
 export function BlocksPanel({ block }: Props) {
+  const { t } = useI18n()
   const [copied, setCopied] = useState(false)
 
   async function copyHash() {
@@ -32,24 +35,24 @@ export function BlocksPanel({ block }: Props) {
   return (
     <div className="panel">
       <div className="panel-header">
-        <span className="panel-title">Latest Block</span>
+        <span className="panel-title"><Term term="Block hash">{t.dashboard.latestBlock}</Term></span>
       </div>
       <div className="panel-body">
         {!block ? (
-          <div className="empty-state">No blocks yet</div>
+          <div className="empty-state">{t.dashboard.noBlocks}</div>
         ) : (
           <>
             <div className="event-row">
-              <span className="kpi-label">Height</span>
+              <span className="kpi-label"><Term term="Block height">{t.generic.height}</Term></span>
               <span className="kpi-value" style={{ fontSize: '20px' }}>
                 {block.height ?? '—'}
               </span>
             </div>
             <div className="event-row">
-              <span className="kpi-label" style={{ minWidth: '60px' }}>Hash</span>
+              <span className="kpi-label" style={{ minWidth: '60px' }}><Term term="Block hash">{t.generic.hash}</Term></span>
               <span
                 className="event-hash mono copyable-text"
-                title="Clique para copiar hash completo"
+                title={t.dashboard.clickCopyHash}
                 onClick={copyHash}
                 role="button"
                 tabIndex={0}
@@ -62,10 +65,10 @@ export function BlocksPanel({ block }: Props) {
               >
                 {trunc(block.hash, 20)}
               </span>
-              {copied && <span className="copy-feedback">copied</span>}
+              {copied && <span className="copy-feedback">{t.dashboard.copied}</span>}
             </div>
             <div className="event-row">
-              <span className="kpi-label" style={{ minWidth: '60px' }}>Time</span>
+              <span className="kpi-label" style={{ minWidth: '60px' }}>{t.generic.time}</span>
               <span className="event-time">
                 {block.ts ? relTime(block.ts) : '—'}
               </span>
