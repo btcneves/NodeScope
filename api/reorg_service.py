@@ -71,6 +71,7 @@ def get_proof() -> dict[str, Any] | None:
 # Internal helpers
 # ---------------------------------------------------------------------------
 
+
 def _add_step(
     name: str,
     status: str,
@@ -79,18 +80,21 @@ def _add_step(
     data: dict[str, Any] | None = None,
 ) -> None:
     with _state_lock:
-        _state["steps"].append({
-            "name": name,
-            "status": status,
-            "message": message,
-            "technical": technical,
-            "data": data or {},
-            "timestamp": _now(),
-        })
+        _state["steps"].append(
+            {
+                "name": name,
+                "status": status,
+                "message": message,
+                "technical": technical,
+                "data": data or {},
+                "timestamp": _now(),
+            }
+        )
 
 
 def _wallet_rpc() -> RPCClient:
     import os
+
     base_url = os.environ.get("BITCOIN_RPC_URL", "http://127.0.0.1:18443")
     wallet_url = base_url.rstrip("/") + f"/wallet/{REORG_WALLET}"
     return RPCClient(url=wallet_url)
@@ -141,6 +145,7 @@ def _ensure_wallet_and_funds() -> tuple[bool, str]:
 # Main worker
 # ---------------------------------------------------------------------------
 
+
 def _run_worker() -> None:
     try:
         _execute_reorg()
@@ -167,7 +172,12 @@ def _execute_reorg() -> None:
     with _state_lock:
         _state["network"] = chain
 
-    _add_step("check_network", "success", f"Network confirmed: {chain}", technical={"chain": chain})
+    _add_step(
+        "check_network",
+        "success",
+        f"Network confirmed: {chain}",
+        technical={"chain": chain},
+    )
 
     # Step 2: Ensure wallet + funds
     ok, msg = _ensure_wallet_and_funds()
@@ -187,7 +197,8 @@ def _execute_reorg() -> None:
         dest = w_rpc.getnewaddress("reorg_dest", "bech32")
         txid = w_rpc.sendtoaddress(dest, REORG_AMOUNT)
         _add_step(
-            "broadcast_tx", "success",
+            "broadcast_tx",
+            "success",
             f"Transaction broadcast — TXID: {txid}",
             technical={"txid": txid, "amount": REORG_AMOUNT, "destination": dest},
             data={"txid": txid, "destination": dest},
@@ -209,7 +220,8 @@ def _execute_reorg() -> None:
         tx_before = w_rpc.gettransaction(txid)
         confirmations_before = tx_before.get("confirmations", 0)
         _add_step(
-            "mine_block", "success",
+            "mine_block",
+            "success",
             f"Block mined — height={original_block_height}, txid confirmed with {confirmations_before} conf",
             technical={
                 "block_hash": original_block_hash,
@@ -235,13 +247,17 @@ def _execute_reorg() -> None:
         get_client().invalidateblock(original_block_hash)
         height_after_invalidate = get_client().getblockcount()
         _add_step(
-            "invalidate_block", "success",
+            "invalidate_block",
+            "success",
             f"Block {original_block_hash[:16]}… invalidated — chain height now={height_after_invalidate}",
             technical={
                 "invalidated_block": original_block_hash,
                 "height_after": height_after_invalidate,
             },
-            data={"invalidated_block": original_block_hash, "height_after_invalidate": height_after_invalidate},
+            data={
+                "invalidated_block": original_block_hash,
+                "height_after_invalidate": height_after_invalidate,
+            },
         )
     except RPCError as exc:
         _add_step("invalidate_block", "error", f"invalidateblock failed: {exc}")
@@ -257,7 +273,8 @@ def _execute_reorg() -> None:
         w_rpc.getmempoolentry(txid)
         mempool_status_after = "back_in_mempool"
         _add_step(
-            "check_tx_after_invalidation", "success",
+            "check_tx_after_invalidation",
+            "success",
             f"Transaction {txid[:16]}… returned to mempool after block invalidation.",
             technical={"mempool_status": "back_in_mempool", "txid": txid},
             data={"mempool_status_after_invalidation": "back_in_mempool", "txid": txid},
@@ -270,15 +287,23 @@ def _execute_reorg() -> None:
             if conf_check <= 0:
                 mempool_status_after = "unconfirmed_not_in_mempool"
             _add_step(
-                "check_tx_after_invalidation", "experimental",
+                "check_tx_after_invalidation",
+                "experimental",
                 f"Transaction confirmations={conf_check} after invalidation. Not found in getmempoolentry.",
-                technical={"confirmations": conf_check, "note": "mempool_entry_not_found"},
-                data={"mempool_status_after_invalidation": mempool_status_after, "txid": txid},
+                technical={
+                    "confirmations": conf_check,
+                    "note": "mempool_entry_not_found",
+                },
+                data={
+                    "mempool_status_after_invalidation": mempool_status_after,
+                    "txid": txid,
+                },
             )
         except RPCError as exc2:
             mempool_status_after = "unknown"
             _add_step(
-                "check_tx_after_invalidation", "error",
+                "check_tx_after_invalidation",
+                "error",
                 f"Could not determine tx status after invalidation: {exc2}",
                 data={"mempool_status_after_invalidation": "unknown"},
             )
@@ -290,13 +315,19 @@ def _execute_reorg() -> None:
         final_block_hash = new_hashes[0]
         final_block_height = w_rpc.getblockcount()
         _add_step(
-            "mine_recovery_block", "success",
+            "mine_recovery_block",
+            "success",
             f"Recovery block mined — height={final_block_height}, hash={final_block_hash[:16]}…",
             technical={"block_hash": final_block_hash, "height": final_block_height},
-            data={"final_block_hash": final_block_hash, "final_block_height": final_block_height},
+            data={
+                "final_block_hash": final_block_hash,
+                "final_block_height": final_block_height,
+            },
         )
     except RPCError as exc:
-        _add_step("mine_recovery_block", "error", f"Mining recovery block failed: {exc}")
+        _add_step(
+            "mine_recovery_block", "error", f"Mining recovery block failed: {exc}"
+        )
         with _state_lock:
             _state["status"] = "error"
             _state["error"] = str(exc)
@@ -308,10 +339,13 @@ def _execute_reorg() -> None:
         tx_final = w_rpc.gettransaction(txid)
         final_confirmations = tx_final.get("confirmations", 0)
         final_blockhash = tx_final.get("blockhash")
-        mempool_status_after_recovery = "confirmed" if final_confirmations > 0 else "unconfirmed"
+        mempool_status_after_recovery = (
+            "confirmed" if final_confirmations > 0 else "unconfirmed"
+        )
         step_status = "success" if final_confirmations > 0 else "error"
         _add_step(
-            "verify_reconfirmation", step_status,
+            "verify_reconfirmation",
+            step_status,
             f"Transaction {txid[:16]}… — confirmations={final_confirmations} after recovery.",
             technical={
                 "txid": txid,
@@ -339,14 +373,16 @@ def _execute_reorg() -> None:
         final_height_check = get_client().getblockcount()
         reconsider_ok = True
         _add_step(
-            "reconsider_block", "success",
+            "reconsider_block",
+            "success",
             f"reconsiderblock called — chain height={final_height_check}. Recovery chain remains active.",
             technical={"height_after_reconsider": final_height_check},
             data={"reconsider_called": True, "chain_height_final": final_height_check},
         )
     except RPCError as exc:
         _add_step(
-            "reconsider_block", "experimental",
+            "reconsider_block",
+            "experimental",
             f"reconsiderblock returned: {exc}. Chain state may still be valid.",
             technical={"error": str(exc)},
             data={"reconsider_called": False},
@@ -385,7 +421,8 @@ def _execute_reorg() -> None:
         _state["running"] = False
 
     _add_step(
-        "build_proof", "success" if overall_success else "experimental",
+        "build_proof",
+        "success" if overall_success else "experimental",
         "Proof report assembled.",
         technical=proof,
     )

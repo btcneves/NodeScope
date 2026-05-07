@@ -1,25 +1,29 @@
 import { useState, useEffect } from 'react'
 import { api } from '../api/client'
 import type { ClusterCompatibilityData } from '../types/api'
+import { useI18n } from '../i18n'
+import { Term } from './ui/InfoTooltip'
+import { LearnMore } from './ui/LearnMore'
 
 export function ClusterMempoolPanel() {
+  const { t } = useI18n()
   const [data, setData] = useState<ClusterCompatibilityData | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const fetch = async () => {
+  const fetchData = async () => {
     setLoading(true)
     setError(null)
     try {
       const result = await api.clusterCompatibility()
       setData(result)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch')
+      setError(err instanceof Error ? err.message : t.generic.error)
     }
     setLoading(false)
   }
 
-  useEffect(() => { void fetch() }, [])
+  useEffect(() => { void fetchData() }, [])
 
   return (
     <div style={{
@@ -28,34 +32,33 @@ export function ClusterMempoolPanel() {
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
         <div>
-          <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#f9fafb' }}>
-            Cluster Mempool Compatibility
+          <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#f9fafb', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Term term="Cluster mempool">{t.cluster.title}</Term>
           </div>
           <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '2px' }}>
-            Detects support for cluster mempool RPCs in the connected Bitcoin Core node.
+            {t.cluster.subtitle}
           </div>
         </div>
         <button
-          onClick={() => { void fetch() }}
+          onClick={() => { void fetchData() }}
           disabled={loading}
           style={{
             padding: '4px 12px', fontSize: '11px', borderRadius: '4px', cursor: 'pointer',
             background: 'transparent', color: '#9ca3af', border: '1px solid #374151',
           }}
         >
-          {loading ? '…' : '↺ Refresh'}
+          {loading ? '…' : t.cluster.refresh}
         </button>
       </div>
 
       {error && (
         <div style={{ fontSize: '11px', color: '#ef4444', marginBottom: '10px' }}>
-          Error: {error}
+          {t.generic.error}: {error}
         </div>
       )}
 
       {data && (
         <>
-          {/* Version badge */}
           {data.bitcoin_core_version && (
             <div style={{
               display: 'inline-block', padding: '2px 8px', fontSize: '10px',
@@ -66,7 +69,6 @@ export function ClusterMempoolPanel() {
             </div>
           )}
 
-          {/* Overall status */}
           <div style={{
             padding: '8px 12px', borderRadius: '6px', marginBottom: '12px',
             background: data.supported ? '#14532d20' : '#1f2937',
@@ -74,10 +76,9 @@ export function ClusterMempoolPanel() {
             fontSize: '12px',
             color: data.supported ? '#4ade80' : '#9ca3af',
           }}>
-            {data.supported ? '✓ Cluster mempool RPCs available' : '— Cluster mempool RPCs not available'}
+            {data.supported ? `✓ ${t.cluster.supported}` : `— ${t.cluster.notSupported}`}
           </div>
 
-          {/* Per-RPC results */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px' }}>
             {data.rpcs.map(r => (
               <div key={r.rpc} style={{
@@ -105,13 +106,12 @@ export function ClusterMempoolPanel() {
                   color: r.supported ? '#4ade80' : '#6b7280',
                   border: `1px solid ${r.supported ? '#16a34a' : '#374151'}`,
                 }}>
-                  {r.supported ? 'supported' : 'unavailable'}
+                  {r.supported ? t.status.ok : t.status.unavailable}
                 </span>
               </div>
             ))}
           </div>
 
-          {/* Explanation */}
           <div style={{
             padding: '10px 12px', background: '#0f172a', borderRadius: '6px',
             border: '1px solid #1f2937', fontSize: '11px', color: '#9ca3af', lineHeight: '1.6',
@@ -119,11 +119,15 @@ export function ClusterMempoolPanel() {
             {data.message}
             {data.note && <div style={{ marginTop: '6px', color: '#6b7280' }}>{data.note}</div>}
           </div>
+
+          <LearnMore>
+            {t.learn.cluster}
+          </LearnMore>
         </>
       )}
 
       {loading && !data && (
-        <div style={{ fontSize: '12px', color: '#6b7280' }}>Probing Bitcoin Core RPC…</div>
+        <div style={{ fontSize: '12px', color: '#6b7280' }}>{t.cluster.checking}</div>
       )}
     </div>
   )

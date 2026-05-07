@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { api } from '../api/client'
 import type { ReorgStatusData, ReorgStep } from '../types/api'
+import { useI18n } from '../i18n'
+import { Term } from './ui/InfoTooltip'
+import { LearnMore } from './ui/LearnMore'
 
 const STATUS_COLORS: Record<string, string> = {
   idle:         '#6b7280',
@@ -39,6 +42,7 @@ interface Props {
 }
 
 export function ReorgLab({ onInspect }: Props) {
+  const { t } = useI18n()
   const [data, setData] = useState<ReorgStatusData | null>(null)
   const [loading, setLoading] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -108,8 +112,8 @@ export function ReorgLab({ onInspect }: Props) {
         marginBottom: '16px', flexWrap: 'wrap', gap: '8px',
       }}>
         <div>
-          <h2 style={{ margin: 0, fontSize: '18px', color: '#f9fafb' }}>
-            Reorg Lab
+          <h2 style={{ margin: 0, fontSize: '18px', color: '#f9fafb', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Term term="Reorg">{t.reorg.title}</Term>
             <span style={{
               marginLeft: '10px', fontSize: '10px', padding: '2px 8px',
               background: '#7c3aed22', border: '1px solid #7c3aed', borderRadius: '4px',
@@ -117,8 +121,7 @@ export function ReorgLab({ onInspect }: Props) {
             }}>EXPERIMENTAL</span>
           </h2>
           <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#9ca3af' }}>
-            Controlled regtest chain reorganization scenario — invalidate a block, watch the tx
-            return to mempool, then re-confirm on a new chain tip.
+            {t.reorg.subtitle}
           </p>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
@@ -132,7 +135,7 @@ export function ReorgLab({ onInspect }: Props) {
               opacity: (loading || data?.running) ? 0.6 : 1,
             }}
           >
-            {data?.running ? '⏳ Running…' : '▶ Run Reorg Scenario'}
+            {data?.running ? `⏳ ${t.reorg.running}` : t.reorg.runReorg}
           </button>
           <button
             onClick={() => { void handleReset() }}
@@ -142,7 +145,7 @@ export function ReorgLab({ onInspect }: Props) {
               background: 'transparent', color: '#9ca3af', border: '1px solid #374151',
             }}
           >
-            ↺ Reset
+            {t.actions.reset}
           </button>
         </div>
       </div>
@@ -170,12 +173,12 @@ export function ReorgLab({ onInspect }: Props) {
         padding: '16px', marginBottom: '16px',
       }}>
         <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '12px', textTransform: 'uppercase' }}>
-          Scenario Timeline
+          {t.reorg.phase}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
           {steps.length === 0 ? (
             <div style={{ color: '#374151', fontSize: '12px' }}>
-              No steps executed yet. Click "Run Reorg Scenario" to begin.
+              {t.reorg.noResults}
             </div>
           ) : (
             steps.map((step: ReorgStep, idx: number) => (
@@ -199,7 +202,7 @@ export function ReorgLab({ onInspect }: Props) {
             marginBottom: '10px',
           }}>
             <span style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase' }}>
-              Proof Report (JSON)
+              {t.demo.proofReport} (JSON)
             </span>
             <button
               onClick={handleCopyProof}
@@ -209,7 +212,7 @@ export function ReorgLab({ onInspect }: Props) {
                 border: '1px solid #374151',
               }}
             >
-              {copied ? '✓ Copied' : '⎘ Copy JSON'}
+              {copied ? `✓ ${t.actions.copied}` : `⎘ ${t.actions.copy} JSON`}
             </button>
           </div>
           <pre style={{
@@ -231,6 +234,10 @@ export function ReorgLab({ onInspect }: Props) {
           {proof.warnings.map((w: string, i: number) => <div key={i}>⚠ {w}</div>)}
         </div>
       )}
+
+      <LearnMore>
+        {t.learn.reorg}
+      </LearnMore>
     </div>
   )
 }
@@ -238,6 +245,7 @@ export function ReorgLab({ onInspect }: Props) {
 function StepRow({
   step, onInspect, txid,
 }: { step: ReorgStep; onInspect?: (txid: string) => void; txid?: string }) {
+  const { t } = useI18n()
   const icon = STEP_ICONS[step.status] ?? '○'
   const color = STATUS_COLORS[step.status] ?? '#6b7280'
   const label = TIMELINE_LABELS[step.name] ?? step.name
@@ -263,7 +271,7 @@ function StepRow({
             background: 'transparent', color: '#3b82f6', border: '1px solid #1d4ed8',
           }}
         >
-          Inspect
+          {t.actions.inspect}
         </button>
       )}
       {step.timestamp && (

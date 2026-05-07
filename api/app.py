@@ -151,7 +151,9 @@ def classifications(
 
 
 @app.get("/events/stream")
-def stream_events(log_dir: str | None = None, file: str | None = None) -> StreamingResponse:
+def stream_events(
+    log_dir: str | None = None, file: str | None = None
+) -> StreamingResponse:
     return StreamingResponse(
         iter_live_events_sse(log_dir=_resolve_path(log_dir), file=_resolve_path(file)),
         media_type="text/event-stream",
@@ -175,7 +177,9 @@ def latest_tx(log_dir: str | None = None, file: str | None = None) -> dict | Non
 
 @app.get("/intelligence/summary", response_model=IntelligenceSummaryResponse)
 def intelligence_summary(log_dir: str | None = None, file: str | None = None) -> dict:
-    return get_intelligence_summary(log_dir=_resolve_path(log_dir), file=_resolve_path(file))
+    return get_intelligence_summary(
+        log_dir=_resolve_path(log_dir), file=_resolve_path(file)
+    )
 
 
 @app.get("/tx/inspect/{txid}", response_model=TxInspectorResponse)
@@ -185,9 +189,13 @@ def tx_inspect(txid: str, log_dir: str | None = None) -> dict:
 
 @app.get("/tx/{txid}", response_model=TxResponse)
 def tx_by_id(txid: str, log_dir: str | None = None, file: str | None = None) -> dict:
-    result = get_tx_by_txid(txid=txid, log_dir=_resolve_path(log_dir), file=_resolve_path(file))
+    result = get_tx_by_txid(
+        txid=txid, log_dir=_resolve_path(log_dir), file=_resolve_path(file)
+    )
     if result is None:
-        raise HTTPException(status_code=404, detail=f"Transaction {txid} not found in event store")
+        raise HTTPException(
+            status_code=404, detail=f"Transaction {txid} not found in event store"
+        )
     return result
 
 
@@ -208,6 +216,7 @@ def event_tape_by_txid(txid: str, log_dir: str | None = None) -> dict:
 # ---------------------------------------------------------------------------
 # Guided Demo endpoints
 # ---------------------------------------------------------------------------
+
 
 @app.get("/demo/status", response_model=DemoStatusResponse)
 def demo_status() -> dict:
@@ -241,6 +250,7 @@ def demo_proof() -> dict:
 # ---------------------------------------------------------------------------
 # Mempool Policy Arena endpoints
 # ---------------------------------------------------------------------------
+
 
 @app.get("/policy/scenarios", response_model=ScenariosListResponse)
 def policy_scenarios() -> dict:
@@ -279,7 +289,12 @@ def policy_reset_all_endpoint() -> dict:
 @app.get("/policy/proof/{scenario_id}", response_model=PolicyProofResponse)
 def policy_proof(scenario_id: str) -> dict:
     proof = get_scenario_proof(scenario_id)
-    if proof is None and scenario_id not in ["normal_transaction", "low_fee_transaction", "rbf_replacement", "cpfp_package"]:
+    if proof is None and scenario_id not in [
+        "normal_transaction",
+        "low_fee_transaction",
+        "rbf_replacement",
+        "cpfp_package",
+    ]:
         raise HTTPException(status_code=404, detail=f"Unknown scenario: {scenario_id}")
     return {"scenario_id": scenario_id, "proof": proof}
 
@@ -287,6 +302,7 @@ def policy_proof(scenario_id: str) -> dict:
 # ---------------------------------------------------------------------------
 # Reorg Lab endpoints
 # ---------------------------------------------------------------------------
+
 
 @app.get("/reorg/status", response_model=ReorgStatusResponse)
 def reorg_status() -> dict:
@@ -311,6 +327,7 @@ def reorg_proof_endpoint() -> dict:
 # ---------------------------------------------------------------------------
 # Cluster Mempool Compatibility
 # ---------------------------------------------------------------------------
+
 
 @app.get("/mempool/cluster/compatibility", response_model=ClusterCompatibilityResponse)
 def cluster_compatibility() -> dict:

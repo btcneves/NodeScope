@@ -1,19 +1,23 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { api } from '../api/client'
 import type { DemoStep, DemoStatusData, DemoProof, StepStatus } from '../types/api'
+import { useI18n } from '../i18n'
+import { InfoTooltip, Term } from './ui/InfoTooltip'
+import { LearnMore } from './ui/LearnMore'
 
 // ---------------------------------------------------------------------------
 // Status badge
 // ---------------------------------------------------------------------------
 
 function StatusBadge({ status }: { status: StepStatus }) {
+  const { t } = useI18n()
   const map: Record<StepStatus, { label: string; color: string }> = {
-    pending:      { label: 'pending',      color: '#6b7280' },
-    running:      { label: 'running…',     color: '#f59e0b' },
-    success:      { label: 'success',      color: '#22c55e' },
-    error:        { label: 'error',        color: '#ef4444' },
-    unavailable:  { label: 'unavailable',  color: '#9ca3af' },
-    experimental: { label: 'experimental', color: '#a78bfa' },
+    pending:      { label: t.status.pending,      color: '#6b7280' },
+    running:      { label: t.status.running,      color: '#f59e0b' },
+    success:      { label: t.status.success,      color: '#22c55e' },
+    error:        { label: t.status.error,        color: '#ef4444' },
+    unavailable:  { label: t.status.unavailable,  color: '#9ca3af' },
+    experimental: { label: t.status.experimental, color: '#a78bfa' },
   }
   const { label, color } = map[status] ?? { label: status, color: '#6b7280' }
   return (
@@ -49,6 +53,7 @@ function StepRow({
   onRunStep: (id: string) => void
   running: boolean
 }) {
+  const { t } = useI18n()
   const [expanded, setExpanded] = useState(false)
   const canRun = !running && step.status !== 'running'
 
@@ -83,9 +88,9 @@ function StepRow({
             cursor: canRun ? 'pointer' : 'not-allowed',
           }}
         >
-          Run
+          {t.actions.run}
         </button>
-        <span style={{ color: '#6b7280', fontSize: '12px' }}>{expanded ? '▲' : '▼'}</span>
+        <span style={{ color: '#6b7280', fontSize: '12px' }}>{expanded ? t.actions.collapse : t.actions.expand}</span>
       </div>
 
       {expanded && (
@@ -97,7 +102,7 @@ function StepRow({
           )}
           {step.error && (
             <div style={{ fontSize: '12px', color: '#f87171', marginBottom: '8px' }}>
-              Error: {step.error}
+              {t.generic.error}: {step.error}
             </div>
           )}
           {step.timestamp && (
@@ -130,6 +135,7 @@ function StepRow({
 // ---------------------------------------------------------------------------
 
 function ProofPanel({ proof }: { proof: DemoProof }) {
+  const { t } = useI18n()
   const [copied, setCopied] = useState(false)
   const json = JSON.stringify(proof, null, 2)
 
@@ -162,37 +168,38 @@ function ProofPanel({ proof }: { proof: DemoProof }) {
   return (
     <div style={{ marginTop: '20px', border: '1px solid #166534', borderRadius: '8px', background: '#052e16', padding: '16px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-        <div style={{ fontSize: '14px', fontWeight: 700, color: '#4ade80' }}>
-          Proof Report {proof.success ? '✓' : '⚠'}
+        <div style={{ fontSize: '14px', fontWeight: 700, color: '#4ade80', display: 'flex', alignItems: 'center', gap: 8 }}>
+          {t.demo.proofReport} {proof.success ? '✓' : '⚠'}
+          <InfoTooltip term="Proof Report" />
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           <button onClick={copy} style={btnStyle('#1d4ed8')}>
-            {copied ? 'Copied!' : 'Copy JSON'}
+            {copied ? t.actions.copied : t.actions.copy + ' JSON'}
           </button>
           <button onClick={downloadJson} style={btnStyle('#0f766e')}>
-            Download JSON
+            {t.actions.downloadJson}
           </button>
         </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '12px', fontSize: '12px' }}>
-        <ProofField label="Network" value={proof.network} />
-        <ProofField label="Success" value={proof.success ? 'yes' : 'no'} ok={proof.success} />
-        <ProofField label="RPC" value={proof.rpc_ok ? 'ok' : 'fail'} ok={proof.rpc_ok} />
-        <ProofField label="ZMQ rawtx" value={proof.zmq_rawtx_ok ? 'ok' : 'fail'} ok={proof.zmq_rawtx_ok} />
-        <ProofField label="ZMQ rawblock" value={proof.zmq_rawblock_ok ? 'ok' : 'fail'} ok={proof.zmq_rawblock_ok} />
-        <ProofField label="Wallet" value={proof.wallet} />
-        <ProofField label="TXID" value={proof.txid ? proof.txid.slice(0, 16) + '…' : 'n/a'} />
-        <ProofField label="Amount" value={proof.amount_btc !== null ? `${proof.amount_btc} BTC` : 'n/a'} />
-        <ProofField label="Fee" value={proof.fee_btc !== null ? `${proof.fee_btc} BTC` : String(proof.fee_btc ?? 'n/a')} />
-        <ProofField label="vsize" value={String(proof.vsize_vbytes)} />
-        <ProofField label="weight" value={String(proof.weight_wu)} />
-        <ProofField label="fee rate" value={String(proof.fee_rate_sat_vb)} />
-        <ProofField label="Block height" value={proof.block_height !== null ? String(proof.block_height) : 'n/a'} />
-        <ProofField label="Confirmations" value={String(proof.confirmations)} />
-        <ProofField label="Mempool seen" value={proof.mempool_seen ? 'yes' : 'no'} ok={proof.mempool_seen} />
-        <ProofField label="rawtx event" value={proof.rawtx_event_seen ? 'yes' : 'pending'} ok={proof.rawtx_event_seen} />
-        <ProofField label="rawblock event" value={proof.rawblock_event_seen ? 'yes' : 'pending'} ok={proof.rawblock_event_seen} />
+        <ProofField label={t.proof.network} value={proof.network} />
+        <ProofField label={t.proof.success} value={proof.success ? t.demo.yes : t.demo.no} ok={proof.success} />
+        <ProofField label={<Term term="RPC">{t.proof.rpc}</Term>} value={proof.rpc_ok ? t.status.ok : t.status.fail} ok={proof.rpc_ok} />
+        <ProofField label={<Term term="ZMQ">{t.proof.zmqRawtx}</Term>} value={proof.zmq_rawtx_ok ? t.status.ok : t.status.fail} ok={proof.zmq_rawtx_ok} />
+        <ProofField label={<Term term="ZMQ">{t.proof.zmqRawblock}</Term>} value={proof.zmq_rawblock_ok ? t.status.ok : t.status.fail} ok={proof.zmq_rawblock_ok} />
+        <ProofField label={<Term term="Wallet">{t.proof.wallet}</Term>} value={proof.wallet} />
+        <ProofField label={<Term term="TXID">{t.proof.txid}</Term>} value={proof.txid ? proof.txid.slice(0, 16) + '…' : t.demo.na} />
+        <ProofField label={t.proof.amount} value={proof.amount_btc !== null ? `${proof.amount_btc} BTC` : t.demo.na} />
+        <ProofField label={<Term term="Fee">{t.proof.fee}</Term>} value={proof.fee_btc !== null ? `${proof.fee_btc} BTC` : String(proof.fee_btc ?? t.demo.na)} />
+        <ProofField label={<Term term="vbytes">{t.proof.vsize}</Term>} value={String(proof.vsize_vbytes)} />
+        <ProofField label={<Term term="Weight">{t.proof.weight}</Term>} value={String(proof.weight_wu)} />
+        <ProofField label={<Term term="Fee rate">{t.proof.feeRate}</Term>} value={String(proof.fee_rate_sat_vb)} />
+        <ProofField label={<Term term="Block height">{t.proof.blockHeight}</Term>} value={proof.block_height !== null ? String(proof.block_height) : t.demo.na} />
+        <ProofField label={<Term term="Confirmation">{t.proof.confirmations}</Term>} value={String(proof.confirmations)} />
+        <ProofField label={<Term term="Mempool">{t.proof.mempoolSeen}</Term>} value={proof.mempool_seen ? t.demo.yes : t.demo.no} ok={proof.mempool_seen} />
+        <ProofField label={<Term term="rawtx">{t.proof.rawtxEvent}</Term>} value={proof.rawtx_event_seen ? t.demo.yes : t.status.pending} ok={proof.rawtx_event_seen} />
+        <ProofField label={<Term term="rawblock">{t.proof.rawblockEvent}</Term>} value={proof.rawblock_event_seen ? t.demo.yes : t.status.pending} ok={proof.rawblock_event_seen} />
       </div>
 
       {proof.warnings.length > 0 && (
@@ -205,18 +212,22 @@ function ProofPanel({ proof }: { proof: DemoProof }) {
       {proof.unavailable_features.length > 0 && (
         <div>
           {proof.unavailable_features.map((f, i) => (
-            <div key={i} style={{ fontSize: '11px', color: '#9ca3af' }}>— unavailable: {f}</div>
+            <div key={i} style={{ fontSize: '11px', color: '#9ca3af' }}>— {t.proof.unavailable} {f}</div>
           ))}
         </div>
       )}
+
+      <LearnMore>
+        {t.learn.proof}
+      </LearnMore>
     </div>
   )
 }
 
-function ProofField({ label, value, ok }: { label: string; value: string; ok?: boolean }) {
+function ProofField({ label, value, ok }: { label: React.ReactNode; value: string; ok?: boolean }) {
   const color = ok === true ? '#4ade80' : ok === false ? '#f87171' : '#d1d5db'
   return (
-    <div style={{ display: 'flex', gap: '6px' }}>
+    <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
       <span style={{ color: '#6b7280' }}>{label}:</span>
       <span style={{ color }}>{value}</span>
     </div>
@@ -242,6 +253,7 @@ function btnStyle(bg: string): React.CSSProperties {
 const POLL_INTERVAL_MS = 1500
 
 export function GuidedDemo() {
+  const { t } = useI18n()
   const [demoState, setDemoState] = useState<DemoStatusData | null>(null)
   const [error, setError] = useState<string | null>(null)
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -255,7 +267,6 @@ export function GuidedDemo() {
     }
   }, [])
 
-  // Poll while running
   useEffect(() => {
     void fetchStatus()
     pollingRef.current = setInterval(() => {
@@ -267,7 +278,6 @@ export function GuidedDemo() {
   const handleRunFull = async () => {
     try {
       await api.demoRun()
-      // Start polling
       const poll = setInterval(async () => {
         const data = await api.demoStatus()
         setDemoState(data)
@@ -297,7 +307,6 @@ export function GuidedDemo() {
           steps: prev.steps.map(s => s.id === stepId ? step : s),
         }
       })
-      // Refresh full status to pick up proof
       void fetchStatus()
     } catch (e) {
       setError(String(e))
@@ -316,10 +325,10 @@ export function GuidedDemo() {
       {/* Header */}
       <div style={{ marginBottom: '16px' }}>
         <div style={{ fontSize: '18px', fontWeight: 700, color: '#f9fafb', marginBottom: '4px' }}>
-          Guided Demo — Evaluate in 1 Minute
+          {t.demo.title}
         </div>
         <div style={{ fontSize: '12px', color: '#9ca3af' }}>
-          End-to-end Bitcoin Core lab: RPC → wallet → mine → send → mempool → ZMQ → confirm → proof
+          {t.demo.subtitle}
         </div>
       </div>
 
@@ -330,29 +339,29 @@ export function GuidedDemo() {
           disabled={running}
           style={btnStyle(running ? '#374151' : '#16a34a')}
         >
-          {running ? 'Running…' : '▶ Run Full Demo'}
+          {running ? t.status.running : t.actions.runFull}
         </button>
         <button onClick={() => { void handleReset() }} disabled={running} style={btnStyle('#7f1d1d')}>
-          ↺ Reset Demo
+          {t.actions.reset}
         </button>
         <span style={{ fontSize: '12px', color: '#6b7280' }}>
-          {successCount}/{steps.length} steps complete
-          {errorCount > 0 && <span style={{ color: '#f87171' }}> · {errorCount} error(s)</span>}
+          {successCount}/{steps.length} {t.demo.stepsComplete}
+          {errorCount > 0 && <span style={{ color: '#f87171' }}> · {errorCount} {t.demo.errors}</span>}
         </span>
         {running && (
-          <span style={{ fontSize: '12px', color: '#f59e0b' }}>● Demo running…</span>
+          <span style={{ fontSize: '12px', color: '#f59e0b' }}>{t.demo.demoRunning}</span>
         )}
       </div>
 
       {error && (
         <div style={{ fontSize: '12px', color: '#f87171', marginBottom: '12px', padding: '8px', background: '#1c0a0a', borderRadius: '4px' }}>
-          API error: {error}
+          {t.demo.apiError} {error}
         </div>
       )}
 
       {/* Steps */}
       {steps.length === 0 ? (
-        <div style={{ fontSize: '12px', color: '#6b7280' }}>Loading demo state…</div>
+        <div style={{ fontSize: '12px', color: '#6b7280' }}>{t.demo.loadingState}</div>
       ) : (
         steps.map((step, i) => (
           <StepRow

@@ -280,6 +280,41 @@ make smoke
 
 ---
 
+## Internationalization (PT-BR / EN-US)
+
+NodeScope includes a built-in internationalization layer supporting **Portuguese (PT-BR)** and **English (EN-US)**.
+
+- Language selector visible in the top-right corner of the header
+- Persisted across page reloads via `localStorage`
+- Covers all navigation labels, action buttons, status indicators, page titles, descriptions, and error messages
+- Falls back to EN-US for any missing key
+
+Switch between languages at any time without page reload.
+
+---
+
+## Explainability Layer
+
+Each page and view includes a contextual explanation panel that answers:
+
+1. **What does this screen show?**
+2. **Why does it matter in Bitcoin?**
+3. **What should you observe during the demo?**
+
+This layer is designed for technical evaluators who want to understand the system quickly without reading source code.
+
+---
+
+## Tooltips and Contextual Learning
+
+Technical terms across the interface include interactive tooltips. Hover over (or focus) any **ⓘ** icon to see a clear definition. Terms with tooltips include:
+
+`RPC` · `ZMQ` · `Mempool` · `TXID` · `WTXID` · `Fee` · `Fee rate` · `vbytes` · `Weight` · `Block hash` · `Block height` · `Confirmation` · `rawtx` · `rawblock` · `RBF` · `CPFP` · `Reorg` · `Cluster mempool` · `Proof Report` · `Wallet` · `Input` · `Output` · `replaceable`
+
+**Learn More** sections are available in Policy Arena, ZMQ Tape, Reorg Lab, Transaction Inspector, Cluster Mempool, and Proof Report — each providing a deeper explanation of the Bitcoin concept demonstrated.
+
+---
+
 ## Limitations
 
 - **Regtest-only** for demo scenarios. Mainnet/signet/testnet observability is possible with configuration changes but not validated in this release.

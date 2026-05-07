@@ -27,7 +27,9 @@ class RPCClient:
     ) -> None:
         self._url = url or os.environ.get("BITCOIN_RPC_URL", _DEFAULT_URL)
         self._user = user or os.environ.get("BITCOIN_RPC_USER", _DEFAULT_USER)
-        self._password = password or os.environ.get("BITCOIN_RPC_PASSWORD", _DEFAULT_PASS)
+        self._password = password or os.environ.get(
+            "BITCOIN_RPC_PASSWORD", _DEFAULT_PASS
+        )
         self._id = 0
 
     def call(self, method: str, params: list[Any] | None = None) -> Any:
@@ -114,14 +116,28 @@ class RPCClient:
         #             replaceable, conf_target, estimate_mode, avoid_reuse, fee_rate
         params: list[Any] = [address, amount, "", "", False, replaceable]
         if fee_rate is not None:
-            params = [address, amount, "", "", False, replaceable, None, "unset", True, fee_rate]
+            params = [
+                address,
+                amount,
+                "",
+                "",
+                False,
+                replaceable,
+                None,
+                "unset",
+                True,
+                fee_rate,
+            ]
         return self.call("sendtoaddress", params)  # type: ignore[return-value]
 
     def bumpfee(self, txid: str) -> dict[str, Any]:
         return self.call("bumpfee", [txid])  # type: ignore[return-value]
 
     def listunspent(
-        self, minconf: int = 1, maxconf: int = 9999999, addresses: list[str] | None = None
+        self,
+        minconf: int = 1,
+        maxconf: int = 9999999,
+        addresses: list[str] | None = None,
     ) -> list[dict[str, Any]]:
         params: list[Any] = [minconf, maxconf, addresses or []]
         return self.call("listunspent", params)  # type: ignore[return-value]

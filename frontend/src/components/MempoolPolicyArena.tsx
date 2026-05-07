@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import { api } from '../api/client'
 import type { PolicyScenario, PolicyScenarioSummary, PolicyStep } from '../types/api'
+import { useI18n } from '../i18n'
+import { Term } from './ui/InfoTooltip'
+import { LearnMore } from './ui/LearnMore'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -69,6 +72,7 @@ function copyToClipboard(text: string) {
 // ---------------------------------------------------------------------------
 
 function StepRow({ step }: { step: PolicyStep }) {
+  const { t } = useI18n()
   const [expanded, setExpanded] = useState(false)
   const hasDetail = step.technical_output != null || step.error
 
@@ -103,7 +107,7 @@ function StepRow({ step }: { step: PolicyStep }) {
         <div style={{ padding: '0 12px 10px 28px' }}>
           {step.error && (
             <div style={{ fontSize: '11px', color: '#f87171', marginBottom: '6px' }}>
-              Error: {step.error}
+              {t.generic.error}: {step.error}
             </div>
           )}
           {step.technical_output != null && (
@@ -128,6 +132,7 @@ function StepRow({ step }: { step: PolicyStep }) {
 // ---------------------------------------------------------------------------
 
 function ProofPanel({ proof, scenarioId }: { proof: Record<string, unknown>; scenarioId: string }) {
+  const { t } = useI18n()
   const [copied, setCopied] = useState(false)
 
   const json = JSON.stringify(proof, null, 2)
@@ -141,7 +146,7 @@ function ProofPanel({ proof, scenarioId }: { proof: Record<string, unknown>; sce
   return (
     <div style={{ marginTop: '12px', background: '#060d14', border: '1px solid #1f2937', borderRadius: '6px', padding: '12px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-        <span style={{ fontSize: '12px', fontWeight: 600, color: '#9ca3af' }}>Proof Report — {scenarioId}</span>
+        <span style={{ fontSize: '12px', fontWeight: 600, color: '#9ca3af' }}>{t.demo.proofReport} — {scenarioId}</span>
         <button
           onClick={handleCopy}
           style={{
@@ -149,7 +154,7 @@ function ProofPanel({ proof, scenarioId }: { proof: Record<string, unknown>; sce
             color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer',
           }}
         >
-          {copied ? 'Copied!' : 'Copy JSON'}
+          {copied ? t.actions.copied : t.actions.copy + ' JSON'}
         </button>
       </div>
       <pre style={{
@@ -174,6 +179,7 @@ interface ScenarioCardProps {
 }
 
 function ScenarioCard({ summary, accentColor, onRun, onReset }: ScenarioCardProps) {
+  const { t } = useI18n()
   const [detail, setDetail] = useState<PolicyScenario | null>(null)
   const [polling, setPolling] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -245,7 +251,7 @@ function ScenarioCard({ summary, accentColor, onRun, onReset }: ScenarioCardProp
                 cursor: running ? 'not-allowed' : 'pointer',
               }}
             >
-              {running ? 'Running…' : status === 'idle' ? 'Run' : 'Re-run'}
+              {running ? t.status.running : status === 'idle' ? t.actions.run : t.actions.run}
             </button>
             {status !== 'idle' && (
               <button
@@ -258,7 +264,7 @@ function ScenarioCard({ summary, accentColor, onRun, onReset }: ScenarioCardProp
                   cursor: running ? 'not-allowed' : 'pointer',
                 }}
               >
-                Reset
+                {t.actions.reset}
               </button>
             )}
           </div>
@@ -290,7 +296,7 @@ function ScenarioCard({ summary, accentColor, onRun, onReset }: ScenarioCardProp
       {/* Idle placeholder */}
       {(!detail || detail.steps.every(s => s.status === 'pending')) && status === 'idle' && (
         <div style={{ padding: '16px', textAlign: 'center', fontSize: '11px', color: '#4b5563' }}>
-          Press <strong style={{ color: '#9ca3af' }}>Run</strong> to execute this scenario on your regtest node.
+          {t.policy.noSteps}
         </div>
       )}
     </div>
@@ -302,6 +308,7 @@ function ScenarioCard({ summary, accentColor, onRun, onReset }: ScenarioCardProp
 // ---------------------------------------------------------------------------
 
 export function MempoolPolicyArena() {
+  const { t } = useI18n()
   const [scenarios, setScenarios] = useState<PolicyScenarioSummary[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -356,11 +363,11 @@ export function MempoolPolicyArena() {
       <div style={{ marginBottom: '20px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px' }}>
           <div>
-            <div style={{ fontSize: '20px', fontWeight: 700, color: '#f9fafb', marginBottom: '4px' }}>
-              Mempool Policy Arena
+            <div style={{ fontSize: '20px', fontWeight: 700, color: '#f9fafb', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Term term="Mempool">{t.policy.title}</Term>
             </div>
             <div style={{ fontSize: '12px', color: '#9ca3af' }}>
-              4 interactive scenarios — Normal Tx · Low Fee · RBF · CPFP — executed live on your regtest node
+              {t.policy.subtitle}
             </div>
           </div>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -372,7 +379,7 @@ export function MempoolPolicyArena() {
                 color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer',
               }}
             >
-              {loading ? 'Loading…' : '↺ Refresh'}
+              {loading ? t.status.loading : t.actions.refresh}
             </button>
             <button
               onClick={() => { void handleResetAll() }}
@@ -383,7 +390,7 @@ export function MempoolPolicyArena() {
                 cursor: anyRunning ? 'not-allowed' : 'pointer',
               }}
             >
-              Reset All
+              {t.actions.reset}
             </button>
           </div>
         </div>
@@ -408,10 +415,10 @@ export function MempoolPolicyArena() {
           <span key={id} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
             <span style={{ width: '10px', height: '10px', borderRadius: '2px', background: SCENARIO_COLORS[id], display: 'inline-block' }} />
             <span style={{ color: '#9ca3af' }}>
-              {id === 'normal_transaction' ? 'Normal Tx'
-               : id === 'low_fee_transaction' ? 'Low Fee'
-               : id === 'rbf_replacement' ? 'RBF'
-               : 'CPFP'}
+              {id === 'normal_transaction' ? t.policy.normal
+               : id === 'low_fee_transaction' ? t.policy.lowFee
+               : id === 'rbf_replacement' ? <Term term="RBF">RBF</Term>
+               : <Term term="CPFP">CPFP</Term>}
             </span>
           </span>
         ))}
@@ -442,9 +449,18 @@ export function MempoolPolicyArena() {
           padding: '40px', textAlign: 'center', background: '#0f172a',
           borderRadius: '6px', fontSize: '12px', color: '#6b7280',
         }}>
-          No scenarios loaded. Ensure the API is running.
+          {t.policy.noSteps}
         </div>
       )}
+
+      <div style={{ marginTop: 16, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <LearnMore title={`${t.actions.learnMore}: RBF`}>
+          {t.learn.rbf}
+        </LearnMore>
+        <LearnMore title={`${t.actions.learnMore}: CPFP`}>
+          {t.learn.cpfp}
+        </LearnMore>
+      </div>
 
       {/* Notes */}
       <div style={{ marginTop: '20px', padding: '12px 16px', background: '#0a0f1a', borderRadius: '6px', border: '1px solid #1f2937', fontSize: '11px', color: '#6b7280' }}>

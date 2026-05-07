@@ -1,6 +1,9 @@
 import { useState, useCallback } from 'react'
 import { api } from '../api/client'
 import type { TxInspectorData } from '../types/api'
+import { useI18n } from '../i18n'
+import { Term } from './ui/InfoTooltip'
+import { LearnMore } from './ui/LearnMore'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -25,9 +28,9 @@ function Chip({ label, ok }: { label: string; ok?: boolean }) {
   )
 }
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
+function Row({ label, children }: { label: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div style={{ display: 'flex', gap: '10px', padding: '5px 0', borderBottom: '1px solid #1f2937', fontSize: '12px' }}>
+    <div style={{ display: 'flex', gap: '10px', padding: '5px 0', borderBottom: '1px solid #1f2937', fontSize: '12px', alignItems: 'center' }}>
       <span style={{ color: '#6b7280', minWidth: '160px', flexShrink: 0 }}>{label}</span>
       <span style={{ color: '#e5e7eb', wordBreak: 'break-all' }}>{children}</span>
     </div>
@@ -39,51 +42,56 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 // ---------------------------------------------------------------------------
 
 function TxSummaryCard({ tx }: { tx: TxInspectorData }) {
+  const { t } = useI18n()
   const confirmed = tx.mempool_status === 'confirmed'
   const inMempool = tx.mempool_status === 'unconfirmed'
   return (
     <div style={{ background: '#111827', border: '1px solid #1f2937', borderRadius: '8px', padding: '16px', marginBottom: '12px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-        <div style={{ fontSize: '13px', fontWeight: 700, color: '#f9fafb' }}>Transaction</div>
+        <div style={{ fontSize: '13px', fontWeight: 700, color: '#f9fafb' }}>{t.inspector.basic}</div>
         <div style={{ display: 'flex', gap: '6px' }}>
           <Chip label={tx.mempool_status} ok={confirmed || inMempool} />
           <Chip label={tx.rpc_validation_status} ok={tx.rpc_validation_status === 'validated'} />
         </div>
       </div>
-      <Row label="TXID">
+      <Row label={<Term term="TXID">TXID</Term>}>
         <span style={{ fontFamily: 'monospace', fontSize: '11px' }}>{tx.txid}</span>
       </Row>
-      {tx.wtxid && <Row label="wtxid (segwit id)">
+      {tx.wtxid && <Row label={<Term term="WTXID">wtxid</Term>}>
         <span style={{ fontFamily: 'monospace', fontSize: '11px' }}>{tx.wtxid}</span>
       </Row>}
       <Row label="version / locktime">{tx.version ?? 'n/a'} / {tx.locktime ?? 'n/a'}</Row>
-      <Row label="size / vsize / weight">
+      <Row label={<>size / <Term term="vbytes">vsize</Term> / <Term term="Weight">weight</Term></>}>
         {fmt(tx.size, ' B')} / {fmt(tx.vsize, ' vbytes')} / {fmt(tx.weight, ' wu')}
       </Row>
-      <Row label="fee">{fmt(tx.fee_btc, ' BTC')}</Row>
-      <Row label="fee rate">{fmt(tx.fee_rate_sat_vb, ' sat/vbyte')}</Row>
+      <Row label={<Term term="Fee">{t.proof.fee}</Term>}>{fmt(tx.fee_btc, ' BTC')}</Row>
+      <Row label={<Term term="Fee rate">{t.proof.feeRate}</Term>}>{fmt(tx.fee_rate_sat_vb, ' sat/vbyte')}</Row>
       <Row label="total output">{fmt(tx.total_output_btc, ' BTC')}</Row>
-      <Row label="inputs / outputs">{tx.vin_count} / {tx.vout_count}</Row>
+      <Row label={`${t.inspector.inputs} / ${t.inspector.outputs}`}>{tx.vin_count} / {tx.vout_count}</Row>
       {tx.replaceable !== null && tx.replaceable !== undefined && (
-        <Row label="RBF replaceable">{tx.replaceable ? 'yes' : 'no'}</Row>
+        <Row label={<Term term="replaceable">RBF replaceable</Term>}>{tx.replaceable ? t.demo.yes : t.demo.no}</Row>
       )}
       {confirmed && <>
-        <Row label="confirmations">{tx.confirmations ?? 'n/a'}</Row>
-        <Row label="block hash">
+        <Row label={<Term term="Confirmation">{t.proof.confirmations}</Term>}>{tx.confirmations ?? 'n/a'}</Row>
+        <Row label={<Term term="Block hash">{t.proof.blockHeight}</Term>}>
           <span style={{ fontFamily: 'monospace', fontSize: '11px' }}>{tx.blockhash ?? 'n/a'}</span>
         </Row>
-        <Row label="block height">{tx.blockheight ?? 'n/a'}</Row>
+        <Row label={<Term term="Block height">block height</Term>}>{tx.blockheight ?? 'n/a'}</Row>
         {tx.blocktime && <Row label="block time">{new Date(tx.blocktime * 1000).toISOString()}</Row>}
       </>}
-      {inMempool && <Row label="mempool">unconfirmed — pending inclusion in a block</Row>}
+      {inMempool && <Row label={<Term term="Mempool">{t.proof.mempoolSeen}</Term>}>unconfirmed — pending inclusion in a block</Row>}
     </div>
   )
 }
 
 function VinTable({ vin }: { vin: TxInspectorData['vin'] }) {
+  const { t } = useI18n()
   return (
     <div style={{ marginBottom: '12px' }}>
-      <div style={{ fontSize: '13px', fontWeight: 600, color: '#9ca3af', marginBottom: '6px' }}>Inputs ({vin.length})</div>
+      <div style={{ fontSize: '13px', fontWeight: 600, color: '#9ca3af', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <Term term="Input">{t.inspector.inputs}</Term> ({vin.length})
+      </div>
+      {vin.length === 0 && <div style={{ color: '#6b7280', fontSize: '12px' }}>{t.inspector.noInputs}</div>}
       {vin.map((inp, i) => (
         <div key={i} style={{ background: '#0f172a', border: '1px solid #1f2937', borderRadius: '4px', padding: '8px 10px', marginBottom: '4px', fontSize: '11px', fontFamily: 'monospace' }}>
           {inp.coinbase
@@ -103,9 +111,13 @@ function VinTable({ vin }: { vin: TxInspectorData['vin'] }) {
 }
 
 function VoutTable({ vout }: { vout: TxInspectorData['vout'] }) {
+  const { t } = useI18n()
   return (
     <div style={{ marginBottom: '12px' }}>
-      <div style={{ fontSize: '13px', fontWeight: 600, color: '#9ca3af', marginBottom: '6px' }}>Outputs ({vout.length})</div>
+      <div style={{ fontSize: '13px', fontWeight: 600, color: '#9ca3af', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <Term term="Output">{t.inspector.outputs}</Term> ({vout.length})
+      </div>
+      {vout.length === 0 && <div style={{ color: '#6b7280', fontSize: '12px' }}>{t.inspector.noOutputs}</div>}
       {vout.map((out, i) => (
         <div key={i} style={{ background: '#0f172a', border: '1px solid #1f2937', borderRadius: '4px', padding: '8px 10px', marginBottom: '4px', fontSize: '11px', fontFamily: 'monospace' }}>
           <span style={{ color: '#6b7280' }}>#{out.n ?? i} </span>
@@ -119,16 +131,19 @@ function VoutTable({ vout }: { vout: TxInspectorData['vout'] }) {
 }
 
 function ZmqEventsPanel({ events }: { events: unknown[] }) {
+  const { t } = useI18n()
   if (!events.length) {
     return (
       <div style={{ fontSize: '12px', color: '#6b7280', padding: '8px', background: '#0f172a', borderRadius: '4px', marginBottom: '12px' }}>
-        No ZMQ rawtx events found in store for this txid (may be async or store empty).
+        {t.zmq.noEvents}
       </div>
     )
   }
   return (
     <div style={{ marginBottom: '12px' }}>
-      <div style={{ fontSize: '13px', fontWeight: 600, color: '#9ca3af', marginBottom: '6px' }}>ZMQ rawtx Events ({events.length})</div>
+      <div style={{ fontSize: '13px', fontWeight: 600, color: '#9ca3af', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <Term term="ZMQ">ZMQ rawtx</Term> {t.zmq.events} ({events.length})
+      </div>
       {(events as Record<string, unknown>[]).map((ev, i) => (
         <div key={i} style={{ background: '#0f172a', border: '1px solid #1f2937', borderRadius: '4px', padding: '6px 10px', marginBottom: '4px', fontSize: '11px' }}>
           <span style={{ color: '#f59e0b' }}>zmq_rawtx</span>
@@ -148,6 +163,7 @@ interface Props {
 }
 
 export function TransactionInspector({ initialTxid = '' }: Props) {
+  const { t } = useI18n()
   const [txid, setTxid] = useState(initialTxid)
   const [result, setResult] = useState<TxInspectorData | null>(null)
   const [loading, setLoading] = useState(false)
@@ -189,10 +205,10 @@ export function TransactionInspector({ initialTxid = '' }: Props) {
     <div style={{ fontFamily: 'monospace', color: '#e5e7eb' }}>
       <div style={{ marginBottom: '16px' }}>
         <div style={{ fontSize: '18px', fontWeight: 700, color: '#f9fafb', marginBottom: '4px' }}>
-          Transaction Inspector
+          {t.inspector.title}
         </div>
         <div style={{ fontSize: '12px', color: '#9ca3af' }}>
-          RPC-enriched lookup: fee, vsize, weight, inputs, outputs, block data
+          {t.inspector.subtitle}
         </div>
       </div>
 
@@ -203,7 +219,7 @@ export function TransactionInspector({ initialTxid = '' }: Props) {
           value={txid}
           onChange={e => setTxid(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter') void inspect() }}
-          placeholder="Paste transaction ID (txid)…"
+          placeholder={t.inspector.placeholder}
           style={{
             flex: 1, padding: '8px 12px', fontSize: '12px', fontFamily: 'monospace',
             background: '#0f172a', border: '1px solid #374151', borderRadius: '6px',
@@ -220,14 +236,14 @@ export function TransactionInspector({ initialTxid = '' }: Props) {
             border: 'none', borderRadius: '6px', cursor: loading || !txid.trim() ? 'not-allowed' : 'pointer',
           }}
         >
-          {loading ? 'Loading…' : 'Inspect'}
+          {loading ? t.inspector.decoding : t.inspector.inspect}
         </button>
         {result && (
           <button
             onClick={copyJson}
             style={{ padding: '8px 14px', fontSize: '11px', background: '#0f766e', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
           >
-            {copied ? 'Copied!' : 'Copy JSON'}
+            {copied ? t.actions.copied : t.actions.copy + ' JSON'}
           </button>
         )}
       </div>
@@ -247,7 +263,6 @@ export function TransactionInspector({ initialTxid = '' }: Props) {
           <VoutTable vout={result.vout} />
           <ZmqEventsPanel events={result.related_zmq_events} />
 
-          {/* Warnings */}
           {result.warnings.length > 0 && (
             <div style={{ marginBottom: '8px' }}>
               {result.warnings.map((w, i) => (
@@ -258,16 +273,20 @@ export function TransactionInspector({ initialTxid = '' }: Props) {
           {result.unavailable_features.length > 0 && (
             <div style={{ marginBottom: '8px' }}>
               {result.unavailable_features.map((f, i) => (
-                <div key={i} style={{ fontSize: '11px', color: '#9ca3af' }}>— unavailable: {f}</div>
+                <div key={i} style={{ fontSize: '11px', color: '#9ca3af' }}>— {t.proof.unavailable} {f}</div>
               ))}
             </div>
           )}
+
+          <LearnMore>
+            {t.learn.zmq}
+          </LearnMore>
         </>
       )}
 
       {!loading && !result && !error && (
         <div style={{ fontSize: '12px', color: '#6b7280', padding: '20px', textAlign: 'center', background: '#0f172a', borderRadius: '6px' }}>
-          Enter a transaction ID above to inspect it.
+          {t.inspector.placeholder}
         </div>
       )}
     </div>

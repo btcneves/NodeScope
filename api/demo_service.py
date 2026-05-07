@@ -105,6 +105,7 @@ def reset_demo() -> dict[str, Any]:
 # Individual step runners
 # ---------------------------------------------------------------------------
 
+
 def _set_step(
     step_id: str,
     status: str,
@@ -136,7 +137,12 @@ def run_step(step_id: str) -> dict[str, Any]:
         return {"error": f"Unknown step: {step_id}"}
     handler = _STEP_HANDLERS.get(step_id)
     if handler is None:
-        _set_step(step_id, "unavailable", "Step handler not implemented yet.", error="not implemented")
+        _set_step(
+            step_id,
+            "unavailable",
+            "Step handler not implemented yet.",
+            error="not implemented",
+        )
     else:
         handler()
     with _state_lock:
@@ -187,6 +193,7 @@ def _run_full_demo_worker() -> None:
 # Step handlers
 # ---------------------------------------------------------------------------
 
+
 def _step_check_rpc() -> None:
     _set_step("check_rpc", "running", "Connecting to Bitcoin Core RPC…")
     try:
@@ -205,7 +212,9 @@ def _step_check_rpc() -> None:
             },
         )
     except RPCError as exc:
-        _set_step("check_rpc", "error", "Cannot reach Bitcoin Core RPC.", error=str(exc))
+        _set_step(
+            "check_rpc", "error", "Cannot reach Bitcoin Core RPC.", error=str(exc)
+        )
 
 
 def _step_check_zmq() -> None:
@@ -217,9 +226,7 @@ def _step_check_zmq() -> None:
         rawtx_ok = "pubrawtx" in topics
         rawblock_ok = "pubrawblock" in topics
         status = "success" if (rawtx_ok and rawblock_ok) else "error"
-        msg = (
-            f"ZMQ active — rawtx={'yes' if rawtx_ok else 'no'}, rawblock={'yes' if rawblock_ok else 'no'}"
-        )
+        msg = f"ZMQ active — rawtx={'yes' if rawtx_ok else 'no'}, rawblock={'yes' if rawblock_ok else 'no'}"
         _set_step(
             "check_zmq",
             status,
@@ -242,7 +249,11 @@ def _step_check_zmq() -> None:
 
 
 def _step_create_or_load_wallet() -> None:
-    _set_step("create_or_load_wallet", "running", f"Creating or loading wallet '{DEMO_WALLET}'…")
+    _set_step(
+        "create_or_load_wallet",
+        "running",
+        f"Creating or loading wallet '{DEMO_WALLET}'…",
+    )
     try:
         rpc = get_client()
         loaded = rpc.listwallets()
@@ -268,7 +279,9 @@ def _step_create_or_load_wallet() -> None:
             data={"wallet": DEMO_WALLET},
         )
     except RPCError as exc:
-        _set_step("create_or_load_wallet", "error", "Wallet setup failed.", error=str(exc))
+        _set_step(
+            "create_or_load_wallet", "error", "Wallet setup failed.", error=str(exc)
+        )
 
 
 def _wallet_rpc() -> RPCClient:
@@ -293,14 +306,24 @@ def _step_generate_mining_address() -> None:
             data={"mining_address": addr},
         )
     except RPCError as exc:
-        _set_step("generate_mining_address", "error", "Failed to generate address.", error=str(exc))
+        _set_step(
+            "generate_mining_address",
+            "error",
+            "Failed to generate address.",
+            error=str(exc),
+        )
 
 
 def _step_mine_initial_blocks() -> None:
     _set_step("mine_initial_blocks", "running", "Mining initial blocks to fund wallet…")
     mining_address = _get_step_data("generate_mining_address").get("mining_address")
     if not mining_address:
-        _set_step("mine_initial_blocks", "error", "Mining address not available.", error="dependency missing")
+        _set_step(
+            "mine_initial_blocks",
+            "error",
+            "Mining address not available.",
+            error="dependency missing",
+        )
         return
     try:
         rpc = _wallet_rpc()
@@ -316,8 +339,15 @@ def _step_mine_initial_blocks() -> None:
             "mine_initial_blocks",
             "success",
             f"Mined {len(hashes)} block(s). Height: {info_after.get('blocks')}",
-            technical={"blocks_mined": len(hashes), "block_hashes": hashes[-3:], "height": info_after.get("blocks")},
-            data={"blocks_mined": len(hashes), "height_after": info_after.get("blocks")},
+            technical={
+                "blocks_mined": len(hashes),
+                "block_hashes": hashes[-3:],
+                "height": info_after.get("blocks"),
+            },
+            data={
+                "blocks_mined": len(hashes),
+                "height_after": info_after.get("blocks"),
+            },
         )
     except RPCError as exc:
         _set_step("mine_initial_blocks", "error", "Mining failed.", error=str(exc))
@@ -336,14 +366,26 @@ def _step_create_destination_address() -> None:
             data={"destination_address": addr},
         )
     except RPCError as exc:
-        _set_step("create_destination_address", "error", "Failed to create destination address.", error=str(exc))
+        _set_step(
+            "create_destination_address",
+            "error",
+            "Failed to create destination address.",
+            error=str(exc),
+        )
 
 
 def _step_send_demo_transaction() -> None:
-    _set_step("send_demo_transaction", "running", f"Sending {DEMO_AMOUNT} BTC to destination…")
+    _set_step(
+        "send_demo_transaction", "running", f"Sending {DEMO_AMOUNT} BTC to destination…"
+    )
     dest = _get_step_data("create_destination_address").get("destination_address")
     if not dest:
-        _set_step("send_demo_transaction", "error", "Destination address not available.", error="dependency missing")
+        _set_step(
+            "send_demo_transaction",
+            "error",
+            "Destination address not available.",
+            error="dependency missing",
+        )
         return
     try:
         rpc = _wallet_rpc()
@@ -356,14 +398,23 @@ def _step_send_demo_transaction() -> None:
             data={"txid": txid, "amount": DEMO_AMOUNT, "destination_address": dest},
         )
     except RPCError as exc:
-        _set_step("send_demo_transaction", "error", "sendtoaddress failed.", error=str(exc))
+        _set_step(
+            "send_demo_transaction", "error", "sendtoaddress failed.", error=str(exc)
+        )
 
 
 def _step_detect_mempool_entry() -> None:
-    _set_step("detect_mempool_entry", "running", "Checking mempool for the transaction…")
+    _set_step(
+        "detect_mempool_entry", "running", "Checking mempool for the transaction…"
+    )
     txid = _get_step_data("send_demo_transaction").get("txid")
     if not txid:
-        _set_step("detect_mempool_entry", "error", "TXID not available.", error="dependency missing")
+        _set_step(
+            "detect_mempool_entry",
+            "error",
+            "TXID not available.",
+            error="dependency missing",
+        )
         return
     try:
         rpc = _wallet_rpc()
@@ -384,7 +435,12 @@ def _step_detect_mempool_entry() -> None:
             },
         )
     except RPCError as exc:
-        _set_step("detect_mempool_entry", "error", "Transaction not found in mempool.", error=str(exc))
+        _set_step(
+            "detect_mempool_entry",
+            "error",
+            "Transaction not found in mempool.",
+            error=str(exc),
+        )
 
 
 def _step_detect_zmq_rawtx() -> None:
@@ -396,7 +452,12 @@ def _step_detect_zmq_rawtx() -> None:
     _set_step("detect_zmq_rawtx", "running", "Checking for rawtx event in event store…")
     txid = _get_step_data("send_demo_transaction").get("txid")
     if not txid:
-        _set_step("detect_zmq_rawtx", "error", "TXID not available.", error="dependency missing")
+        _set_step(
+            "detect_zmq_rawtx",
+            "error",
+            "TXID not available.",
+            error="dependency missing",
+        )
         return
     try:
         import os
@@ -412,7 +473,10 @@ def _step_detect_zmq_rawtx() -> None:
                     for line in f.read_text().splitlines():
                         try:
                             ev = _json.loads(line)
-                            if ev.get("event") == "zmq_rawtx" and ev.get("data", {}).get("txid") == txid:
+                            if (
+                                ev.get("event") == "zmq_rawtx"
+                                and ev.get("data", {}).get("txid") == txid
+                            ):
                                 found = True
                                 break
                         except _json.JSONDecodeError:
@@ -435,18 +499,31 @@ def _step_detect_zmq_rawtx() -> None:
                 "detect_zmq_rawtx",
                 "success",
                 "TX broadcast confirmed via RPC. ZMQ rawtx event may not yet be in store.",
-                technical={"txid": txid, "note": "event store lookup returned no match yet — ZMQ monitor processes asynchronously"},
-                data={"rawtx_seen": False, "zmq_note": "async — may appear in store after a short delay"},
+                technical={
+                    "txid": txid,
+                    "note": "event store lookup returned no match yet — ZMQ monitor processes asynchronously",
+                },
+                data={
+                    "rawtx_seen": False,
+                    "zmq_note": "async — may appear in store after a short delay",
+                },
             )
     except Exception as exc:
-        _set_step("detect_zmq_rawtx", "error", "Error checking event store.", error=str(exc))
+        _set_step(
+            "detect_zmq_rawtx", "error", "Error checking event store.", error=str(exc)
+        )
 
 
 def _step_decode_transaction() -> None:
     _set_step("decode_transaction", "running", "Decoding transaction via RPC…")
     txid = _get_step_data("send_demo_transaction").get("txid")
     if not txid:
-        _set_step("decode_transaction", "error", "TXID not available.", error="dependency missing")
+        _set_step(
+            "decode_transaction",
+            "error",
+            "TXID not available.",
+            error="dependency missing",
+        )
         return
     try:
         rpc = _wallet_rpc()
@@ -476,14 +553,21 @@ def _step_decode_transaction() -> None:
             },
         )
     except RPCError as exc:
-        _set_step("decode_transaction", "error", "getrawtransaction failed.", error=str(exc))
+        _set_step(
+            "decode_transaction", "error", "getrawtransaction failed.", error=str(exc)
+        )
 
 
 def _step_mine_confirmation_block() -> None:
     _set_step("mine_confirmation_block", "running", "Mining confirmation block…")
     mining_address = _get_step_data("generate_mining_address").get("mining_address")
     if not mining_address:
-        _set_step("mine_confirmation_block", "error", "Mining address not available.", error="dependency missing")
+        _set_step(
+            "mine_confirmation_block",
+            "error",
+            "Mining address not available.",
+            error="dependency missing",
+        )
         return
     try:
         rpc = _wallet_rpc()
@@ -503,10 +587,17 @@ def _step_mine_confirmation_block() -> None:
 
 def _step_detect_zmq_rawblock() -> None:
     """Same pattern as detect_zmq_rawtx — check NDJSON store for rawblock event."""
-    _set_step("detect_zmq_rawblock", "running", "Checking for rawblock event in event store…")
+    _set_step(
+        "detect_zmq_rawblock", "running", "Checking for rawblock event in event store…"
+    )
     block_hash = _get_step_data("mine_confirmation_block").get("block_hash")
     if not block_hash:
-        _set_step("detect_zmq_rawblock", "error", "Block hash not available.", error="dependency missing")
+        _set_step(
+            "detect_zmq_rawblock",
+            "error",
+            "Block hash not available.",
+            error="dependency missing",
+        )
         return
     try:
         import json as _json
@@ -521,7 +612,10 @@ def _step_detect_zmq_rawblock() -> None:
                     for line in f.read_text().splitlines():
                         try:
                             ev = _json.loads(line)
-                            if ev.get("event") == "zmq_rawblock" and ev.get("data", {}).get("hash") == block_hash:
+                            if (
+                                ev.get("event") == "zmq_rawblock"
+                                and ev.get("data", {}).get("hash") == block_hash
+                            ):
                                 found = True
                                 break
                         except _json.JSONDecodeError:
@@ -544,18 +638,34 @@ def _step_detect_zmq_rawblock() -> None:
                 "detect_zmq_rawblock",
                 "success",
                 "Block confirmed via RPC. ZMQ rawblock event may not yet be in store.",
-                technical={"block_hash": block_hash, "note": "ZMQ monitor processes asynchronously"},
-                data={"rawblock_seen": False, "zmq_note": "async — may appear in store after a short delay"},
+                technical={
+                    "block_hash": block_hash,
+                    "note": "ZMQ monitor processes asynchronously",
+                },
+                data={
+                    "rawblock_seen": False,
+                    "zmq_note": "async — may appear in store after a short delay",
+                },
             )
     except Exception as exc:
-        _set_step("detect_zmq_rawblock", "error", "Error checking event store.", error=str(exc))
+        _set_step(
+            "detect_zmq_rawblock",
+            "error",
+            "Error checking event store.",
+            error=str(exc),
+        )
 
 
 def _step_confirm_transaction() -> None:
     _set_step("confirm_transaction", "running", "Verifying transaction confirmation…")
     txid = _get_step_data("send_demo_transaction").get("txid")
     if not txid:
-        _set_step("confirm_transaction", "error", "TXID not available.", error="dependency missing")
+        _set_step(
+            "confirm_transaction",
+            "error",
+            "TXID not available.",
+            error="dependency missing",
+        )
         return
     try:
         rpc = _wallet_rpc()
@@ -568,8 +678,17 @@ def _step_confirm_transaction() -> None:
                 "confirm_transaction",
                 "success",
                 f"Confirmed — {confirmations} confirmation(s), block={block_hash[:12] if block_hash else '?'}…",
-                technical={"txid": txid, "confirmations": confirmations, "blockhash": block_hash, "fee": fee},
-                data={"confirmations": confirmations, "confirmed_block_hash": block_hash, "fee_wallet": fee},
+                technical={
+                    "txid": txid,
+                    "confirmations": confirmations,
+                    "blockhash": block_hash,
+                    "fee": fee,
+                },
+                data={
+                    "confirmations": confirmations,
+                    "confirmed_block_hash": block_hash,
+                    "fee_wallet": fee,
+                },
             )
         else:
             _set_step(
@@ -579,7 +698,9 @@ def _step_confirm_transaction() -> None:
                 error=f"confirmations={confirmations}",
             )
     except RPCError as exc:
-        _set_step("confirm_transaction", "error", "gettransaction failed.", error=str(exc))
+        _set_step(
+            "confirm_transaction", "error", "gettransaction failed.", error=str(exc)
+        )
 
 
 def _step_generate_proof_report() -> None:
@@ -593,7 +714,9 @@ def _step_generate_proof_report() -> None:
 
         txid = _collect("send_demo_transaction", "txid")
         fee_btc = _collect("detect_mempool_entry", "fee")
-        vsize = _collect("detect_mempool_entry", "vsize") or _collect("decode_transaction", "vsize")
+        vsize = _collect("detect_mempool_entry", "vsize") or _collect(
+            "decode_transaction", "vsize"
+        )
         weight = _collect("decode_transaction", "weight")
         fee_rate = _collect("detect_mempool_entry", "fee_rate_sat_vb")
 
@@ -606,7 +729,9 @@ def _step_generate_proof_report() -> None:
             "zmq_rawblock_ok": _collect("check_zmq", "zmq_rawblock_ok", False),
             "wallet": DEMO_WALLET,
             "mining_address": _collect("generate_mining_address", "mining_address"),
-            "destination_address": _collect("create_destination_address", "destination_address"),
+            "destination_address": _collect(
+                "create_destination_address", "destination_address"
+            ),
             "txid": txid,
             "wtxid": _collect("decode_transaction", "wtxid"),
             "amount_btc": _collect("send_demo_transaction", "amount"),
@@ -616,13 +741,14 @@ def _step_generate_proof_report() -> None:
             "weight_wu": weight if weight is not None else "unavailable",
             "mempool_seen": _collect("detect_mempool_entry", "mempool_seen", False),
             "rawtx_event_seen": _collect("detect_zmq_rawtx", "rawtx_seen", False),
-            "rawblock_event_seen": _collect("detect_zmq_rawblock", "rawblock_seen", False),
+            "rawblock_event_seen": _collect(
+                "detect_zmq_rawblock", "rawblock_seen", False
+            ),
             "block_height": _collect("mine_confirmation_block", "block_height"),
             "block_hash": _collect("mine_confirmation_block", "block_hash"),
             "confirmations": _collect("confirm_transaction", "confirmations", 0),
             "timestamps": {
-                sid: _state["steps"][sid].get("timestamp")
-                for sid in STEP_IDS
+                sid: _state["steps"][sid].get("timestamp") for sid in STEP_IDS
             },
             "success": _collect("confirm_transaction", "confirmations", 0) > 0,
             "warnings": [],
@@ -631,11 +757,17 @@ def _step_generate_proof_report() -> None:
 
         # Flag honest unavailability
         if proof["fee_rate_sat_vb"] == "unavailable":
-            proof["unavailable_features"].append("fee_rate_sat_vb — requires mempool entry data")
+            proof["unavailable_features"].append(
+                "fee_rate_sat_vb — requires mempool entry data"
+            )
         if not proof["rawtx_event_seen"]:
-            proof["warnings"].append("ZMQ rawtx event not yet confirmed in event store (async)")
+            proof["warnings"].append(
+                "ZMQ rawtx event not yet confirmed in event store (async)"
+            )
         if not proof["rawblock_event_seen"]:
-            proof["warnings"].append("ZMQ rawblock event not yet confirmed in event store (async)")
+            proof["warnings"].append(
+                "ZMQ rawblock event not yet confirmed in event store (async)"
+            )
 
         with _state_lock:
             _state["proof"] = proof
@@ -648,7 +780,12 @@ def _step_generate_proof_report() -> None:
             data={"proof_ready": True},
         )
     except RPCError as exc:
-        _set_step("generate_proof_report", "error", "Failed to generate proof report.", error=str(exc))
+        _set_step(
+            "generate_proof_report",
+            "error",
+            "Failed to generate proof report.",
+            error=str(exc),
+        )
 
 
 # ---------------------------------------------------------------------------

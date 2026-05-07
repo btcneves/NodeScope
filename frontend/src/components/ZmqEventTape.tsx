@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import { api } from '../api/client'
 import type { TapeEvent, EventTapeData } from '../types/api'
+import { useI18n } from '../i18n'
+import { Term } from './ui/InfoTooltip'
+import { LearnMore } from './ui/LearnMore'
 
 // ---------------------------------------------------------------------------
 // Single event row
@@ -13,9 +16,10 @@ function EventRow({
   ev: TapeEvent
   onInspect: (txid: string) => void
 }) {
+  const { t } = useI18n()
   const isRawtx = ev.topic === 'rawtx'
   const topicColor = isRawtx ? '#60a5fa' : '#a78bfa'
-  const topicLabel = isRawtx ? 'rawtx' : 'rawblock'
+  const topicLabel = isRawtx ? t.zmq.rawTx : t.zmq.rawBlock
 
   return (
     <div style={{
@@ -30,7 +34,6 @@ function EventRow({
       fontSize: '11px',
       fontFamily: 'monospace',
     }}>
-      {/* Topic badge */}
       <span style={{
         minWidth: '68px',
         padding: '2px 6px',
@@ -45,12 +48,10 @@ function EventRow({
         {topicLabel}
       </span>
 
-      {/* Timestamp */}
       <span style={{ color: '#4b5563', minWidth: '190px' }}>
         {ev.ts ? ev.ts.replace('T', ' ').slice(0, 23) : '—'}
       </span>
 
-      {/* ID */}
       <span style={{ color: '#d1d5db', flex: 1 }}>
         {isRawtx ? (
           ev.txid
@@ -72,7 +73,6 @@ function EventRow({
         )}
       </span>
 
-      {/* Extra info */}
       {isRawtx && ev.vsize != null && (
         <span style={{ color: '#6b7280', minWidth: '80px' }}>{ev.vsize} vbytes</span>
       )}
@@ -83,7 +83,6 @@ function EventRow({
         <span style={{ color: '#4b5563' }}>{ev.script_types.slice(0, 2).join(', ')}</span>
       )}
 
-      {/* Inspect button for rawtx */}
       {isRawtx && ev.txid && (
         <button
           onClick={() => ev.txid && onInspect(ev.txid)}
@@ -97,7 +96,7 @@ function EventRow({
             cursor: 'pointer',
           }}
         >
-          inspect →
+          {t.actions.inspect} →
         </button>
       )}
     </div>
@@ -113,12 +112,13 @@ interface Props {
 }
 
 export function ZmqEventTape({ onInspectTxid }: Props) {
+  const { t } = useI18n()
   const [data, setData] = useState<EventTapeData | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [topicFilter, setTopicFilter] = useState<'all' | 'rawtx' | 'rawblock'>('all')
 
-  const fetch = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
@@ -132,7 +132,7 @@ export function ZmqEventTape({ onInspectTxid }: Props) {
     }
   }, [topicFilter])
 
-  useEffect(() => { void fetch() }, [fetch])
+  useEffect(() => { void fetchData() }, [fetchData])
 
   const items = data?.items ?? []
   const rawtxCount = items.filter(e => e.topic === 'rawtx').length
@@ -152,29 +152,33 @@ export function ZmqEventTape({ onInspectTxid }: Props) {
     <div style={{ fontFamily: 'monospace', color: '#e5e7eb' }}>
       {/* Header */}
       <div style={{ marginBottom: '16px' }}>
-        <div style={{ fontSize: '18px', fontWeight: 700, color: '#f9fafb', marginBottom: '4px' }}>
-          ZMQ Event Tape
+        <div style={{ fontSize: '18px', fontWeight: 700, color: '#f9fafb', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Term term="ZMQ">{t.zmq.title}</Term>
         </div>
         <div style={{ fontSize: '12px', color: '#9ca3af' }}>
-          Real-time ZMQ events from the NDJSON event store — rawtx and rawblock
+          {t.zmq.subtitle}
         </div>
       </div>
 
       {/* Controls */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-        <button style={btnStyle(topicFilter === 'all')} onClick={() => setTopicFilter('all')}>All</button>
-        <button style={btnStyle(topicFilter === 'rawtx')} onClick={() => setTopicFilter('rawtx')}>rawtx</button>
-        <button style={btnStyle(topicFilter === 'rawblock')} onClick={() => setTopicFilter('rawblock')}>rawblock</button>
+        <button style={btnStyle(topicFilter === 'all')} onClick={() => setTopicFilter('all')}>{t.zmq.filterAll}</button>
+        <button style={btnStyle(topicFilter === 'rawtx')} onClick={() => setTopicFilter('rawtx')}>
+          <Term term="rawtx">rawtx</Term>
+        </button>
+        <button style={btnStyle(topicFilter === 'rawblock')} onClick={() => setTopicFilter('rawblock')}>
+          <Term term="rawblock">rawblock</Term>
+        </button>
         <button
-          onClick={() => { void fetch() }}
+          onClick={() => { void fetchData() }}
           disabled={loading}
           style={{ padding: '3px 10px', fontSize: '11px', background: '#0f766e', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
         >
-          {loading ? 'Loading…' : '↺ Refresh'}
+          {loading ? t.status.loading : t.actions.refresh}
         </button>
         {data && (
           <span style={{ fontSize: '11px', color: '#6b7280' }}>
-            {items.length} events ({rawtxCount} rawtx · {rawblockCount} rawblock)
+            {items.length} {t.zmq.events} ({rawtxCount} rawtx · {rawblockCount} rawblock)
           </span>
         )}
       </div>
@@ -198,12 +202,16 @@ export function ZmqEventTape({ onInspectTxid }: Props) {
       {/* Events */}
       {items.length === 0 && !loading && !error && (
         <div style={{ padding: '20px', textAlign: 'center', background: '#0f172a', borderRadius: '6px', fontSize: '12px', color: '#6b7280' }}>
-          {data ? 'No ZMQ events in store yet. Run the Guided Demo to generate activity.' : 'Loading…'}
+          {data ? t.zmq.noEvents : t.status.loading}
         </div>
       )}
       {items.map((ev, i) => (
         <EventRow key={`${ev.ts ?? i}-${i}`} ev={ev} onInspect={onInspectTxid} />
       ))}
+
+      <LearnMore>
+        {t.learn.zmq}
+      </LearnMore>
     </div>
   )
 }

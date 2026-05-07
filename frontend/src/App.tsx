@@ -31,6 +31,15 @@ import { TransactionInspector } from './components/TransactionInspector'
 import { ZmqEventTape } from './components/ZmqEventTape'
 import { MempoolPolicyArena } from './components/MempoolPolicyArena'
 import { ReorgLab } from './components/ReorgLab'
+import { ExplainBox } from './components/ui/ExplainBox'
+import {
+  I18nContext,
+  getStoredLang,
+  setStoredLang,
+  getTranslations,
+  type Lang,
+  type I18nContextValue,
+} from './i18n'
 
 export default function App() {
   const [health, setHealth] = useState<HealthData | null>(null)
@@ -43,13 +52,23 @@ export default function App() {
   const [intelligence, setIntelligence] = useState<IntelligenceData | null>(null)
   const [activeView, setActiveView] = useState<ActiveView>('dashboard')
   const [demoView, setDemoView] = useState(false)
-  // Inspector txid — shared between ZMQ tape and inspector view
   const [inspectorTxid, setInspectorTxid] = useState('')
   const { events: sseEvents, connected: sseConnected } = useSSE('/events/stream')
 
+  // i18n state
+  const [lang, setLangState] = useState<Lang>(getStoredLang)
+  const t = getTranslations(lang)
+
+  const setLang = (l: Lang) => {
+    setLangState(l)
+    setStoredLang(l)
+  }
+
+  const i18nValue: I18nContextValue = { lang, t, setLang }
+
   const fetchAll = async () => {
     try {
-      const [h, m, s, e, c, b, t, intel] = await Promise.allSettled([
+      const [h, m, s, e, c, b, tx, intel] = await Promise.allSettled([
         api.health(),
         api.mempool(),
         api.summary(),
@@ -65,7 +84,7 @@ export default function App() {
       if (e.status === 'fulfilled') setEvents(e.value.items)
       if (c.status === 'fulfilled') setClassifications(c.value.items)
       if (b.status === 'fulfilled') setLatestBlock(b.value)
-      if (t.status === 'fulfilled') setLatestTx(t.value)
+      if (tx.status === 'fulfilled') setLatestTx(tx.value)
       if (intel.status === 'fulfilled') setIntelligence(intel.value)
     } catch { /* ignore */ }
   }
@@ -77,25 +96,9 @@ export default function App() {
   const rpcOk = health?.rpc_ok ?? false
   const apiOk = health !== null
 
-  // Navigate to inspector with a given txid
   const handleInspect = (txid: string) => {
     setInspectorTxid(txid)
     setActiveView('inspector')
-  }
-
-  if (demoView) {
-    return (
-      <DemoView
-        health={health}
-        mempool={mempool}
-        summary={summary}
-        latestBlock={latestBlock}
-        latestTx={latestTx}
-        intelligence={intelligence}
-        sseConnected={sseConnected}
-        onClose={() => setDemoView(false)}
-      />
-    )
   }
 
   const header = (
@@ -111,98 +114,99 @@ export default function App() {
     />
   )
 
-  if (activeView === 'guided-demo') {
-    return (
-      <div className="app">
-        {header}
-        <main className="main" style={{ maxWidth: '860px', margin: '0 auto' }}>
-          <GuidedDemo />
-        </main>
-      </div>
-    )
-  }
-
-  if (activeView === 'inspector') {
-    return (
-      <div className="app">
-        {header}
-        <main className="main" style={{ maxWidth: '860px', margin: '0 auto' }}>
-          <TransactionInspector initialTxid={inspectorTxid} />
-        </main>
-      </div>
-    )
-  }
-
-  if (activeView === 'zmq-tape') {
-    return (
-      <div className="app">
-        {header}
-        <main className="main" style={{ maxWidth: '960px', margin: '0 auto' }}>
-          <ZmqEventTape onInspectTxid={handleInspect} />
-        </main>
-      </div>
-    )
-  }
-
-  if (activeView === 'policy-arena') {
-    return (
-      <div className="app">
-        {header}
-        <main className="main" style={{ maxWidth: '1100px', margin: '0 auto' }}>
-          <MempoolPolicyArena />
-        </main>
-      </div>
-    )
-  }
-
-  if (activeView === 'reorg-lab') {
-    return (
-      <div className="app">
-        {header}
-        <main className="main" style={{ maxWidth: '900px', margin: '0 auto' }}>
-          <ReorgLab onInspect={handleInspect} />
-        </main>
-      </div>
-    )
-  }
-
-  // Default: dashboard
   return (
-    <div className="app">
-      {header}
-      <main className="main">
-        <KpiRow summary={summary} mempool={mempool} health={health} />
-        <div className="grid-2">
-          <NodeHealthScore
-            health={health}
-            mempool={mempool}
-            latestBlock={latestBlock}
-            sseConnected={sseConnected}
-          />
-          <IntelligenceSummaryPanel data={intelligence} />
-        </div>
-        <TransactionLifecycle
-          rpcOk={rpcOk}
-          zmqConnected={sseConnected}
+    <I18nContext.Provider value={i18nValue}>
+      {demoView ? (
+        <DemoView
+          health={health}
           mempool={mempool}
+          summary={summary}
           latestBlock={latestBlock}
           latestTx={latestTx}
+          intelligence={intelligence}
+          sseConnected={sseConnected}
+          onClose={() => setDemoView(false)}
         />
-        <div className="grid-3">
-          <MempoolPanel mempool={mempool} />
-          <BlocksPanel block={latestBlock} />
-          <TxPanel tx={latestTx} />
+      ) : activeView === 'guided-demo' ? (
+        <div className="app">
+          {header}
+          <main className="main" style={{ maxWidth: '860px', margin: '0 auto' }}>
+            <ExplainBox text={t.explain.guidedDemo} />
+            <GuidedDemo />
+          </main>
         </div>
-        <div className="grid-2">
-          <LiveFeed sseEvents={sseEvents} connected={sseConnected} />
-          <EventsTable events={events} />
+      ) : activeView === 'inspector' ? (
+        <div className="app">
+          {header}
+          <main className="main" style={{ maxWidth: '860px', margin: '0 auto' }}>
+            <ExplainBox text={t.explain.inspector} />
+            <TransactionInspector initialTxid={inspectorTxid} />
+          </main>
         </div>
-        <div className="grid-2">
-          <ReplayEnginePanel summary={summary} />
-          <RpcZmqSyncPanel health={health} summary={summary} latestBlock={latestBlock} />
+      ) : activeView === 'zmq-tape' ? (
+        <div className="app">
+          {header}
+          <main className="main" style={{ maxWidth: '960px', margin: '0 auto' }}>
+            <ExplainBox text={t.explain.zmqTape} />
+            <ZmqEventTape onInspectTxid={handleInspect} />
+          </main>
         </div>
-        <ClassificationsTable classifications={classifications} />
-      </main>
-    </div>
+      ) : activeView === 'policy-arena' ? (
+        <div className="app">
+          {header}
+          <main className="main" style={{ maxWidth: '1100px', margin: '0 auto' }}>
+            <ExplainBox text={t.explain.policyArena} />
+            <MempoolPolicyArena />
+          </main>
+        </div>
+      ) : activeView === 'reorg-lab' ? (
+        <div className="app">
+          {header}
+          <main className="main" style={{ maxWidth: '900px', margin: '0 auto' }}>
+            <ExplainBox text={t.explain.reorgLab} />
+            <ReorgLab onInspect={handleInspect} />
+          </main>
+        </div>
+      ) : (
+        // Default: dashboard
+        <div className="app">
+          {header}
+          <main className="main">
+            <ExplainBox text={t.explain.dashboard} />
+            <KpiRow summary={summary} mempool={mempool} health={health} />
+            <div className="grid-2">
+              <NodeHealthScore
+                health={health}
+                mempool={mempool}
+                latestBlock={latestBlock}
+                sseConnected={sseConnected}
+              />
+              <IntelligenceSummaryPanel data={intelligence} />
+            </div>
+            <TransactionLifecycle
+              rpcOk={rpcOk}
+              zmqConnected={sseConnected}
+              mempool={mempool}
+              latestBlock={latestBlock}
+              latestTx={latestTx}
+            />
+            <div className="grid-3">
+              <MempoolPanel mempool={mempool} />
+              <BlocksPanel block={latestBlock} />
+              <TxPanel tx={latestTx} />
+            </div>
+            <div className="grid-2">
+              <LiveFeed sseEvents={sseEvents} connected={sseConnected} />
+              <EventsTable events={events} />
+            </div>
+            <div className="grid-2">
+              <ReplayEnginePanel summary={summary} />
+              <RpcZmqSyncPanel health={health} summary={summary} latestBlock={latestBlock} />
+            </div>
+            <ClassificationsTable classifications={classifications} />
+          </main>
+        </div>
+      )}
+    </I18nContext.Provider>
   )
 }

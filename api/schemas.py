@@ -139,6 +139,7 @@ class IntelligenceSummaryResponse(BaseModel):
 
 # --- Guided Demo schemas ---
 
+
 class DemoStepResponse(BaseModel):
     id: str
     title: str
@@ -161,6 +162,7 @@ class DemoProofResponse(BaseModel):
 
 
 # --- Transaction Inspector Premium ---
+
 
 class TxVinResponse(BaseModel):
     coinbase: bool = False
@@ -209,6 +211,7 @@ class TxInspectorResponse(BaseModel):
 
 # --- ZMQ Event Tape ---
 
+
 class TapeEventResponse(BaseModel):
     ts: str | None = None
     event: str
@@ -233,6 +236,7 @@ class EventTapeResponse(BaseModel):
 
 
 # --- Mempool Policy Arena ---
+
 
 class PolicyStepResponse(BaseModel):
     id: str
@@ -276,6 +280,7 @@ class PolicyProofResponse(BaseModel):
 
 # --- Reorg Lab ---
 
+
 class ReorgStepResponse(BaseModel):
     name: str
     status: str
@@ -300,6 +305,7 @@ class ReorgProofResponse(BaseModel):
 
 
 # --- Cluster Mempool Compatibility ---
+
 
 class ClusterRpcResult(BaseModel):
     rpc: str

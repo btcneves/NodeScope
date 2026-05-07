@@ -1,3 +1,6 @@
+import { useI18n } from '../i18n'
+import type { Lang } from '../i18n'
+
 export type ActiveView = 'dashboard' | 'guided-demo' | 'inspector' | 'zmq-tape' | 'policy-arena' | 'reorg-lab'
 
 interface Props {
@@ -11,16 +14,23 @@ interface Props {
   onDemoView?: () => void
 }
 
-const NAV: { id: ActiveView; label: string }[] = [
-  { id: 'dashboard',    label: 'Dashboard' },
-  { id: 'guided-demo',  label: 'Guided Demo' },
-  { id: 'inspector',    label: 'Tx Inspector' },
-  { id: 'zmq-tape',     label: 'ZMQ Tape' },
-  { id: 'policy-arena', label: 'Policy Arena' },
-  { id: 'reorg-lab',    label: 'Reorg Lab' },
+const LANG_OPTIONS: { value: Lang; label: string }[] = [
+  { value: 'en-US', label: 'EN' },
+  { value: 'pt-BR', label: 'PT' },
 ]
 
 export function Header({ network, apiOk, rpcOk, sseConnected, onRefresh, activeView, onSetView, onDemoView }: Props) {
+  const { t, lang, setLang } = useI18n()
+
+  const NAV: { id: ActiveView; label: string }[] = [
+    { id: 'dashboard',    label: t.nav.dashboard },
+    { id: 'guided-demo',  label: t.nav.guidedDemo },
+    { id: 'inspector',    label: t.nav.txInspector },
+    { id: 'zmq-tape',     label: t.nav.zmqTape },
+    { id: 'policy-arena', label: t.nav.policyArena },
+    { id: 'reorg-lab',    label: t.nav.reorgLab },
+  ]
+
   const networkClass = ['mainnet', 'regtest', 'signet', 'testnet'].includes(network)
     ? `badge-${network}`
     : 'badge-regtest'
@@ -28,11 +38,12 @@ export function Header({ network, apiOk, rpcOk, sseConnected, onRefresh, activeV
   return (
     <header className="header" style={{ flexWrap: 'wrap', gap: '8px' }}>
       <div className="header-brand">
-        <span className="header-title">NodeScope</span>
+        <span className="header-title">{t.header.title}</span>
         <span className={`badge ${networkClass}`}>{network}</span>
       </div>
+
       {/* Nav tabs */}
-      <div style={{ display: 'flex', gap: '4px' }}>
+      <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
         {NAV.map(({ id, label }) => (
           <button
             key={id}
@@ -52,22 +63,47 @@ export function Header({ network, apiOk, rpcOk, sseConnected, onRefresh, activeV
           </button>
         ))}
       </div>
+
       <div className="status-dots">
+        {/* Language selector */}
+        <span style={{ display: 'flex', gap: '2px', marginRight: '4px' }}>
+          {LANG_OPTIONS.map(({ value, label }) => (
+            <button
+              key={value}
+              onClick={() => setLang(value)}
+              title={value}
+              style={{
+                padding: '2px 7px',
+                fontSize: '11px',
+                background: lang === value ? '#1d4ed8' : 'transparent',
+                color: lang === value ? '#fff' : '#6b7280',
+                border: lang === value ? '1px solid #3b82f6' : '1px solid #374151',
+                borderRadius: '3px',
+                cursor: 'pointer',
+                fontFamily: 'monospace',
+                fontWeight: lang === value ? 700 : 400,
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </span>
+
         <span className="status-dot">
           <span className={`dot ${apiOk ? 'dot-ok' : 'dot-error'}`} />
-          API
+          {t.header.apiStatus}
         </span>
         <span className="status-dot">
           <span className={`dot ${rpcOk ? 'dot-ok' : 'dot-error'}`} />
-          RPC
+          {t.header.rpcStatus}
         </span>
         <span className="status-dot">
           <span className={`dot ${sseConnected ? 'dot-ok' : 'dot-loading'}`} />
-          SSE
+          {t.header.sseStatus}
         </span>
-        <button className="refresh-btn" onClick={onRefresh}>&#x21BB; Refresh</button>
+        <button className="refresh-btn" onClick={onRefresh}>{t.actions.refresh}</button>
         {onDemoView && (
-          <button className="pres-btn" onClick={onDemoView}>Demo View</button>
+          <button className="pres-btn" onClick={onDemoView}>{t.header.demoView}</button>
         )}
       </div>
     </header>
