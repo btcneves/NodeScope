@@ -477,6 +477,23 @@ Output: latency table (min/mean/median/p95/max) per endpoint. Results vary by ho
 
 ---
 
+## Presentation and Evaluation
+
+Complete materials for hackathon judges and evaluators:
+
+| Document | Description |
+|---|---|
+| [1-minute pitch](docs/presentation/pitch-1min.md) | Short pitch — EN-US and PT-BR |
+| [3-minute technical pitch](docs/presentation/pitch-3min.md) | Full technical pitch with architecture and demo flow |
+| [Evaluator checklist](docs/presentation/evaluator-checklist.md) | Step-by-step checklist to reproduce and assess all features |
+| [Demo script](docs/presentation/demo-script.md) | Operational demo — 1-minute and 5-minute versions |
+| [Video script](docs/presentation/video-script.md) | Scene-by-scene script for a 2–3 minute demo video |
+| [Submission text](docs/presentation/submission-text.md) | Ready-to-use text for submission forms — EN-US and PT-BR |
+| [FAQ](docs/presentation/faq.md) | Honest answers to the most common evaluator questions |
+| [Presentation pack index](docs/presentation/README.md) | Full index of presentation materials |
+
+---
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
