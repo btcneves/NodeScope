@@ -6,6 +6,7 @@ import threading
 from datetime import UTC, datetime
 from typing import Any
 
+from . import storage
 from .rpc import RPCClient, RPCError, get_client
 
 REORG_WALLET = "nodescope_demo"
@@ -415,6 +416,29 @@ def _execute_reorg() -> None:
         _state["proof"] = proof
         _state["status"] = "success" if overall_success else "error"
         _state["running"] = False
+
+    # Persist to storage (non-blocking; failure must not break the lab)
+    try:
+        proof_id = storage.insert_proof_report(
+            scenario_name=proof.get("title", "Reorg Lab"),
+            source="reorg_lab",
+            status="success" if overall_success else "error",
+            success=overall_success,
+            txid=proof.get("txid"),
+            block_hash=proof.get("final_block_hash"),
+            block_height=proof.get("final_block_height"),
+            summary=proof,
+        )
+        storage.insert_reorg_run(
+            status="success" if overall_success else "error",
+            success=overall_success,
+            txid=proof.get("txid"),
+            original_block_hash=proof.get("original_block_hash"),
+            final_block_hash=proof.get("final_block_hash"),
+            proof_report_id=proof_id,
+        )
+    except Exception:
+        pass
 
     _add_step(
         "build_proof",

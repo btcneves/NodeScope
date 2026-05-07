@@ -6,6 +6,7 @@ import threading
 from datetime import UTC, datetime
 from typing import Any
 
+from . import storage
 from .rpc import RPCClient, RPCError, get_client
 
 # ---------------------------------------------------------------------------
@@ -419,6 +420,55 @@ def _sub_confirm_tx(scenario_id: str, txid: str, step_id: str = "confirm_tx") ->
 # ---------------------------------------------------------------------------
 
 
+def _persist_policy_proof(scenario_id: str) -> None:
+    """Persist the finished scenario proof to storage (best-effort)."""
+    try:
+        with _state_lock:
+            sc = _state["scenarios"].get(scenario_id, {})
+            proof = sc.get("proof")
+            status = sc.get("status", "unknown")
+        if not proof:
+            return
+        success = bool(proof.get("success", False))
+        txids: list[str] = []
+        for key in ("txid", "original_txid", "replacement_txid", "parent_txid", "child_txid"):
+            val = proof.get(key)
+            if val:
+                txids.append(val)
+        fee_data = {
+            k: proof.get(k)
+            for k in (
+                "fee_rate_sat_vb",
+                "original_fee_rate_sat_vb",
+                "replacement_fee_rate_sat_vb",
+                "parent_fee_rate_sat_vb",
+                "child_fee_rate_sat_vb",
+                "package_fee_rate_sat_vb",
+            )
+            if proof.get(k) is not None
+        }
+        proof_id = storage.insert_proof_report(
+            scenario_name=proof.get("title", scenario_id),
+            source="policy_arena",
+            status=status,
+            success=success,
+            txid=txids[0] if txids else None,
+            block_hash=proof.get("block_hash"),
+            block_height=proof.get("block_height"),
+            summary=proof,
+        )
+        storage.insert_policy_run(
+            scenario_id=scenario_id,
+            status=status,
+            success=success,
+            txids=txids,
+            fee_data=fee_data or None,
+            proof_report_id=proof_id,
+        )
+    except Exception:
+        pass
+
+
 def _run_worker(scenario_id: str) -> None:
     handlers = {
         "normal_transaction": _run_normal_transaction,
@@ -440,6 +490,7 @@ def _run_worker(scenario_id: str) -> None:
     finally:
         with _state_lock:
             _state["scenarios"][scenario_id]["running"] = False
+        _persist_policy_proof(scenario_id)
 
 
 def _finish_scenario(scenario_id: str, success: bool) -> None:

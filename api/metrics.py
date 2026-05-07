@@ -130,6 +130,32 @@ if _PROMETHEUS_AVAILABLE:
         "Total transactions auto-sent by the live simulation engine",
     )
 
+    # History / persistence layer
+    HISTORY_PROOF_REPORTS_TOTAL = Gauge(
+        "nodescope_history_proof_reports_total",
+        "Total proof reports persisted in storage",
+    )
+    HISTORY_DEMO_RUNS_TOTAL = Gauge(
+        "nodescope_history_demo_runs_total",
+        "Total guided demo runs persisted in storage",
+    )
+    HISTORY_POLICY_RUNS_TOTAL = Gauge(
+        "nodescope_history_policy_runs_total",
+        "Total policy arena runs persisted in storage",
+    )
+    HISTORY_REORG_RUNS_TOTAL = Gauge(
+        "nodescope_history_reorg_runs_total",
+        "Total reorg lab runs persisted in storage",
+    )
+    STORAGE_UP = Gauge(
+        "nodescope_storage_up",
+        "1 if the local storage backend is reachable, 0 otherwise",
+    )
+    STORAGE_BACKEND_INFO = Gauge(
+        "nodescope_storage_backend_info",
+        "Storage backend in use (1=sqlite, 0=memory)",
+    )
+
 
 # ---------------------------------------------------------------------------
 # Public helpers — called by app.py middleware and service functions
@@ -224,6 +250,24 @@ def record_simulation_tx() -> None:
     if not _PROMETHEUS_AVAILABLE:
         return
     SIMULATION_TXS_TOTAL.inc()
+
+
+def update_storage_metrics(
+    proof_reports: int,
+    demo_runs: int,
+    policy_runs: int,
+    reorg_runs: int,
+    storage_up: bool,
+    backend: str,
+) -> None:
+    if not _PROMETHEUS_AVAILABLE:
+        return
+    HISTORY_PROOF_REPORTS_TOTAL.set(proof_reports)
+    HISTORY_DEMO_RUNS_TOTAL.set(demo_runs)
+    HISTORY_POLICY_RUNS_TOTAL.set(policy_runs)
+    HISTORY_REORG_RUNS_TOTAL.set(reorg_runs)
+    STORAGE_UP.set(1 if storage_up else 0)
+    STORAGE_BACKEND_INFO.set(1 if backend == "sqlite" else 0)
 
 
 # ---------------------------------------------------------------------------

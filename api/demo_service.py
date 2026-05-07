@@ -6,6 +6,7 @@ import threading
 from datetime import UTC, datetime
 from typing import Any
 
+from . import storage
 from .rpc import RPCClient, RPCError, get_client
 
 # ---------------------------------------------------------------------------
@@ -738,6 +739,27 @@ def _step_generate_proof_report() -> None:
 
         with _state_lock:
             _state["proof"] = proof
+
+        # Persist to storage (non-blocking; failure must not break the demo)
+        try:
+            proof_id = storage.insert_proof_report(
+                scenario_name=proof["scenario_name"],
+                source="guided_demo",
+                status="success",
+                success=bool(proof.get("success")),
+                txid=proof.get("txid"),
+                block_hash=proof.get("block_hash"),
+                block_height=proof.get("block_height"),
+                summary=proof,
+            )
+            storage.insert_demo_run(
+                status="success",
+                success=bool(proof.get("success")),
+                txid=proof.get("txid"),
+                proof_report_id=proof_id,
+            )
+        except Exception:
+            pass
 
         _set_step(
             "generate_proof_report",

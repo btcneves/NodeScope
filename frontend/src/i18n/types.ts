@@ -420,6 +420,35 @@ export interface Translations {
     unknown: string
   }
 
+  // Historical Dashboard
+  history: {
+    title: string
+    subtitle: string
+    summary: string
+    proofReports: string
+    demoRuns: string
+    policyRuns: string
+    reorgRuns: string
+    storageBackend: string
+    storageStatus: string
+    storageUp: string
+    storageDown: string
+    empty: string
+    refresh: string
+    copyProof: string
+    openInspector: string
+    scenarioLabel: string
+    sourceLabel: string
+    successLabel: string
+    txidLabel: string
+    blockLabel: string
+    createdLabel: string
+    noHistory: string
+    storageInfo: string
+    sqlite: string
+    memory: string
+  }
+
   // Footer
   footer: {
     copyright: string

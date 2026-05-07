@@ -346,4 +346,91 @@ class SimulationStatusResponse(BaseModel):
 
 class SimulationConfigRequest(BaseModel):
     block_interval: int | None = None
-    tx_interval: int | None = None
+
+
+# ---------------------------------------------------------------------------
+# History schemas
+# ---------------------------------------------------------------------------
+
+
+class HistorySummaryResponse(BaseModel):
+    proof_reports: int
+    demo_runs: int
+    policy_runs: int
+    reorg_runs: int
+    storage_backend: str
+    storage_up: bool
+    init_error: str | None = None
+
+
+class ProofReportHistoryItem(BaseModel):
+    id: int | None = None
+    scenario_name: str | None = None
+    source: str | None = None
+    status: str | None = None
+    success: bool
+    txid: str | None = None
+    block_hash: str | None = None
+    block_height: int | None = None
+    summary: dict[str, Any] | None = None
+    created_at: str | None = None
+
+
+class ProofReportHistoryResponse(BaseModel):
+    items: list[ProofReportHistoryItem]
+    total_returned: int
+    limit: int
+    offset: int
+
+
+class DemoRunHistoryItem(BaseModel):
+    id: int | None = None
+    status: str | None = None
+    success: bool
+    txid: str | None = None
+    duration_ms: float | None = None
+    proof_report_id: int | None = None
+    created_at: str | None = None
+
+
+class DemoRunHistoryResponse(BaseModel):
+    items: list[DemoRunHistoryItem]
+    total_returned: int
+    limit: int
+    offset: int
+
+
+class PolicyRunHistoryItem(BaseModel):
+    id: int | None = None
+    scenario_id: str | None = None
+    status: str | None = None
+    success: bool
+    txids: list[str] = Field(default_factory=list)
+    fee_data: dict[str, Any] | None = None
+    proof_report_id: int | None = None
+    created_at: str | None = None
+
+
+class PolicyRunHistoryResponse(BaseModel):
+    items: list[PolicyRunHistoryItem]
+    total_returned: int
+    limit: int
+    offset: int
+
+
+class ReorgRunHistoryItem(BaseModel):
+    id: int | None = None
+    status: str | None = None
+    success: bool
+    txid: str | None = None
+    original_block_hash: str | None = None
+    final_block_hash: str | None = None
+    proof_report_id: int | None = None
+    created_at: str | None = None
+
+
+class ReorgRunHistoryResponse(BaseModel):
+    items: list[ReorgRunHistoryItem]
+    total_returned: int
+    limit: int
+    offset: int
