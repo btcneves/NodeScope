@@ -18,9 +18,8 @@ import json
 import statistics
 import sys
 import time
-import urllib.request
 import urllib.error
-
+import urllib.request
 
 # ---------------------------------------------------------------------------
 # Endpoints to benchmark
