@@ -10,6 +10,8 @@ from fastapi.staticfiles import StaticFiles
 from .demo import STATIC_DIR, demo_page, root_redirect
 from .demo_service import (
     get_status as demo_get_status,
+)
+from .demo_service import (
     reset_demo,
     run_step,
     start_full_demo,
@@ -18,14 +20,22 @@ from .policy_service import (
     get_scenario_proof,
     get_scenario_status,
     list_scenarios,
-    reset_all as policy_reset_all,
     reset_scenario,
     run_scenario,
 )
+from .policy_service import (
+    reset_all as policy_reset_all,
+)
 from .reorg_service import (
     get_proof as reorg_get_proof,
+)
+from .reorg_service import (
     get_status as reorg_get_status,
+)
+from .reorg_service import (
     reset as reorg_reset,
+)
+from .reorg_service import (
     run as reorg_run,
 )
 from .schemas import (

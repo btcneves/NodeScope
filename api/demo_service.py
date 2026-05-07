@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 import threading
-import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from .rpc import RPCClient, RPCError, get_client
@@ -52,7 +51,7 @@ DEMO_AMOUNT = 0.001  # BTC sent in the demo tx
 
 
 def _now() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def _make_step(step_id: str, status: str = "pending") -> dict[str, Any]:
