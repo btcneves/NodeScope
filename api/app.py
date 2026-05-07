@@ -78,6 +78,7 @@ from .service import (
     iter_live_events_sse,
 )
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     simulation_service.auto_start()

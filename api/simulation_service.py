@@ -154,7 +154,11 @@ def _send_transaction() -> None:
 def _run_loop() -> None:
     global _block_interval, _tx_interval
 
-    logger.info("simulation: loop started (block_interval=%ds, tx_interval=%ds)", _block_interval, _tx_interval)
+    logger.info(
+        "simulation: loop started (block_interval=%ds, tx_interval=%ds)",
+        _block_interval,
+        _tx_interval,
+    )
 
     try:
         _ensure_funded()
@@ -162,7 +166,7 @@ def _run_loop() -> None:
         logger.error("simulation: initial _ensure_funded failed: %s", exc)
 
     last_block_time = time.time() - _block_interval  # trigger immediately
-    last_tx_time = time.time() - _tx_interval        # trigger immediately
+    last_tx_time = time.time() - _tx_interval  # trigger immediately
 
     while not _stop_event.is_set():
         now = time.time()
@@ -260,7 +264,9 @@ def configure(block_interval: int | None = None, tx_interval: int | None = None)
             _block_interval = block_interval
         if tx_interval is not None and tx_interval > 0:
             _tx_interval = tx_interval
-    logger.info("simulation: configured block_interval=%d tx_interval=%d", _block_interval, _tx_interval)
+    logger.info(
+        "simulation: configured block_interval=%d tx_interval=%d", _block_interval, _tx_interval
+    )
     return get_status()
 
 
