@@ -328,6 +328,23 @@ Veja [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Veja [SECURITY.md](SECURITY.md).
 
+## Apresentação e Avaliação
+
+Materiais completos para juízes e avaliadores de hackathon:
+
+| Documento | Descrição |
+|---|---|
+| [Pitch de 1 minuto](docs/presentation/pitch-1min.md) | Pitch curto — EN-US e PT-BR |
+| [Pitch técnico de 3 minutos](docs/presentation/pitch-3min.md) | Pitch técnico completo com arquitetura e fluxo de demo |
+| [Checklist do avaliador](docs/presentation/evaluator-checklist.md) | Checklist passo a passo para reproduzir e avaliar todas as funcionalidades |
+| [Roteiro de demo](docs/presentation/demo-script.md) | Roteiro operacional — versões de 1 e 5 minutos |
+| [Roteiro de vídeo](docs/presentation/video-script.md) | Roteiro cena a cena para vídeo de 2–3 minutos |
+| [Texto de submissão](docs/presentation/submission-text.md) | Texto pronto para formulários de submissão — EN-US e PT-BR |
+| [FAQ](docs/presentation/faq.md) | Respostas honestas às perguntas mais comuns dos avaliadores |
+| [Índice do presentation pack](docs/presentation/README.md) | Índice completo dos materiais de apresentação |
+
+---
+
 ## Licença
 
 MIT. Veja [LICENSE](LICENSE).

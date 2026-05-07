@@ -142,18 +142,31 @@ If SQLite initialisation fails, the API transparently falls back to an in-memory
 - SQLite history database is local to the container volume. History does not survive `docker compose down -v` unless the volume is preserved.
 - History stores run metadata only, not full event logs or raw NDJSON. For full event replay, use `logs/`.
 
-## Roadmap
+## Presentation Pack
 
-The following features are planned for future phases and are **not yet implemented**:
+| Document | Status | Path |
+|---|---|---|
+| 1-minute pitch (EN-US / PT-BR) | Ready | `docs/presentation/pitch-1min.md` |
+| 3-minute technical pitch (EN-US / PT-BR) | Ready | `docs/presentation/pitch-3min.md` |
+| Technical walkthrough | Ready | `docs/presentation/technical-walkthrough.md` |
+| Evaluator checklist | Ready | `docs/presentation/evaluator-checklist.md` |
+| Demo script (1-min + 5-min, EN-US / PT-BR) | Ready | `docs/presentation/demo-script.md` |
+| Submission text (EN-US / PT-BR) | Ready | `docs/presentation/submission-text.md` |
+| Screenshots checklist | Ready | `docs/presentation/screenshots-checklist.md` |
+| Video script (EN-US / PT-BR) | Ready | `docs/presentation/video-script.md` |
+| Evaluator FAQ (EN-US / PT-BR) | Ready | `docs/presentation/faq.md` |
+| Presentation pack index | Ready | `docs/presentation/README.md` |
+
+## Roadmap
 
 | Feature | Status |
 |---|---|
-| Fee Estimation Playground | Ready (PR #8) |
+| Presentation Pack | Ready (PR #9) |
 | Postgres / TimescaleDB for event persistence | Planned |
-| Historical dashboards | Ready (SQLite-backed) |
 | API keys / JWT for hosted deployments | Planned |
 | OpenTelemetry traces (RPC, ZMQ, API) | Planned |
 | Multi-node support | Planned |
 | Kubernetes manifests / Helm chart | Planned |
 | Grafana integration | Planned |
 | signet / mainnet read-only mode | Planned |
+| Cluster mempool visualization (Bitcoin Core 28+) | Planned |
