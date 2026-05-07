@@ -48,7 +48,8 @@ export interface Translations {
   // Dashboard / Header
   header: {
     title: string
-    demoView: string
+    newSession: string
+    newSessionConfirm: string
     apiStatus: string
     rpcStatus: string
     sseStatus: string
@@ -67,6 +68,22 @@ export interface Translations {
     yes: string
     no: string
     na: string
+    stepDesc: {
+      check_rpc: string
+      check_zmq: string
+      create_or_load_wallet: string
+      generate_mining_address: string
+      mine_initial_blocks: string
+      create_destination_address: string
+      send_demo_transaction: string
+      detect_mempool_entry: string
+      detect_zmq_rawtx: string
+      decode_transaction: string
+      mine_confirmation_block: string
+      detect_zmq_rawblock: string
+      confirm_transaction: string
+      generate_proof_report: string
+    }
   }
 
   // Proof fields
@@ -158,6 +175,11 @@ export interface Translations {
     noteRbf: string
     noteCpfp: string
     noteStatus: string
+    descNormal: string
+    descLowFee: string
+    descRbf: string
+    descCpfp: string
+    viewOnDashboard: string
   }
 
   // Reorg Lab
@@ -192,6 +214,7 @@ export interface Translations {
     warningRestored: string
     yes: string
     no: string
+    viewOnDashboard: string
     steps: {
       checkNetwork: string
       ensureWallet: string
@@ -220,6 +243,29 @@ export interface Translations {
     ancestors: string
     descendants: string
     refresh: string
+  }
+
+  // Live Simulation
+  simulation: {
+    title: string
+    subtitle: string
+    running: string
+    stopped: string
+    start: string
+    stop: string
+    blocksMined: string
+    txsSent: string
+    errors: string
+    nextBlock: string
+    nextTx: string
+    blockInterval: string
+    txInterval: string
+    seconds: string
+    configure: string
+    lastBlock: string
+    lastTx: string
+    height: string
+    noActivity: string
   }
 
   // Dashboard sections
@@ -279,6 +325,35 @@ export interface Translations {
     lifecycleBlockEventCaptured: string
     lifecycleConfirmed: string
     lifecycleOnChain: string
+    lifecycleWaiting: string
+    lifecycleTracking: string
+    mempoolPressure: string
+    latestSignal: string
+    replaySource: string
+    replayTotal: string
+    replayOther: string
+    replayIgnored: string
+    replaySkipped: string
+    replayable: string
+  }
+
+  // Panel header descriptions (tooltip on panel title)
+  panelDesc: {
+    intelligence: string
+    replayEngine: string
+    nodeHealth: string
+    liveFeed: string
+    events: string
+    classifications: string
+    rpcZmqSync: string
+  }
+
+  // Health score chip explanations
+  healthScore: {
+    rpc: string
+    zmq: string
+    mempool: string
+    blocks: string
   }
 
   // Explain boxes
@@ -295,6 +370,8 @@ export interface Translations {
 
   // Learn more
   learn: {
+    normalTx: string
+    lowFee: string
     rbf: string
     cpfp: string
     reorg: string

@@ -1,4 +1,6 @@
 import type { IntelligenceData } from '../types/api'
+import { useI18n } from '../i18n'
+import { Term } from './ui/InfoTooltip'
 
 interface Props {
   data: IntelligenceData | null
@@ -21,11 +23,17 @@ function StatusDot({ ok }: { ok: boolean }) {
 }
 
 export function IntelligenceSummaryPanel({ data }: Props) {
+  const { t } = useI18n()
+
   if (!data) {
     return (
       <div className="panel intelligence-panel">
-        <div className="panel-title">Intelligence Summary</div>
-        <div className="intelligence-loading">Loading…</div>
+        <div className="panel-header">
+          <span className="panel-title">
+            <Term text={t.panelDesc.intelligence}>{t.dashboard.intelligence}</Term>
+          </span>
+        </div>
+        <div className="intelligence-loading">{t.status.loading}</div>
       </div>
     )
   }
@@ -39,13 +47,17 @@ export function IntelligenceSummaryPanel({ data }: Props) {
 
   return (
     <div className="panel intelligence-panel">
-      <div className="panel-title">Intelligence Summary</div>
+      <div className="panel-header">
+        <span className="panel-title">
+          <Term text={t.panelDesc.intelligence}>{t.dashboard.intelligence}</Term>
+        </span>
+      </div>
       <div className="intelligence-body">
         <div className="intelligence-score-block">
           <span className="intelligence-score-value" style={{ color: scoreColor }}>
             {data.node_health_score}
           </span>
-          <span className="intelligence-score-label">Node Health Score</span>
+          <span className="intelligence-score-label">{t.dashboard.nodeHealthScore}</span>
           <span className="intelligence-score-status" style={{ color: scoreColor }}>
             {data.node_health_label}
           </span>
@@ -71,26 +83,26 @@ export function IntelligenceSummaryPanel({ data }: Props) {
             </span>
           </div>
           <div className="intelligence-row">
-            <span className="intelligence-key">Mempool pressure</span>
+            <span className="intelligence-key">{t.dashboard.mempoolPressure}</span>
             <span className="intelligence-val">
               <PressureBadge pressure={data.mempool_pressure} />
             </span>
           </div>
           <div className="intelligence-row">
-            <span className="intelligence-key">Event store</span>
+            <span className="intelligence-key">{t.dashboard.eventStore}</span>
             <span className="intelligence-val">
-              {data.event_store.total_events} events · replayable
+              {data.event_store.total_events} {t.dashboard.totalInLog} · {t.dashboard.replayable}
             </span>
           </div>
           {data.latest_signal && (
             <div className="intelligence-row">
-              <span className="intelligence-key">Latest signal</span>
+              <span className="intelligence-key">{t.dashboard.latestSignal}</span>
               <span className="intelligence-val intelligence-mono">{data.latest_signal}</span>
             </div>
           )}
           {data.latest_block && (
             <div className="intelligence-row">
-              <span className="intelligence-key">Latest block</span>
+              <span className="intelligence-key">{t.dashboard.latestBlock}</span>
               <span className="intelligence-val intelligence-mono">
                 #{data.latest_block.height ?? '—'}
               </span>
@@ -98,7 +110,7 @@ export function IntelligenceSummaryPanel({ data }: Props) {
           )}
           {data.latest_tx && (
             <div className="intelligence-row">
-              <span className="intelligence-key">Latest tx</span>
+              <span className="intelligence-key">{t.dashboard.latestTx}</span>
               <span className="intelligence-val intelligence-mono intelligence-truncate">
                 {data.latest_tx.txid}
               </span>
@@ -108,7 +120,7 @@ export function IntelligenceSummaryPanel({ data }: Props) {
 
         {Object.keys(data.classification_summary).length > 0 && (
           <div className="intelligence-classifications">
-            <div className="intelligence-section-title">Classifications</div>
+            <div className="intelligence-section-title">{t.dashboard.classifications}</div>
             {Object.entries(data.classification_summary).map(([kind, count]) => (
               <div key={kind} className="intelligence-row">
                 <span className="intelligence-key">{kind}</span>

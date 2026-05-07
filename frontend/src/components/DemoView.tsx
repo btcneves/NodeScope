@@ -6,6 +6,7 @@ import type {
   TxData,
   IntelligenceData,
 } from '../types/api'
+import type { SSEEvent } from '../hooks/useSSE'
 import { TransactionLifecycle } from './TransactionLifecycle'
 import { MempoolPanel } from './MempoolPanel'
 import { BlocksPanel } from './BlocksPanel'
@@ -21,6 +22,7 @@ interface Props {
   latestTx: TxData | null
   intelligence: IntelligenceData | null
   sseConnected: boolean
+  sseEvents: SSEEvent[]
   onClose: () => void
 }
 
@@ -65,6 +67,7 @@ export function DemoView({
   latestTx,
   intelligence,
   sseConnected,
+  sseEvents,
   onClose,
 }: Props) {
   const rpcOk = health?.rpc_ok ?? false
@@ -117,9 +120,7 @@ export function DemoView({
         <TransactionLifecycle
           rpcOk={rpcOk}
           zmqConnected={sseConnected}
-          mempool={mempool}
-          latestBlock={latestBlock}
-          latestTx={latestTx}
+          sseEvents={sseEvents}
         />
 
         <div className="grid-3">

@@ -255,7 +255,7 @@ def _step_create_or_load_wallet() -> None:
         rpc = get_client()
         loaded = rpc.listwallets()
         if DEMO_WALLET in loaded:
-            info = rpc.getwalletinfo()
+            info = _wallet_rpc().getwalletinfo()
             _set_step(
                 "create_or_load_wallet",
                 "success",

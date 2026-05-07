@@ -17,7 +17,7 @@ export function EventsTable({ events }: Props) {
   return (
     <div className="panel">
       <div className="panel-header">
-        <span className="panel-title"><Term term="ZMQ">{t.dashboard.events}</Term></span>
+        <span className="panel-title"><Term text={t.panelDesc.events}>{t.dashboard.events}</Term></span>
         <span style={{ fontSize: '11px', color: 'var(--muted)' }}>{events.length} {t.dashboard.items}</span>
       </div>
       <div className="panel-body">

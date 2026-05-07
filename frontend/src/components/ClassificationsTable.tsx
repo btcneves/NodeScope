@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { ClassificationItem } from '../types/api'
 import { copyText } from '../utils/clipboard'
 import { useI18n } from '../i18n'
+import { Term } from './ui/InfoTooltip'
 
 interface Props {
   classifications: ClassificationItem[]
@@ -28,7 +29,7 @@ export function ClassificationsTable({ classifications }: Props) {
   return (
     <div className="panel" style={{ marginBottom: '24px' }}>
       <div className="panel-header">
-        <span className="panel-title">{t.dashboard.classifications}</span>
+        <span className="panel-title"><Term text={t.panelDesc.classifications}>{t.dashboard.classifications}</Term></span>
         <span style={{ fontSize: '11px', color: 'var(--muted)' }}>
           {classifications.length} {t.dashboard.items}
         </span>

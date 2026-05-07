@@ -58,6 +58,9 @@ services:
       NODESCOPE_LOG_DIR: /app/logs
       API_HOST: 0.0.0.0
       API_PORT: 8000
+      SIMULATION_ENABLED: "true"
+      SIMULATION_BLOCK_INTERVAL: "30"
+      SIMULATION_TX_INTERVAL: "12"
     command: ["python", "scripts/run_api.py"]
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3).read()\""]

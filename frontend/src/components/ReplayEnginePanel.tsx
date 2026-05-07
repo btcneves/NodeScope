@@ -1,4 +1,6 @@
 import type { SummaryData } from '../types/api'
+import { useI18n } from '../i18n'
+import { Term } from './ui/InfoTooltip'
 
 interface Props {
   summary: SummaryData | null
@@ -14,11 +16,21 @@ function Row({ label, value }: { label: string; value: string | number }) {
 }
 
 export function ReplayEnginePanel({ summary }: Props) {
+  const { t } = useI18n()
+
+  const title = (
+    <div className="panel-header">
+      <span className="panel-title">
+        <Term text={t.panelDesc.replayEngine}>{t.dashboard.replayEngine}</Term>
+      </span>
+    </div>
+  )
+
   if (!summary) {
     return (
       <div className="panel">
-        <div className="panel-title">Replay Engine</div>
-        <div className="panel-empty">no data</div>
+        {title}
+        <div className="panel-empty">{t.generic.noData}</div>
       </div>
     )
   }
@@ -29,14 +41,14 @@ export function ReplayEnginePanel({ summary }: Props) {
 
   return (
     <div className="panel">
-      <div className="panel-title">Replay Engine</div>
-      <Row label="Source file" value={source} />
-      <Row label="Total events" value={summary.total_events} />
+      {title}
+      <Row label={t.dashboard.replaySource} value={source} />
+      <Row label={t.dashboard.replayTotal} value={summary.total_events} />
       <Row label="ZMQ rawtx" value={summary.rawtx_count} />
       <Row label="ZMQ rawblock" value={summary.rawblock_count} />
-      <Row label="Other events" value={summary.other_count} />
-      <Row label="Ignored lines" value={summary.ignored_lines} />
-      <Row label="Skipped events" value={summary.skipped_events ?? 0} />
+      <Row label={t.dashboard.replayOther} value={summary.other_count} />
+      <Row label={t.dashboard.replayIgnored} value={summary.ignored_lines} />
+      <Row label={t.dashboard.replaySkipped} value={summary.skipped_events ?? 0} />
     </div>
   )
 }

@@ -49,7 +49,7 @@ export function RpcZmqSyncPanel({ health, summary, latestBlock }: Props) {
   return (
     <div className="panel">
       <div className="panel-title">
-        <Term term="RPC">{t.dashboard.rpcZmqSync}</Term>
+        <Term text={t.panelDesc.rpcZmqSync}>{t.dashboard.rpcZmqSync}</Term>
         <span className={`sync-badge ${inSync ? 'sync-ok' : 'sync-warn'}`}>
           {syncLabel}
         </span>

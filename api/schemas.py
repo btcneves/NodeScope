@@ -319,3 +319,31 @@ class ClusterCompatibilityResponse(BaseModel):
     rpcs: list[ClusterRpcResult] = Field(default_factory=list)
     message: str
     note: str | None = None
+
+
+# --- Live Simulation ---
+
+
+class SimulationConfig(BaseModel):
+    block_interval: int
+    tx_interval: int
+
+
+class SimulationStatusResponse(BaseModel):
+    running: bool
+    blocks_mined: int
+    txs_sent: int
+    errors: int
+    started_at: str | None = None
+    last_block_at: str | None = None
+    last_tx_at: str | None = None
+    last_txid: str | None = None
+    last_block_height: int | None = None
+    next_block_in: int | None = None
+    next_tx_in: int | None = None
+    config: SimulationConfig
+
+
+class SimulationConfigRequest(BaseModel):
+    block_interval: int | None = None
+    tx_interval: int | None = None

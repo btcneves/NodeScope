@@ -47,4 +47,15 @@ export const api = {
   reorgProof: () => get<{ proof: import('../types/api').ReorgProof | null }>('/reorg/proof'),
   // Cluster Mempool Compatibility
   clusterCompatibility: () => get<import('../types/api').ClusterCompatibilityData>('/mempool/cluster/compatibility'),
+  // Simulation
+  simulationStatus: () => get<import('../types/api').SimulationData>('/simulation/status'),
+  simulationStart: () => post<import('../types/api').SimulationData>('/simulation/start'),
+  simulationStop: () => post<import('../types/api').SimulationData>('/simulation/stop'),
+  simulationConfig: (blockInterval?: number, txInterval?: number) => {
+    const body = JSON.stringify({ block_interval: blockInterval, tx_interval: txInterval })
+    return fetch('/simulation/config', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body })
+      .then(r => r.json() as Promise<import('../types/api').SimulationData>)
+  },
+  // Session
+  sessionReset: () => post<{ ok: boolean; truncated: boolean; file: string }>('/session/reset'),
 }

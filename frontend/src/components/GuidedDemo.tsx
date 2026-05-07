@@ -56,6 +56,7 @@ function StepRow({
   const { t } = useI18n()
   const [expanded, setExpanded] = useState(false)
   const canRun = !running && step.status !== 'running'
+  const desc = (t.demo.stepDesc as Record<string, string>)[step.id]
 
   return (
     <div style={{
@@ -73,7 +74,10 @@ function StepRow({
         cursor: 'pointer',
       }} onClick={() => setExpanded(v => !v)}>
         <span style={{ color: '#6b7280', fontSize: '12px', minWidth: '20px' }}>{index + 1}.</span>
-        <span style={{ flex: 1, fontSize: '13px', fontWeight: 500, color: '#e5e7eb' }}>{step.title}</span>
+        <span style={{ flex: 1, fontSize: '13px', fontWeight: 500, color: '#e5e7eb', display: 'flex', alignItems: 'center', gap: 5 }}>
+          {step.title}
+          {desc && <InfoTooltip text={desc} size={12} />}
+        </span>
         <StatusBadge status={step.status} />
         <button
           onClick={e => { e.stopPropagation(); onRunStep(step.id) }}
@@ -252,7 +256,7 @@ function btnStyle(bg: string): React.CSSProperties {
 
 const POLL_INTERVAL_MS = 1500
 
-export function GuidedDemo() {
+export function GuidedDemo({ onStepsChange }: { onStepsChange?: (steps: DemoStep[]) => void }) {
   const { t } = useI18n()
   const [demoState, setDemoState] = useState<DemoStatusData | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -262,10 +266,11 @@ export function GuidedDemo() {
     try {
       const data = await api.demoStatus()
       setDemoState(data)
+      onStepsChange?.(data.steps)
     } catch (e) {
       setError(String(e))
     }
-  }, [])
+  }, [onStepsChange])
 
   useEffect(() => {
     void fetchStatus()
@@ -281,6 +286,7 @@ export function GuidedDemo() {
       const poll = setInterval(async () => {
         const data = await api.demoStatus()
         setDemoState(data)
+        onStepsChange?.(data.steps)
         if (!data.running) clearInterval(poll)
       }, POLL_INTERVAL_MS)
     } catch (e) {
@@ -292,6 +298,7 @@ export function GuidedDemo() {
     try {
       const data = await api.demoReset()
       setDemoState(data)
+      onStepsChange?.(data.steps)
     } catch (e) {
       setError(String(e))
     }
@@ -302,10 +309,9 @@ export function GuidedDemo() {
       const step = await api.demoStep(stepId)
       setDemoState(prev => {
         if (!prev) return prev
-        return {
-          ...prev,
-          steps: prev.steps.map(s => s.id === stepId ? step : s),
-        }
+        const updated = { ...prev, steps: prev.steps.map(s => s.id === stepId ? step : s) }
+        onStepsChange?.(updated.steps)
+        return updated
       })
       void fetchStatus()
     } catch (e) {

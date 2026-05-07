@@ -11,7 +11,7 @@ interface Props {
   onRefresh: () => void
   activeView: ActiveView
   onSetView: (v: ActiveView) => void
-  onDemoView?: () => void
+  onNewSession?: () => void
 }
 
 const LANG_OPTIONS: { value: Lang; label: string }[] = [
@@ -19,7 +19,7 @@ const LANG_OPTIONS: { value: Lang; label: string }[] = [
   { value: 'pt-BR', label: 'PT' },
 ]
 
-export function Header({ network, apiOk, rpcOk, sseConnected, onRefresh, activeView, onSetView, onDemoView }: Props) {
+export function Header({ network, apiOk, rpcOk, sseConnected, onRefresh, activeView, onSetView, onNewSession }: Props) {
   const { t, lang, setLang } = useI18n()
 
   const NAV: { id: ActiveView; label: string }[] = [
@@ -102,8 +102,22 @@ export function Header({ network, apiOk, rpcOk, sseConnected, onRefresh, activeV
           {t.header.sseStatus}
         </span>
         <button className="refresh-btn" onClick={onRefresh}>{t.actions.refresh}</button>
-        {onDemoView && (
-          <button className="pres-btn" onClick={onDemoView}>{t.header.demoView}</button>
+        {onNewSession && (
+          <button
+            onClick={onNewSession}
+            style={{
+              padding: '4px 10px',
+              fontSize: '11px',
+              background: 'transparent',
+              color: '#6b7280',
+              border: '1px solid #374151',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontFamily: 'monospace',
+            }}
+          >
+            {t.header.newSession}
+          </button>
         )}
       </div>
     </header>

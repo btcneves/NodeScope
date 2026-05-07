@@ -322,3 +322,25 @@ export interface ClusterCompatibilityData {
   message: string
   note: string | null
 }
+
+// --- Live Simulation ---
+
+export interface SimulationConfig {
+  block_interval: number
+  tx_interval: number
+}
+
+export interface SimulationData {
+  running: boolean
+  blocks_mined: number
+  txs_sent: number
+  errors: number
+  started_at: string | null
+  last_block_at: string | null
+  last_tx_at: string | null
+  last_txid: string | null
+  last_block_height: number | null
+  next_block_in: number | null
+  next_tx_in: number | null
+  config: SimulationConfig
+}

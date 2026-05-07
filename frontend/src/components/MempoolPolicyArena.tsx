@@ -178,13 +178,27 @@ interface ScenarioCardProps {
   accentColor: string
   onRun: (id: string) => void
   onReset: (id: string) => void
+  onGoToDashboard: () => void
 }
 
-function ScenarioCard({ summary, accentColor, onRun, onReset }: ScenarioCardProps) {
+function ScenarioCard({ summary, accentColor, onRun, onReset, onGoToDashboard }: ScenarioCardProps) {
   const { t } = useI18n()
   const [detail, setDetail] = useState<PolicyScenario | null>(null)
   const [polling, setPolling] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
+
+  const SCENARIO_DESC: Record<string, string> = {
+    normal_transaction: t.policy.descNormal,
+    low_fee_transaction: t.policy.descLowFee,
+    rbf_replacement: t.policy.descRbf,
+    cpfp_package: t.policy.descCpfp,
+  }
+  const SCENARIO_LEARN: Record<string, string> = {
+    normal_transaction: t.learn.normalTx,
+    low_fee_transaction: t.learn.lowFee,
+    rbf_replacement: t.learn.rbf,
+    cpfp_package: t.learn.cpfp,
+  }
 
   const fetchDetail = useCallback(async () => {
     try {
@@ -230,6 +244,7 @@ function ScenarioCard({ summary, accentColor, onRun, onReset }: ScenarioCardProp
       background: '#0f172a', border: `1px solid ${accentBorder}`,
       borderLeft: `3px solid ${accentColor}`,
       borderRadius: '6px', overflow: 'hidden',
+      display: 'flex', flexDirection: 'column',
     }}>
       {/* Header */}
       <div style={{ padding: '12px 16px', borderBottom: '1px solid #1f2937' }}>
@@ -239,7 +254,9 @@ function ScenarioCard({ summary, accentColor, onRun, onReset }: ScenarioCardProp
               <span style={{ fontSize: '14px', fontWeight: 700, color: '#f9fafb' }}>{summary.title}</span>
               <StatusChip status={status} />
             </div>
-            <div style={{ fontSize: '11px', color: '#6b7280' }}>{summary.description}</div>
+            <div style={{ fontSize: '11px', color: '#6b7280' }}>
+              {SCENARIO_DESC[summary.id] ?? summary.description}
+            </div>
           </div>
           <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
             <button
@@ -253,7 +270,7 @@ function ScenarioCard({ summary, accentColor, onRun, onReset }: ScenarioCardProp
                 cursor: running ? 'not-allowed' : 'pointer',
               }}
             >
-              {running ? t.status.running : status === 'idle' ? t.actions.run : t.actions.run}
+              {running ? t.status.running : t.actions.run}
             </button>
             {status !== 'idle' && (
               <button
@@ -273,34 +290,58 @@ function ScenarioCard({ summary, accentColor, onRun, onReset }: ScenarioCardProp
         </div>
       </div>
 
-      {/* Steps */}
-      {detail && detail.steps.length > 0 && (
-        <div style={{ fontFamily: 'monospace' }}>
-          {detail.steps.map(step => (
-            <StepRow key={step.id} step={step} />
-          ))}
-        </div>
-      )}
+      {/* Scrollable content area — grows to fill available card height */}
+      <div style={{ flex: 1 }}>
+        {/* Steps */}
+        {detail && detail.steps.length > 0 && (
+          <div style={{ fontFamily: 'monospace' }}>
+            {detail.steps.map(step => (
+              <StepRow key={step.id} step={step} />
+            ))}
+          </div>
+        )}
 
-      {loadError && (
-        <div style={{ padding: '10px 16px', fontSize: '11px', color: '#f87171' }}>
-          {loadError}
-        </div>
-      )}
+        {loadError && (
+          <div style={{ padding: '10px 16px', fontSize: '11px', color: '#f87171' }}>
+            {loadError}
+          </div>
+        )}
 
-      {/* Proof */}
-      {detail?.proof && (
-        <div style={{ padding: '0 16px 16px' }}>
-          <ProofPanel proof={detail.proof} scenarioId={summary.id} />
-        </div>
-      )}
+        {/* Proof */}
+        {detail?.proof && (
+          <div style={{ padding: '0 16px 16px' }}>
+            <ProofPanel proof={detail.proof} scenarioId={summary.id} />
+          </div>
+        )}
 
-      {/* Idle placeholder */}
-      {(!detail || detail.steps.every(s => s.status === 'pending')) && status === 'idle' && (
-        <div style={{ padding: '16px', textAlign: 'center', fontSize: '11px', color: '#4b5563' }}>
-          {t.policy.noSteps}
-        </div>
-      )}
+        {/* Idle placeholder */}
+        {(!detail || detail.steps.every(s => s.status === 'pending')) && status === 'idle' && (
+          <div style={{ padding: '16px', textAlign: 'center', fontSize: '11px', color: '#4b5563' }}>
+            {t.policy.noSteps}
+          </div>
+        )}
+      </div>
+
+      {/* Learn more + navigation bridge */}
+      <div style={{ padding: '0 16px 14px', borderTop: '1px solid #1f2937' }}>
+        <LearnMore>
+          {SCENARIO_LEARN[summary.id] ?? ''}
+        </LearnMore>
+        {status !== 'idle' && !running && (
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
+            <button
+              onClick={onGoToDashboard}
+              style={{
+                padding: '4px 12px', fontSize: '11px', background: 'transparent',
+                color: '#60a5fa', border: '1px solid #1e3a5f', borderRadius: '4px',
+                cursor: 'pointer', fontFamily: 'monospace',
+              }}
+            >
+              {t.policy.viewOnDashboard}
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -309,7 +350,7 @@ function ScenarioCard({ summary, accentColor, onRun, onReset }: ScenarioCardProp
 // Main component
 // ---------------------------------------------------------------------------
 
-export function MempoolPolicyArena() {
+export function MempoolPolicyArena({ onGoToDashboard }: { onGoToDashboard?: () => void }) {
   const { t } = useI18n()
   const [scenarios, setScenarios] = useState<PolicyScenarioSummary[]>([])
   const [loading, setLoading] = useState(false)
@@ -417,10 +458,10 @@ export function MempoolPolicyArena() {
           <span key={id} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
             <span style={{ width: '10px', height: '10px', borderRadius: '2px', background: SCENARIO_COLORS[id], display: 'inline-block' }} />
             <span style={{ color: '#9ca3af' }}>
-              {id === 'normal_transaction' ? t.policy.normal
-               : id === 'low_fee_transaction' ? t.policy.lowFee
-               : id === 'rbf_replacement' ? <Term term="RBF">RBF</Term>
-               : <Term term="CPFP">CPFP</Term>}
+              {id === 'normal_transaction' ? <Term term="Normal transaction">{t.policy.normal}</Term>
+               : id === 'low_fee_transaction' ? <Term term="Low fee">{t.policy.lowFee}</Term>
+               : id === 'rbf_replacement' ? <Term term="RBF">{t.policy.rbf}</Term>
+               : <Term term="CPFP">{t.policy.cpfp}</Term>}
             </span>
           </span>
         ))}
@@ -444,6 +485,7 @@ export function MempoolPolicyArena() {
             accentColor={SCENARIO_COLORS[s.id] ?? '#6b7280'}
             onRun={id => { void handleRun(id) }}
             onReset={id => { void handleReset(id) }}
+            onGoToDashboard={() => onGoToDashboard?.()}
           />
         ))}
       </div>
@@ -456,15 +498,6 @@ export function MempoolPolicyArena() {
           {t.policy.noSteps}
         </div>
       )}
-
-      <div style={{ marginTop: 16, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-        <LearnMore title={`${t.actions.learnMore}: RBF`}>
-          {t.learn.rbf}
-        </LearnMore>
-        <LearnMore title={`${t.actions.learnMore}: CPFP`}>
-          {t.learn.cpfp}
-        </LearnMore>
-      </div>
 
       {/* Notes */}
       <div style={{ marginTop: '20px', padding: '12px 16px', background: '#0a0f1a', borderRadius: '6px', border: '1px solid #1f2937', fontSize: '11px', color: '#6b7280' }}>

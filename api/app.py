@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query
@@ -7,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
+from . import simulation_service
 from .demo import STATIC_DIR, demo_page, root_redirect
 from .demo_service import (
     get_status as demo_get_status,
@@ -54,6 +56,8 @@ from .schemas import (
     ReorgProofResponse,
     ReorgStatusResponse,
     ScenariosListResponse,
+    SimulationConfigRequest,
+    SimulationStatusResponse,
     SummaryResponse,
     TxInspectorResponse,
     TxResponse,
@@ -74,10 +78,17 @@ from .service import (
     iter_live_events_sse,
 )
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    simulation_service.auto_start()
+    yield
+
+
 app = FastAPI(
     title="NodeScope API",
     version="0.2.0",
     description="Bitcoin Core observability API — ZMQ events, classifications, mempool, chain stats, and guided demo.",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -88,7 +99,7 @@ app.add_middleware(
         "http://localhost:3000",
         "http://127.0.0.1:3000",
     ],
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "PUT"],
     allow_headers=["*"],
 )
 
@@ -334,3 +345,56 @@ def reorg_proof_endpoint() -> dict:
 @app.get("/mempool/cluster/compatibility", response_model=ClusterCompatibilityResponse)
 def cluster_compatibility() -> dict:
     return get_cluster_compatibility()
+
+
+# ---------------------------------------------------------------------------
+# Live Simulation endpoints
+# ---------------------------------------------------------------------------
+
+
+@app.get("/simulation/status", response_model=SimulationStatusResponse)
+def simulation_status() -> dict:
+    return simulation_service.get_status()
+
+
+@app.post("/simulation/start", response_model=SimulationStatusResponse)
+def simulation_start() -> dict:
+    return simulation_service.start()
+
+
+@app.post("/simulation/stop", response_model=SimulationStatusResponse)
+def simulation_stop() -> dict:
+    return simulation_service.stop()
+
+
+@app.put("/simulation/config", response_model=SimulationStatusResponse)
+def simulation_config(req: SimulationConfigRequest) -> dict:
+    return simulation_service.configure(
+        block_interval=req.block_interval,
+        tx_interval=req.tx_interval,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Session reset
+# ---------------------------------------------------------------------------
+
+
+@app.post("/session/reset")
+def session_reset() -> dict:
+    import os as _os
+    import datetime as _dt
+
+    log_dir = _os.environ.get("NODESCOPE_LOG_DIR", "/app/logs")
+    today = _dt.date.today().isoformat()
+    log_path = _os.path.join(log_dir, f"{today}-monitor.ndjson")
+
+    truncated = False
+    if _os.path.exists(log_path):
+        with open(log_path, "w", encoding="utf-8") as f:
+            f.truncate(0)
+        truncated = True
+
+    simulation_service.reset_stats()
+
+    return {"ok": True, "truncated": truncated, "file": log_path}

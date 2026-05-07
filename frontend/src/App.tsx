@@ -11,6 +11,7 @@ import type {
   BlockData,
   TxData,
   IntelligenceData,
+  DemoStep,
 } from './types/api'
 import { Header, type ActiveView } from './components/Header'
 import { KpiRow } from './components/KpiRow'
@@ -25,12 +26,12 @@ import { TransactionLifecycle } from './components/TransactionLifecycle'
 import { ReplayEnginePanel } from './components/ReplayEnginePanel'
 import { RpcZmqSyncPanel } from './components/RpcZmqSyncPanel'
 import { IntelligenceSummaryPanel } from './components/IntelligenceSummaryPanel'
-import { DemoView } from './components/DemoView'
 import { GuidedDemo } from './components/GuidedDemo'
 import { TransactionInspector } from './components/TransactionInspector'
 import { ZmqEventTape } from './components/ZmqEventTape'
 import { MempoolPolicyArena } from './components/MempoolPolicyArena'
 import { ReorgLab } from './components/ReorgLab'
+import { SimulationPanel } from './components/SimulationPanel'
 import { ExplainBox } from './components/ui/ExplainBox'
 import {
   I18nContext,
@@ -51,9 +52,9 @@ export default function App() {
   const [latestTx, setLatestTx] = useState<TxData | null>(null)
   const [intelligence, setIntelligence] = useState<IntelligenceData | null>(null)
   const [activeView, setActiveView] = useState<ActiveView>('dashboard')
-  const [demoView, setDemoView] = useState(false)
   const [inspectorTxid, setInspectorTxid] = useState('')
-  const { events: sseEvents, connected: sseConnected } = useSSE('/events/stream')
+  const [guidedDemoSteps, setGuidedDemoSteps] = useState<DemoStep[]>([])
+  const { events: sseEvents, connected: sseConnected, clearEvents: clearSseEvents } = useSSE('/events/stream')
 
   // i18n state
   const [lang, setLangState] = useState<Lang>(getStoredLang)
@@ -101,6 +102,23 @@ export default function App() {
     setActiveView('inspector')
   }
 
+  const handleNewSession = async () => {
+    if (!window.confirm(t.header.newSessionConfirm)) return
+    try {
+      await api.sessionReset()
+    } catch { /* ignore */ }
+    clearSseEvents()
+    setEvents([])
+    setClassifications([])
+    setLatestBlock(null)
+    setLatestTx(null)
+    setSummary(null)
+    setHealth(null)
+    setMempool(null)
+    setIntelligence(null)
+    void fetchAll()
+  }
+
   const header = (
     <Header
       network={network}
@@ -110,30 +128,48 @@ export default function App() {
       onRefresh={() => { void fetchAll() }}
       activeView={activeView}
       onSetView={setActiveView}
-      onDemoView={() => setDemoView(true)}
+      onNewSession={() => { void handleNewSession() }}
     />
   )
 
   return (
     <I18nContext.Provider value={i18nValue}>
-      {demoView ? (
-        <DemoView
-          health={health}
-          mempool={mempool}
-          summary={summary}
-          latestBlock={latestBlock}
-          latestTx={latestTx}
-          intelligence={intelligence}
-          sseConnected={sseConnected}
-          onClose={() => setDemoView(false)}
-        />
-      ) : activeView === 'guided-demo' ? (
-        <div className="app">
+      {activeView === 'guided-demo' ? (
+        <div className="app" style={{ height: '100vh', overflow: 'hidden' }}>
           {header}
-          <main className="main" style={{ maxWidth: '860px', margin: '0 auto' }}>
-            <ExplainBox text={t.explain.guidedDemo} />
-            <GuidedDemo />
-          </main>
+          <div style={{
+            display: 'flex',
+            gap: '20px',
+            padding: '16px 24px',
+            height: 'calc(100vh - 56px)',
+            overflow: 'hidden',
+            maxWidth: '1300px',
+            margin: '0 auto',
+            width: '100%',
+          }}>
+            {/* Left: scrollable steps list */}
+            <div style={{ flex: 1, overflowY: 'auto', minWidth: 0, paddingRight: 4 }}>
+              <GuidedDemo onStepsChange={setGuidedDemoSteps} />
+            </div>
+            {/* Right: fixed sidebar — lifecycle + explain */}
+            <div style={{
+              width: '300px',
+              flexShrink: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
+              overflowY: 'auto',
+            }}>
+              <TransactionLifecycle
+                rpcOk={rpcOk}
+                zmqConnected={sseConnected}
+                sseEvents={sseEvents}
+                demoSteps={guidedDemoSteps}
+                vertical
+              />
+              <ExplainBox text={t.explain.guidedDemo} />
+            </div>
+          </div>
         </div>
       ) : activeView === 'inspector' ? (
         <div className="app">
@@ -156,7 +192,7 @@ export default function App() {
           {header}
           <main className="main" style={{ maxWidth: '1100px', margin: '0 auto' }}>
             <ExplainBox text={t.explain.policyArena} />
-            <MempoolPolicyArena />
+            <MempoolPolicyArena onGoToDashboard={() => setActiveView('dashboard')} />
           </main>
         </div>
       ) : activeView === 'reorg-lab' ? (
@@ -164,7 +200,7 @@ export default function App() {
           {header}
           <main className="main" style={{ maxWidth: '900px', margin: '0 auto' }}>
             <ExplainBox text={t.explain.reorgLab} />
-            <ReorgLab onInspect={handleInspect} />
+            <ReorgLab onInspect={handleInspect} onGoToDashboard={() => setActiveView('dashboard')} />
           </main>
         </div>
       ) : (
@@ -180,15 +216,15 @@ export default function App() {
                 mempool={mempool}
                 latestBlock={latestBlock}
                 sseConnected={sseConnected}
+                intelligence={intelligence}
               />
               <IntelligenceSummaryPanel data={intelligence} />
             </div>
+            <SimulationPanel />
             <TransactionLifecycle
               rpcOk={rpcOk}
               zmqConnected={sseConnected}
-              mempool={mempool}
-              latestBlock={latestBlock}
-              latestTx={latestTx}
+              sseEvents={sseEvents}
             />
             <div className="grid-3">
               <MempoolPanel mempool={mempool} />
