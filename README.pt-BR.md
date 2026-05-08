@@ -527,7 +527,9 @@ Saída: tabela de latência (min/média/mediana/p95/max) por endpoint. Os result
 | API keys para endpoints mutantes (opcional) | Pronto |
 | OpenTelemetry traces | Planejado |
 | Kubernetes manifests / Helm chart | Planejado |
-| Integração com Grafana | Planejado |
+| Pack Grafana + Prometheus | Pronto (`docker-compose.observability.yml`) |
+| Exportação de histórico CSV/JSON | Pronto (`/history/export.json`, `/history/export.csv`) |
+| Lint + format frontend (ESLint + Prettier) | Pronto |
 | Playground de Estimativa de Taxa (`estimatesmartfee`) | Pronto |
 
 ---

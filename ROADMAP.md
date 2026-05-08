@@ -38,8 +38,11 @@ Everything below is shipped and functional in the current release.
 | Bitcoin Glossary | 27 terms with EN-US and PT-BR definitions |
 | Reproducible Benchmark | `scripts/benchmark_nodescope.py` — latency table per endpoint |
 | Load Smoke Test | `scripts/load_smoke.py` — concurrent load against all read-only endpoints |
-| 54 unit tests + CI | Python 3.12 lint/test/audit; Node 18/20/24 build; public-clean check |
+| 80 unit tests + CI | Python 3.12 lint/test/audit; Node 18/20/24 build, lint, format check; public-clean check |
 | Presentation Pack | 10 documents: pitches, demo scripts, evaluator checklist, FAQ, submission text |
+| History export CSV/JSON | `GET /history/export.json`, `GET /history/export.csv`; export buttons in Historical Dashboard |
+| Grafana + Prometheus observability pack | Optional `docker-compose.observability.yml`; pre-built dashboard with 30+ real metrics |
+| Frontend lint + format | ESLint v9 flat config + Prettier; `npm run lint`, `npm run format:check` |
 
 ---
 

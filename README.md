@@ -528,7 +528,9 @@ Output: latency table (min/mean/median/p95/max) per endpoint. Results vary by ho
 | API keys for mutating endpoints (optional) | Ready |
 | OpenTelemetry traces | Planned |
 | Kubernetes manifests / Helm chart | Planned |
-| Grafana integration | Planned |
+| Grafana + Prometheus observability pack | Ready (`docker-compose.observability.yml`) |
+| History export CSV/JSON | Ready (`/history/export.json`, `/history/export.csv`) |
+| Frontend lint + format (ESLint + Prettier) | Ready |
 | Fee Estimation Playground (`estimatesmartfee`) | Ready |
 
 ---

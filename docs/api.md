@@ -787,6 +787,34 @@ Paginated reorg run history.
 
 ---
 
+### GET /history/export.json
+
+Full history export as a downloadable JSON file. Includes all proof reports, demo runs, policy runs, and reorg runs with metadata.
+
+**Query parameters**
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `source` | string | — | Filter by source (`demo`, `policy`, etc.) |
+| `success` | boolean | — | Filter by outcome (`true` or `false`) |
+| `since` | string | — | ISO date lower bound (`created_at >= since`) |
+| `until` | string | — | ISO date upper bound (`created_at <= until`) |
+| `limit` | integer | 1000 | Max rows per table (max 10000) |
+
+**Response — 200 OK:** `application/json` with `Content-Disposition: attachment; filename="nodescope-history.json"`
+
+---
+
+### GET /history/export.csv
+
+Full history export as a downloadable CSV file. All tables (proof_report, demo_run, policy_run, reorg_run) are flattened into a single CSV with a `table` column.
+
+Accepts the same query parameters as `/history/export.json`.
+
+**Response — 200 OK:** `text/csv` with `Content-Disposition: attachment; filename="nodescope-history.csv"`
+
+---
+
 ## Fee Estimation
 
 ### GET /fees/estimate

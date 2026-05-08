@@ -7,6 +7,7 @@ return empty results rather than raising exceptions.
 
 from __future__ import annotations
 
+import datetime
 import json
 from typing import Any
 
@@ -145,4 +146,72 @@ def _format_reorg_run(row: dict[str, Any]) -> dict[str, Any]:
         "final_block_hash": row.get("final_block_hash"),
         "proof_report_id": row.get("proof_report_id"),
         "created_at": row.get("created_at"),
+    }
+
+
+# ---------------------------------------------------------------------------
+# Export
+# ---------------------------------------------------------------------------
+
+
+def _apply_date_filter(
+    rows: list[dict[str, Any]], since: str | None, until: str | None
+) -> list[dict[str, Any]]:
+    if not since and not until:
+        return rows
+    result = []
+    for row in rows:
+        created = row.get("created_at") or ""
+        if since and created < since:
+            continue
+        if until and created > until:
+            continue
+        result.append(row)
+    return result
+
+
+def build_export_payload(
+    *,
+    source: str | None = None,
+    success: bool | None = None,
+    since: str | None = None,
+    until: str | None = None,
+    limit: int = 1000,
+) -> dict[str, Any]:
+    summary = get_history_summary()
+
+    proofs = get_proof_reports(limit=limit, offset=0, source=source, success=success)
+    demos = get_demo_runs(limit=limit, offset=0)
+    policies = get_policy_runs(limit=limit, offset=0)
+    reorgs = get_reorg_runs(limit=limit, offset=0)
+
+    proofs = _apply_date_filter(proofs, since, until)
+    demos = _apply_date_filter(demos, since, until)
+    policies = _apply_date_filter(policies, since, until)
+    reorgs = _apply_date_filter(reorgs, since, until)
+
+    return {
+        "metadata": {
+            "generated_at": datetime.datetime.now(tz=datetime.UTC).isoformat(),
+            "project": "NodeScope",
+            "version": "1.1.x",
+            "storage_backend": summary.get("storage_backend", "unknown"),
+            "counts": {
+                "proof_reports": len(proofs),
+                "demo_runs": len(demos),
+                "policy_runs": len(policies),
+                "reorg_runs": len(reorgs),
+            },
+            "filters": {
+                "source": source,
+                "success": success,
+                "since": since,
+                "until": until,
+                "limit": limit,
+            },
+        },
+        "proof_reports": proofs,
+        "demo_runs": demos,
+        "policy_runs": policies,
+        "reorg_runs": reorgs,
     }
