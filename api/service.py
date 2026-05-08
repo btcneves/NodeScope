@@ -802,12 +802,16 @@ def get_cluster_compatibility() -> dict:
             if any_supported
             else "Cluster mempool RPCs are not available in this Bitcoin Core build. "
             "NodeScope detects support automatically and uses an honest fallback when unavailable. "
-            "These RPCs are expected only in newer Bitcoin Core versions (28+)."
+            "These RPCs are not yet included in any official Bitcoin Core release."
         ),
         "note": (
             None
             if any_supported
-            else "Bitcoin Core 26 does not include getmempoolcluster or getmempoolfeeratediagram."
+            else (
+                f"{version_str} does not include getmempoolcluster or getmempoolfeeratediagram."
+                if version_str
+                else "This build does not include getmempoolcluster or getmempoolfeeratediagram."
+            )
         ),
     }
 
