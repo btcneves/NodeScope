@@ -93,9 +93,9 @@ export function ClusterMempoolPanel() {
         </div>
       )}
 
-      {data && (
+      {clusters && (
         <>
-          {data.bitcoin_core_version && (
+          {data?.bitcoin_core_version && (
             <div
               style={{
                 display: 'inline-block',
@@ -112,136 +112,56 @@ export function ClusterMempoolPanel() {
             </div>
           )}
 
-          <div
-            style={{
-              padding: '8px 12px',
-              borderRadius: '6px',
-              marginBottom: '12px',
-              background: data.supported ? '#14532d20' : '#1f2937',
-              border: `1px solid ${data.supported ? '#16a34a' : '#374151'}`,
-              fontSize: '12px',
-              color: data.supported ? '#4ade80' : '#9ca3af',
-            }}
-          >
-            {data.supported ? `✓ ${t.cluster.supported}` : `— ${t.cluster.notSupported}`}
-          </div>
-
-          {clusters && (
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 11, color: '#9ca3af', marginBottom: 8 }}>
-                {clusters.cluster_count} clusters · {clusters.total_tx_count} tx
-              </div>
-              {!clusters.rpc_ok && (
-                <div style={{ fontSize: 11, color: '#f87171', marginBottom: 8 }}>
-                  {clusters.error}
-                </div>
-              )}
-              {clusters.rpc_ok && clusters.clusters.length === 0 && (
-                <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 8 }}>
-                  {t.cluster.fallback}
-                </div>
-              )}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                {clusters.clusters.flatMap((cluster) =>
-                  cluster.txs.map((tx) => {
-                    const fee = tx.fee_rate_sat_vb
-                    const bg = fee >= 20 ? '#14532d' : fee >= 5 ? '#78350f' : '#7f1d1d'
-                    const size = Math.max(40, Math.min(160, tx.vsize / 2))
-                    return (
-                      <div
-                        key={tx.txid}
-                        title={`${tx.txid} · ${fee} sat/vB`}
-                        style={{
-                          width: size,
-                          height: 38,
-                          background: bg,
-                          border: '1px solid #374151',
-                          borderRadius: 4,
-                          padding: 5,
-                          overflow: 'hidden',
-                          fontSize: 10,
-                          color: '#e5e7eb',
-                        }}
-                      >
-                        <div>{fee} sat/vB</div>
-                        <div style={{ color: '#9ca3af' }}>{tx.txid.slice(0, 10)}…</div>
-                      </div>
-                    )
-                  })
-                )}
-              </div>
+          <div style={{ marginBottom: 12 }}>
+            <div style={{ fontSize: 11, color: '#9ca3af', marginBottom: 8 }}>
+              {clusters.cluster_count} clusters · {clusters.total_tx_count} tx
             </div>
-          )}
-
-          {data.supported && <div
-            style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px' }}
-          >
-            {data.rpcs.map((r) => (
-              <div
-                key={r.rpc}
-                style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '10px',
-                  padding: '8px 10px',
-                  background: '#0f172a',
-                  borderRadius: '5px',
-                  border: '1px solid #1f2937',
-                }}
-              >
-                <span
-                  style={{
-                    fontWeight: 'bold',
-                    fontSize: '12px',
-                    color: r.supported ? '#22c55e' : '#6b7280',
-                  }}
-                >
-                  {r.supported ? '✓' : '✗'}
-                </span>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '12px', color: '#e5e7eb' }}>{r.rpc}</div>
-                  {r.reason && (
-                    <div style={{ fontSize: '10px', color: '#6b7280', marginTop: '2px' }}>
-                      {r.reason}
-                    </div>
-                  )}
-                </div>
-                <span
-                  style={{
-                    fontSize: '10px',
-                    padding: '1px 6px',
-                    borderRadius: '3px',
-                    background: r.supported ? '#14532d' : '#1f2937',
-                    color: r.supported ? '#4ade80' : '#6b7280',
-                    border: `1px solid ${r.supported ? '#16a34a' : '#374151'}`,
-                  }}
-                >
-                  {r.supported ? t.status.ok : t.status.unavailable}
-                </span>
+            {!clusters.rpc_ok && clusters.error && (
+              <div style={{ fontSize: 11, color: '#f87171', marginBottom: 8 }}>
+                {clusters.error}
               </div>
-            ))}
-          </div>}
-
-          <div
-            style={{
-              padding: '10px 12px',
-              background: '#0f172a',
-              borderRadius: '6px',
-              border: '1px solid #1f2937',
-              fontSize: '11px',
-              color: '#9ca3af',
-              lineHeight: '1.6',
-            }}
-          >
-            {data.message}
-            {data.note && <div style={{ marginTop: '6px', color: '#6b7280' }}>{data.note}</div>}
+            )}
+            {clusters.clusters.length === 0 && (
+              <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 8 }}>
+                {t.cluster.fallback}
+              </div>
+            )}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {clusters.clusters.flatMap((cluster) =>
+                cluster.txs.map((tx) => {
+                  const fee = tx.fee_rate_sat_vb
+                  const bg = fee >= 20 ? '#14532d' : fee >= 5 ? '#78350f' : '#7f1d1d'
+                  const size = Math.max(40, Math.min(160, tx.vsize / 2))
+                  return (
+                    <div
+                      key={tx.txid}
+                      title={`${tx.txid} · ${fee} sat/vB`}
+                      style={{
+                        width: size,
+                        height: 38,
+                        background: bg,
+                        border: '1px solid #374151',
+                        borderRadius: 4,
+                        padding: 5,
+                        overflow: 'hidden',
+                        fontSize: 10,
+                        color: '#e5e7eb',
+                      }}
+                    >
+                      <div>{fee} sat/vB</div>
+                      <div style={{ color: '#9ca3af' }}>{tx.txid.slice(0, 10)}…</div>
+                    </div>
+                  )
+                })
+              )}
+            </div>
           </div>
 
           <LearnMore>{t.learn.cluster}</LearnMore>
         </>
       )}
 
-      {loading && !data && (
+      {loading && !clusters && (
         <div style={{ fontSize: '12px', color: '#6b7280' }}>{t.cluster.checking}</div>
       )}
     </div>
