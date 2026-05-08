@@ -463,7 +463,9 @@ def policy_scenarios() -> dict:
 
 
 @app.post(
-    "/policy/run/{scenario_id}", response_model=PolicyScenarioResponse, dependencies=_WRITE_PROTECTED
+    "/policy/run/{scenario_id}",
+    response_model=PolicyScenarioResponse,
+    dependencies=_WRITE_PROTECTED,
 )
 def policy_run(scenario_id: str) -> dict:
     metrics.record_policy_scenario(scenario_id)
@@ -482,7 +484,9 @@ def policy_status(scenario_id: str) -> dict:
 
 
 @app.post(
-    "/policy/reset/{scenario_id}", response_model=PolicyScenarioResponse, dependencies=_WRITE_PROTECTED
+    "/policy/reset/{scenario_id}",
+    response_model=PolicyScenarioResponse,
+    dependencies=_WRITE_PROTECTED,
 )
 def policy_reset_one(scenario_id: str) -> dict:
     result = reset_scenario(scenario_id)
@@ -562,17 +566,23 @@ def simulation_status() -> dict:
     return simulation_service.get_status()
 
 
-@app.post("/simulation/start", response_model=SimulationStatusResponse, dependencies=_WRITE_PROTECTED)
+@app.post(
+    "/simulation/start", response_model=SimulationStatusResponse, dependencies=_WRITE_PROTECTED
+)
 def simulation_start() -> dict:
     return simulation_service.start()
 
 
-@app.post("/simulation/stop", response_model=SimulationStatusResponse, dependencies=_WRITE_PROTECTED)
+@app.post(
+    "/simulation/stop", response_model=SimulationStatusResponse, dependencies=_WRITE_PROTECTED
+)
 def simulation_stop() -> dict:
     return simulation_service.stop()
 
 
-@app.put("/simulation/config", response_model=SimulationStatusResponse, dependencies=_WRITE_PROTECTED)
+@app.put(
+    "/simulation/config", response_model=SimulationStatusResponse, dependencies=_WRITE_PROTECTED
+)
 def simulation_config(req: SimulationConfigRequest) -> dict:
     return simulation_service.configure(
         block_interval=req.block_interval,
