@@ -951,6 +951,7 @@ Endpoints that support them: `/health`, `/summary`, `/events/recent`, `/events/c
 | `400` | Bad request — demo step returned a non-recoverable error |
 | `401` | Invalid or missing API key (only when `NODESCOPE_REQUIRE_API_KEY=true`) |
 | `404` | Resource not found (unknown scenario ID, TXID not in store, proof report ID) |
+| `429` | Rate limit exceeded — response includes `Retry-After` |
 | `422` | Unprocessable Entity — query parameter validation failed |
 | `503` | Bitcoin Core RPC offline, or API key protection misconfigured |
 
@@ -977,8 +978,17 @@ FastAPI validation errors follow the standard format:
 |---|---|---|---|
 | GET | `/health` | open | API status and RPC reachability |
 | GET | `/summary` | open | Aggregate event statistics |
+| GET | `/network/mode` | open | Current Bitcoin network and read-only state |
 | GET | `/mempool/summary` | open | Live mempool stats via RPC |
+| GET | `/mempool/clusters` | open | Cluster mempool visualization data and fallback groups |
 | GET | `/intelligence/summary` | open | Higher-level chain intelligence |
+| GET | `/charts/mempool` | open | Mempool size historical chart points |
+| GET | `/charts/fees` | open | Minimum mempool fee historical chart points |
+| GET | `/alerts/config` | open | Alert rule configuration |
+| POST | `/alerts/config` | protected | Create alert rule |
+| PUT | `/alerts/config/{id}` | protected | Update alert rule |
+| DELETE | `/alerts/config/{id}` | protected | Delete alert rule |
+| GET | `/alerts/active` | open | Active operational alerts |
 | GET | `/events/recent` | open | Paginated raw events |
 | GET | `/events/classifications` | open | Paginated classified events |
 | GET | `/events/stream` | open | Server-Sent Events stream |

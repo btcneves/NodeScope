@@ -195,6 +195,8 @@ def get_recent_events(
     limit: int = 10,
     offset: int = 0,
     event_type: str | None = None,
+    sort_by: str = "ts",
+    sort_dir: str = "desc",
     log_dir: PathLike | None = None,
     file: PathLike | None = None,
 ) -> dict[str, Any]:
@@ -203,7 +205,14 @@ def get_recent_events(
     if event_type is not None:
         filtered_events = [event for event in state.events if event.event == event_type]
 
-    ordered_events = list(reversed(filtered_events))
+    valid_sort = {"ts", "event", "origin", "level"}
+    field = sort_by if sort_by in valid_sort else "ts"
+    reverse = sort_dir.lower() != "asc"
+    ordered_events = sorted(
+        filtered_events,
+        key=lambda event: getattr(event, field, "") or "",
+        reverse=reverse,
+    )
     page_items, total, effective_limit, effective_offset = _paginate(
         ordered_events,
         limit=limit,
@@ -222,6 +231,8 @@ def get_classifications(
     limit: int = 10,
     offset: int = 0,
     kind: str | None = None,
+    sort_by: str = "ts",
+    sort_dir: str = "desc",
     log_dir: PathLike | None = None,
     file: PathLike | None = None,
 ) -> dict[str, Any]:
@@ -232,7 +243,22 @@ def get_classifications(
             result for result in state.classifications if result.kind == kind
         ]
 
-    ordered_classifications = list(reversed(filtered_classifications))
+    valid_sort = {"ts", "kind", "confidence", "inputs", "outputs", "total_out"}
+    field = sort_by if sort_by in valid_sort else "ts"
+    reverse = sort_dir.lower() != "asc"
+
+    def sort_value(result: ClassifiedEvent) -> Any:
+        if field == "ts":
+            return result.raw.ts
+        if field == "kind":
+            return result.kind
+        if field == "confidence":
+            return result.metadata.get("confidence", 0)
+        if result.tx is None:
+            return 0
+        return getattr(result.tx, field, 0)
+
+    ordered_classifications = sorted(filtered_classifications, key=sort_value, reverse=reverse)
     page_items, total, effective_limit, effective_offset = _paginate(
         ordered_classifications,
         limit=limit,
@@ -783,4 +809,99 @@ def get_cluster_compatibility() -> dict:
             if any_supported
             else "Bitcoin Core 26 does not include getmempoolcluster or getmempoolfeeratediagram."
         ),
+    }
+
+
+def _build_clusters(mempool: dict[str, dict[str, Any]]) -> list[set[str]]:
+    graph: dict[str, set[str]] = {txid: set() for txid in mempool}
+    for txid, entry in mempool.items():
+        for related in [*(entry.get("depends") or []), *(entry.get("spentby") or [])]:
+            if related in mempool:
+                graph[txid].add(related)
+                graph[related].add(txid)
+
+    visited: set[str] = set()
+    clusters: list[set[str]] = []
+    for txid in mempool:
+        if txid in visited:
+            continue
+        component: set[str] = set()
+        stack = [txid]
+        visited.add(txid)
+        while stack:
+            current = stack.pop()
+            component.add(current)
+            for neighbour in graph[current]:
+                if neighbour not in visited:
+                    visited.add(neighbour)
+                    stack.append(neighbour)
+        clusters.append(component)
+    return clusters
+
+
+def _fee_rate_sat_vb(entry: dict[str, Any]) -> float:
+    vsize = float(entry.get("vsize") or entry.get("weight", 0) / 4 or 0)
+    fee = entry.get("fees", {}).get("base", entry.get("fee", 0))
+    if not vsize:
+        return 0.0
+    return round(float(fee) * 100_000_000 / vsize, 2)
+
+
+def get_cluster_mempool_visual() -> dict[str, Any]:
+    try:
+        raw = get_client().getrawmempool(verbose=True)
+        if not isinstance(raw, dict):
+            raw = {}
+    except RPCError as exc:
+        return {
+            "clusters": [],
+            "total_tx_count": 0,
+            "cluster_count": 0,
+            "rpc_ok": False,
+            "error": str(exc),
+        }
+
+    clusters = []
+    for index, txids in enumerate(_build_clusters(raw), start=1):
+        tx_items = []
+        total_vsize = 0
+        total_fee = 0.0
+        for txid in sorted(txids):
+            entry = raw[txid]
+            vsize = int(entry.get("vsize") or entry.get("weight", 0) / 4 or 0)
+            fee = float(entry.get("fees", {}).get("base", entry.get("fee", 0)))
+            total_vsize += vsize
+            total_fee += fee
+            tx_items.append(
+                {
+                    "txid": txid,
+                    "vsize": vsize,
+                    "fee_btc": fee,
+                    "fee_rate_sat_vb": _fee_rate_sat_vb(entry),
+                    "depends": entry.get("depends") or [],
+                    "spentby": entry.get("spentby") or [],
+                }
+            )
+        clusters.append(
+            {
+                "id": f"cluster-{index}",
+                "tx_count": len(tx_items),
+                "total_vsize": total_vsize,
+                "total_fee_btc": round(total_fee, 8),
+                "avg_fee_rate_sat_vb": round(
+                    sum(tx["fee_rate_sat_vb"] for tx in tx_items) / len(tx_items), 2
+                )
+                if tx_items
+                else 0,
+                "txs": tx_items,
+            }
+        )
+
+    clusters.sort(key=lambda item: (item["tx_count"], item["total_vsize"]), reverse=True)
+    return {
+        "clusters": clusters,
+        "total_tx_count": len(raw),
+        "cluster_count": len(clusters),
+        "rpc_ok": True,
+        "error": None,
     }

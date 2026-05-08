@@ -3,12 +3,31 @@ import type { Translations } from './types'
 export const ptBR: Translations = {
   nav: {
     dashboard: 'Dashboard',
+    charts: 'Gráficos',
     guidedDemo: 'Demo Guiada',
     txInspector: 'Inspetor Tx',
     zmqTape: 'Fita ZMQ',
     policyArena: 'Arena de Políticas',
     reorgLab: 'Lab Reorg',
     clusterMempool: 'Cluster Mempool',
+  },
+
+  charts: {
+    title: 'Gráficos Históricos',
+    navLabel: 'Gráficos',
+    mempoolSize: 'Tamanho da mempool',
+    mempoolBytes: 'Bytes da mempool',
+    feeRate: 'Taxa mínima sat/vB',
+    noData: 'Ainda não há dados para o gráfico.',
+    waitingSnapshot: 'Aguardando o próximo snapshot.',
+    range1h: '1h',
+    range6h: '6h',
+    range24h: '24h',
+  },
+
+  sort: {
+    asc: 'Crescente',
+    desc: 'Decrescente',
   },
 
   actions: {
@@ -50,6 +69,13 @@ export const ptBR: Translations = {
     apiStatus: 'API',
     rpcStatus: 'RPC',
     sseStatus: 'SSE',
+  },
+
+  network: {
+    readOnlyBanner: 'Modo somente leitura ativado.',
+    modeLabel: 'Rede',
+    readOnlyReason: 'Motivo',
+    readOnlyActionBlocked: 'Ações que alteram estado são bloqueadas fora de regtest.',
   },
 
   demo: {

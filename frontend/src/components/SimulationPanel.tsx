@@ -62,7 +62,7 @@ function CountdownBar({
   )
 }
 
-export function SimulationPanel() {
+export function SimulationPanel({ readOnly = false }: { readOnly?: boolean }) {
   const { t } = useI18n()
   const [data, setData] = useState<SimulationData | null>(null)
   const [configOpen, setConfigOpen] = useState(false)
@@ -93,7 +93,7 @@ export function SimulationPanel() {
   }, [data, editing])
 
   const handleStartStop = async () => {
-    if (!data || loading) return
+    if (readOnly || !data || loading) return
     setLoading(true)
     try {
       const result = data.running ? await api.simulationStop() : await api.simulationStart()
@@ -109,7 +109,7 @@ export function SimulationPanel() {
     setEditing(false)
     const bi = parseInt(blockInput, 10)
     const ti = parseInt(txInput, 10)
-    if (!isNaN(bi) && !isNaN(ti) && bi >= 5 && ti >= 3) {
+    if (!readOnly && !isNaN(bi) && !isNaN(ti) && bi >= 5 && ti >= 3) {
       try {
         setData(await api.simulationConfig(bi, ti))
       } catch {
@@ -186,7 +186,7 @@ export function SimulationPanel() {
             onClick={() => {
               void handleStartStop()
             }}
-            disabled={loading || data === null}
+            disabled={readOnly || loading || data === null}
             style={{
               background: running ? '#1c1c1c' : '#14532d',
               color: running ? '#9ca3af' : '#86efac',
@@ -194,8 +194,8 @@ export function SimulationPanel() {
               borderRadius: 5,
               padding: '3px 12px',
               fontSize: 12,
-              cursor: data === null || loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.6 : 1,
+              cursor: readOnly || data === null || loading ? 'not-allowed' : 'pointer',
+              opacity: readOnly || loading ? 0.6 : 1,
               transition: 'all 0.15s',
             }}
           >
@@ -206,6 +206,22 @@ export function SimulationPanel() {
 
       {/* Body */}
       <div style={{ padding: '12px 16px' }}>
+        {readOnly && (
+          <div
+            style={{
+              padding: '8px',
+              background: '#451a03',
+              border: '1px solid #92400e',
+              borderRadius: 5,
+              color: '#fdba74',
+              fontSize: 11,
+              marginBottom: 12,
+            }}
+          >
+            {t.network.readOnlyActionBlocked}
+          </div>
+        )}
+
         {/* Stats */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
           {stat(t.simulation.blocksMined, data?.blocks_mined ?? 0, '#60a5fa')}
@@ -298,6 +314,7 @@ export function SimulationPanel() {
                     type="number"
                     min={5}
                     value={blockInput}
+                    disabled={readOnly}
                     onChange={(e) => setBlockInput(e.target.value)}
                     onFocus={() => setEditing(true)}
                     onBlur={() => {
@@ -327,6 +344,7 @@ export function SimulationPanel() {
                     type="number"
                     min={3}
                     value={txInput}
+                    disabled={readOnly}
                     onChange={(e) => setTxInput(e.target.value)}
                     onFocus={() => setEditing(true)}
                     onBlur={() => {

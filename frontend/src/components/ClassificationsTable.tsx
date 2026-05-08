@@ -6,6 +6,9 @@ import { Term } from './ui/InfoTooltip'
 
 interface Props {
   classifications: ClassificationItem[]
+  sortBy?: string
+  sortDir?: 'asc' | 'desc'
+  onSort?: (field: string) => void
 }
 
 function kindClass(kind: string): string {
@@ -15,9 +18,15 @@ function kindClass(kind: string): string {
   return 'unknown'
 }
 
-export function ClassificationsTable({ classifications }: Props) {
+export function ClassificationsTable({
+  classifications,
+  sortBy = 'ts',
+  sortDir = 'desc',
+  onSort,
+}: Props) {
   const { t } = useI18n()
   const [copiedKey, setCopiedKey] = useState<string | null>(null)
+  const sortLabel = (field: string) => (sortBy === field ? (sortDir === 'asc' ? '▲' : '▼') : '–')
 
   async function copyValue(key: string, value: string | null | undefined) {
     if (await copyText(value)) {
@@ -37,6 +46,24 @@ export function ClassificationsTable({ classifications }: Props) {
         </span>
       </div>
       <div className="panel-body">
+        <div style={{ display: 'flex', gap: 8, marginBottom: 8, fontSize: 11 }}>
+          {['ts', 'kind', 'confidence', 'inputs', 'outputs', 'total_out'].map((field) => (
+            <button
+              key={field}
+              onClick={() => onSort?.(field)}
+              style={{
+                background: 'transparent',
+                border: '1px solid #374151',
+                borderRadius: 4,
+                color: '#9ca3af',
+                cursor: 'pointer',
+                fontFamily: 'monospace',
+              }}
+            >
+              {field} {sortLabel(field)}
+            </button>
+          ))}
+        </div>
         {classifications.length === 0 ? (
           <div className="empty-state">{t.dashboard.noClassifications}</div>
         ) : (

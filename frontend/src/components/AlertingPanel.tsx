@@ -1,203 +1,216 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { api } from '../api/client'
 import { useI18n } from '../i18n/index'
-import type { HealthData, SimulationData } from '../types/api'
+import type { ActiveAlert, AlertConfig } from '../types/api'
 
-type Severity = 'critical' | 'warning' | 'info'
-
-interface Alert {
-  id: string
-  severity: Severity
-  title: string
-  description: string
+const METRICS = ['mempool_size', 'mempool_bytes', 'minfee', 'rpc_offline']
+const OPERATORS = ['gt', 'lt', 'eq', 'gte', 'lte']
+const controlStyle: React.CSSProperties = {
+  background: '#0d1117',
+  border: '1px solid #374151',
+  borderRadius: 4,
+  color: '#e5e7eb',
+  padding: '5px 8px',
+  fontFamily: 'monospace',
+  fontSize: 12,
 }
 
-const POLL_INTERVAL_MS = 15_000
-
-const SEVERITY_COLORS: Record<Severity, string> = {
-  critical: '#ef4444',
-  warning: '#f59e0b',
-  info: '#3b82f6',
-}
-
-const SEVERITY_BG: Record<Severity, string> = {
-  critical: 'rgba(239,68,68,0.08)',
-  warning: 'rgba(245,158,11,0.08)',
-  info: 'rgba(59,130,246,0.08)',
-}
-
-const SEVERITY_ICON: Record<Severity, string> = {
-  critical: '✕',
-  warning: '⚠',
-  info: 'ℹ',
-}
-
-export default function AlertingPanel() {
+export default function AlertingPanel({ readOnly = false }: { readOnly?: boolean }) {
   const { t } = useI18n()
-  const [alerts, setAlerts] = useState<Alert[]>([])
-  const [lastCheck, setLastCheck] = useState<Date | null>(null)
+  const [active, setActive] = useState<ActiveAlert[]>([])
+  const [configs, setConfigs] = useState<AlertConfig[]>([])
+  const [draft, setDraft] = useState({ metric: 'mempool_size', operator: 'gt', threshold: 500 })
+  const [error, setError] = useState<string | null>(null)
 
-  async function evaluate() {
-    const newAlerts: Alert[] = []
-
-    // --- RPC status ---
-    let health: HealthData | null = null
+  const load = useCallback(async () => {
     try {
-      health = await api.health()
-      if (!health.rpc_ok) {
-        newAlerts.push({
-          id: 'rpc_offline',
-          severity: 'critical',
-          title: t.alerts.rpcOffline,
-          description: t.alerts.rpcOfflineDesc,
-        })
-      }
-    } catch {
-      newAlerts.push({
-        id: 'rpc_offline',
-        severity: 'critical',
-        title: t.alerts.rpcOffline,
-        description: t.alerts.rpcOfflineDesc,
-      })
+      const [activeData, configData] = await Promise.all([api.alertsActive(), api.alertsConfig()])
+      setActive(activeData.items)
+      setConfigs(configData.items)
+      setError(null)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e))
     }
-
-    // --- Simulation errors ---
-    try {
-      const sim = (await api.simulationStatus()) as SimulationData
-      if (sim.errors > 0) {
-        newAlerts.push({
-          id: 'sim_errors',
-          severity: 'warning',
-          title: t.alerts.simulationError,
-          description: t.alerts.simulationErrorDesc,
-        })
-      }
-    } catch {
-      // Simulation endpoint unavailable — not an alert condition
-    }
-
-    // --- Cluster mempool unavailable (info) ---
-    try {
-      const cluster = await api.clusterCompatibility()
-      if (!cluster.supported) {
-        newAlerts.push({
-          id: 'cluster_unavailable',
-          severity: 'info',
-          title: t.alerts.clusterUnavailable,
-          description: t.alerts.clusterUnavailableDesc,
-        })
-      }
-    } catch {
-      // Not critical
-    }
-
-    setAlerts(newAlerts)
-    setLastCheck(new Date())
-  }
-
-  useEffect(() => {
-    evaluate()
-    const id = setInterval(evaluate, POLL_INTERVAL_MS)
-    return () => clearInterval(id)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const actionable = alerts.filter((a) => a.severity === 'critical' || a.severity === 'warning')
-  const allGood = actionable.length === 0
-  const hasCritical = actionable.some((a) => a.severity === 'critical')
-  const hasWarning = actionable.some((a) => a.severity === 'warning')
-  const panelBorder = hasCritical
-    ? '1px solid rgba(239,68,68,0.4)'
-    : hasWarning
-      ? '1px solid rgba(245,158,11,0.3)'
-      : '1px solid rgba(34,197,94,0.3)'
-  const panelHeaderColor = hasCritical ? '#ef4444' : hasWarning ? '#f59e0b' : '#22c55e'
+  useEffect(() => {
+    void load()
+    const id = setInterval(() => void load(), 15_000)
+    return () => clearInterval(id)
+  }, [load])
+
+  async function addRule() {
+    if (readOnly) return
+    try {
+      await api.alertsCreate({ ...draft, severity: 'warning', enabled: true })
+      await load()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e))
+    }
+  }
+
+  async function toggleRule(rule: AlertConfig) {
+    if (readOnly || rule.id == null) return
+    try {
+      await api.alertsUpdate(rule.id, { enabled: !rule.enabled })
+      await load()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e))
+    }
+  }
+
+  async function deleteRule(rule: AlertConfig) {
+    if (readOnly || rule.id == null) return
+    try {
+      await api.alertsDelete(rule.id)
+      await load()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e))
+    }
+  }
+
+  const activeActionable = active.filter((item) => item.severity !== 'info')
 
   return (
     <div
       style={{
         background: '#111',
-        border: panelBorder,
-        borderRadius: 10,
+        border: activeActionable.length ? '1px solid rgba(245,158,11,0.35)' : '1px solid #14532d',
+        borderRadius: 8,
         padding: '14px 18px',
         marginBottom: 18,
+        fontFamily: 'monospace',
       }}
     >
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 10,
-        }}
-      >
-        <span style={{ fontWeight: 700, fontSize: 14, color: panelHeaderColor, letterSpacing: 1 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginBottom: 12 }}>
+        <span style={{ fontWeight: 700, fontSize: 14, color: '#e5e7eb' }}>
           {t.alerts.title.toUpperCase()}
         </span>
-        {lastCheck && (
-          <span style={{ fontSize: 11, color: '#555' }}>{lastCheck.toLocaleTimeString()}</span>
-        )}
+        <button
+          onClick={() => void load()}
+          style={{
+            padding: '3px 10px',
+            border: '1px solid #374151',
+            borderRadius: 4,
+            background: 'transparent',
+            color: '#9ca3af',
+            cursor: 'pointer',
+          }}
+        >
+          {t.actions.refresh}
+        </button>
       </div>
 
-      {allGood ? (
-        <div
-          style={{ color: '#22c55e', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}
-        >
-          <span>✓</span>
-          <span>{t.alerts.allGood}</span>
+      {error && <div style={{ color: '#f87171', fontSize: 12, marginBottom: 8 }}>{error}</div>}
+      {readOnly && (
+        <div style={{ color: '#fdba74', fontSize: 12, marginBottom: 8 }}>
+          {t.network.readOnlyActionBlocked}
         </div>
+      )}
+
+      {active.length === 0 ? (
+        <div style={{ color: '#22c55e', fontSize: 13 }}>✓ {t.alerts.allGood}</div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {actionable.map((alert) => (
+        <div style={{ display: 'grid', gap: 6, marginBottom: 12 }}>
+          {active.map((item) => (
             <div
-              key={alert.id}
+              key={`${item.id}-${item.metric}`}
               style={{
-                background: SEVERITY_BG[alert.severity],
-                border: `1px solid ${SEVERITY_COLORS[alert.severity]}44`,
-                borderRadius: 6,
-                padding: '8px 12px',
-                display: 'flex',
-                gap: 10,
-                alignItems: 'flex-start',
+                padding: '8px 10px',
+                borderRadius: 5,
+                background: '#1f2937',
+                color: item.severity === 'critical' ? '#f87171' : '#fbbf24',
+                fontSize: 12,
               }}
             >
-              <span
-                style={{
-                  color: SEVERITY_COLORS[alert.severity],
-                  fontWeight: 700,
-                  fontSize: 13,
-                  minWidth: 16,
-                  marginTop: 1,
-                }}
-              >
-                {SEVERITY_ICON[alert.severity]}
-              </span>
-              <div>
-                <div
-                  style={{ color: SEVERITY_COLORS[alert.severity], fontWeight: 600, fontSize: 13 }}
-                >
-                  <span
-                    style={{
-                      fontSize: 10,
-                      fontWeight: 700,
-                      letterSpacing: 1,
-                      background: SEVERITY_COLORS[alert.severity] + '22',
-                      color: SEVERITY_COLORS[alert.severity],
-                      borderRadius: 3,
-                      padding: '1px 5px',
-                      marginRight: 6,
-                    }}
-                  >
-                    {t.alerts.severity[alert.severity].toUpperCase()}
-                  </span>
-                  {alert.title}
-                </div>
-                <div style={{ color: '#888', fontSize: 12, marginTop: 3 }}>{alert.description}</div>
-              </div>
+              {item.severity.toUpperCase()} · {item.metric} {item.operator} {item.threshold} ·{' '}
+              {item.current_value}
             </div>
           ))}
         </div>
       )}
+
+      <div style={{ display: 'grid', gap: 6 }}>
+        {configs.map((rule) => (
+          <div
+            key={rule.id}
+            style={{
+              display: 'flex',
+              gap: 8,
+              alignItems: 'center',
+              borderTop: '1px solid #1f2937',
+              paddingTop: 8,
+              color: '#9ca3af',
+              fontSize: 12,
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={rule.enabled}
+              disabled={readOnly}
+              onChange={() => void toggleRule(rule)}
+            />
+            <span style={{ flex: 1 }}>
+              {rule.metric} {rule.operator} {rule.threshold} · {rule.severity}
+            </span>
+            <button
+              disabled={readOnly}
+              onClick={() => void deleteRule(rule)}
+              style={{
+                background: 'transparent',
+                border: '1px solid #374151',
+                borderRadius: 4,
+                color: '#9ca3af',
+                cursor: readOnly ? 'not-allowed' : 'pointer',
+              }}
+            >
+              {t.actions.close}
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: 'flex', gap: 6, marginTop: 12, flexWrap: 'wrap' }}>
+        <select
+          value={draft.metric}
+          disabled={readOnly}
+          onChange={(e) => setDraft((d) => ({ ...d, metric: e.target.value }))}
+          style={controlStyle}
+        >
+          {METRICS.map((m) => (
+            <option key={m}>{m}</option>
+          ))}
+        </select>
+        <select
+          value={draft.operator}
+          disabled={readOnly}
+          onChange={(e) => setDraft((d) => ({ ...d, operator: e.target.value }))}
+          style={controlStyle}
+        >
+          {OPERATORS.map((op) => (
+            <option key={op}>{op}</option>
+          ))}
+        </select>
+        <input
+          type="number"
+          value={draft.threshold}
+          disabled={readOnly}
+          onChange={(e) => setDraft((d) => ({ ...d, threshold: Number(e.target.value) }))}
+          style={{ ...controlStyle, width: 90 }}
+        />
+        <button
+          disabled={readOnly}
+          onClick={() => void addRule()}
+          style={{
+            ...controlStyle,
+            cursor: readOnly ? 'not-allowed' : 'pointer',
+            color: '#bbf7d0',
+            borderColor: '#166534',
+          }}
+        >
+          + warning
+        </button>
+      </div>
     </div>
   )
 }

@@ -19,8 +19,14 @@ const SECTION_STYLE: React.CSSProperties = {
 
 const TABLE_STYLE: React.CSSProperties = {
   width: '100%',
+  minWidth: 560,
   borderCollapse: 'collapse',
   fontSize: 13,
+}
+
+const TABLE_WRAP_STYLE: React.CSSProperties = {
+  maxWidth: '100%',
+  overflowX: 'auto',
 }
 
 const TH_STYLE: React.CSSProperties = {
@@ -108,6 +114,10 @@ export default function HistoricalDashboard() {
   const [copied, setCopied] = useState<number | null>(null)
   const [exportMsg, setExportMsg] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'proofs' | 'demo' | 'policy' | 'reorg'>('proofs')
+  const [proofSort, setProofSort] = useState<{ by: string; dir: 'asc' | 'desc' }>({
+    by: 'id',
+    dir: 'desc',
+  })
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -115,7 +125,7 @@ export default function HistoricalDashboard() {
     try {
       const [sumData, proofsData, demoData, policyData, reorgData] = await Promise.all([
         api.historySummary(),
-        api.historyProofs(20),
+        api.historyProofs(20, 0, undefined, undefined, proofSort.by, proofSort.dir),
         api.historyDemoRuns(20),
         api.historyPolicyRuns(20),
         api.historyReorgRuns(20),
@@ -130,7 +140,7 @@ export default function HistoricalDashboard() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [proofSort])
 
   useEffect(() => {
     load()
@@ -315,6 +325,32 @@ export default function HistoricalDashboard() {
         ))}
       </div>
 
+      {activeTab === 'proofs' && (
+        <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+          {['id', 'created_at', 'source', 'status', 'success'].map((field) => (
+            <button
+              key={field}
+              onClick={() =>
+                setProofSort((prev) => ({
+                  by: field,
+                  dir: prev.by === field && prev.dir === 'desc' ? 'asc' : 'desc',
+                }))
+              }
+              style={{
+                padding: '4px 10px',
+                borderRadius: 4,
+                border: '1px solid #334155',
+                background: proofSort.by === field ? '#1d4ed8' : 'transparent',
+                color: proofSort.by === field ? '#fff' : '#94a3b8',
+                cursor: 'pointer',
+              }}
+            >
+              {field} {proofSort.by === field ? (proofSort.dir === 'asc' ? '▲' : '▼') : '–'}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Tables */}
       {activeTab === 'proofs' && (
         <div style={SECTION_STYLE}>
@@ -324,75 +360,77 @@ export default function HistoricalDashboard() {
           {proofs.length === 0 ? (
             <p style={{ color: '#64748b', fontSize: 13 }}>{t.history.empty}</p>
           ) : (
-            <table style={TABLE_STYLE}>
-              <thead>
-                <tr>
-                  <th style={TH_STYLE}>{t.history.scenarioLabel}</th>
-                  <th style={TH_STYLE}>{t.history.sourceLabel}</th>
-                  <th style={TH_STYLE}>{t.history.successLabel}</th>
-                  <th style={TH_STYLE}>{t.history.txidLabel}</th>
-                  <th style={TH_STYLE}>{t.history.blockLabel}</th>
-                  <th style={TH_STYLE}>{t.history.createdLabel}</th>
-                  <th style={TH_STYLE}></th>
-                </tr>
-              </thead>
-              <tbody>
-                {proofs.map((item) => (
-                  <tr key={item.id}>
-                    <td style={TD_STYLE}>
-                      <span style={{ fontSize: 12, color: '#e2e8f0' }}>
-                        {item.scenario_name ?? '—'}
-                      </span>
-                    </td>
-                    <td style={TD_STYLE}>
-                      <span
-                        style={{
-                          fontSize: 10,
-                          padding: '2px 6px',
-                          borderRadius: 3,
-                          background: 'rgba(167,139,250,0.1)',
-                          color: '#a78bfa',
-                        }}
-                      >
-                        {item.source ?? '—'}
-                      </span>
-                    </td>
-                    <td style={TD_STYLE}>
-                      <Badge success={item.success} />
-                    </td>
-                    <td style={TD_STYLE}>
-                      <ShortHash value={item.txid} />
-                    </td>
-                    <td style={TD_STYLE}>
-                      <span style={{ fontSize: 11, color: '#94a3b8' }}>
-                        {item.block_height ?? '—'}
-                      </span>
-                    </td>
-                    <td style={TD_STYLE}>
-                      <Timestamp value={item.created_at} />
-                    </td>
-                    <td style={{ ...TD_STYLE, whiteSpace: 'nowrap' }}>
-                      {item.summary && (
-                        <button
-                          onClick={() => copyProof(item)}
+            <div style={TABLE_WRAP_STYLE}>
+              <table style={TABLE_STYLE}>
+                <thead>
+                  <tr>
+                    <th style={TH_STYLE}>{t.history.scenarioLabel}</th>
+                    <th style={TH_STYLE}>{t.history.sourceLabel}</th>
+                    <th style={TH_STYLE}>{t.history.successLabel}</th>
+                    <th style={TH_STYLE}>{t.history.txidLabel}</th>
+                    <th style={TH_STYLE}>{t.history.blockLabel}</th>
+                    <th style={TH_STYLE}>{t.history.createdLabel}</th>
+                    <th style={TH_STYLE}></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {proofs.map((item) => (
+                    <tr key={item.id}>
+                      <td style={TD_STYLE}>
+                        <span style={{ fontSize: 12, color: '#e2e8f0' }}>
+                          {item.scenario_name ?? '—'}
+                        </span>
+                      </td>
+                      <td style={TD_STYLE}>
+                        <span
                           style={{
-                            padding: '2px 8px',
-                            fontSize: 11,
-                            background: copied === item.id ? '#22c55e22' : '#1e293b',
-                            border: '1px solid #334155',
-                            borderRadius: 4,
-                            color: copied === item.id ? '#4ade80' : '#94a3b8',
-                            cursor: 'pointer',
+                            fontSize: 10,
+                            padding: '2px 6px',
+                            borderRadius: 3,
+                            background: 'rgba(167,139,250,0.1)',
+                            color: '#a78bfa',
                           }}
                         >
-                          {copied === item.id ? t.actions.copied : t.history.copyProof}
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                          {item.source ?? '—'}
+                        </span>
+                      </td>
+                      <td style={TD_STYLE}>
+                        <Badge success={item.success} />
+                      </td>
+                      <td style={TD_STYLE}>
+                        <ShortHash value={item.txid} />
+                      </td>
+                      <td style={TD_STYLE}>
+                        <span style={{ fontSize: 11, color: '#94a3b8' }}>
+                          {item.block_height ?? '—'}
+                        </span>
+                      </td>
+                      <td style={TD_STYLE}>
+                        <Timestamp value={item.created_at} />
+                      </td>
+                      <td style={{ ...TD_STYLE, whiteSpace: 'nowrap' }}>
+                        {item.summary && (
+                          <button
+                            onClick={() => copyProof(item)}
+                            style={{
+                              padding: '2px 8px',
+                              fontSize: 11,
+                              background: copied === item.id ? '#22c55e22' : '#1e293b',
+                              border: '1px solid #334155',
+                              borderRadius: 4,
+                              color: copied === item.id ? '#4ade80' : '#94a3b8',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            {copied === item.id ? t.actions.copied : t.history.copyProof}
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       )}
@@ -405,36 +443,38 @@ export default function HistoricalDashboard() {
           {demoRuns.length === 0 ? (
             <p style={{ color: '#64748b', fontSize: 13 }}>{t.history.empty}</p>
           ) : (
-            <table style={TABLE_STYLE}>
-              <thead>
-                <tr>
-                  <th style={TH_STYLE}>{t.history.successLabel}</th>
-                  <th style={TH_STYLE}>{t.history.txidLabel}</th>
-                  <th style={TH_STYLE}>Duration</th>
-                  <th style={TH_STYLE}>{t.history.createdLabel}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {demoRuns.map((item) => (
-                  <tr key={item.id}>
-                    <td style={TD_STYLE}>
-                      <Badge success={item.success} />
-                    </td>
-                    <td style={TD_STYLE}>
-                      <ShortHash value={item.txid} />
-                    </td>
-                    <td style={TD_STYLE}>
-                      <span style={{ fontSize: 11, color: '#94a3b8' }}>
-                        {item.duration_ms != null ? `${Math.round(item.duration_ms)} ms` : '—'}
-                      </span>
-                    </td>
-                    <td style={TD_STYLE}>
-                      <Timestamp value={item.created_at} />
-                    </td>
+            <div style={TABLE_WRAP_STYLE}>
+              <table style={TABLE_STYLE}>
+                <thead>
+                  <tr>
+                    <th style={TH_STYLE}>{t.history.successLabel}</th>
+                    <th style={TH_STYLE}>{t.history.txidLabel}</th>
+                    <th style={TH_STYLE}>Duration</th>
+                    <th style={TH_STYLE}>{t.history.createdLabel}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {demoRuns.map((item) => (
+                    <tr key={item.id}>
+                      <td style={TD_STYLE}>
+                        <Badge success={item.success} />
+                      </td>
+                      <td style={TD_STYLE}>
+                        <ShortHash value={item.txid} />
+                      </td>
+                      <td style={TD_STYLE}>
+                        <span style={{ fontSize: 11, color: '#94a3b8' }}>
+                          {item.duration_ms != null ? `${Math.round(item.duration_ms)} ms` : '—'}
+                        </span>
+                      </td>
+                      <td style={TD_STYLE}>
+                        <Timestamp value={item.created_at} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       )}
@@ -447,44 +487,46 @@ export default function HistoricalDashboard() {
           {policyRuns.length === 0 ? (
             <p style={{ color: '#64748b', fontSize: 13 }}>{t.history.empty}</p>
           ) : (
-            <table style={TABLE_STYLE}>
-              <thead>
-                <tr>
-                  <th style={TH_STYLE}>{t.history.scenarioLabel}</th>
-                  <th style={TH_STYLE}>{t.history.successLabel}</th>
-                  <th style={TH_STYLE}>{t.history.txidLabel}</th>
-                  <th style={TH_STYLE}>{t.history.createdLabel}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {policyRuns.map((item) => (
-                  <tr key={item.id}>
-                    <td style={TD_STYLE}>
-                      <span
-                        style={{
-                          fontSize: 10,
-                          padding: '2px 6px',
-                          borderRadius: 3,
-                          background: 'rgba(96,165,250,0.1)',
-                          color: '#60a5fa',
-                        }}
-                      >
-                        {item.scenario_id ?? '—'}
-                      </span>
-                    </td>
-                    <td style={TD_STYLE}>
-                      <Badge success={item.success} />
-                    </td>
-                    <td style={TD_STYLE}>
-                      <ShortHash value={item.txids?.[0]} />
-                    </td>
-                    <td style={TD_STYLE}>
-                      <Timestamp value={item.created_at} />
-                    </td>
+            <div style={TABLE_WRAP_STYLE}>
+              <table style={TABLE_STYLE}>
+                <thead>
+                  <tr>
+                    <th style={TH_STYLE}>{t.history.scenarioLabel}</th>
+                    <th style={TH_STYLE}>{t.history.successLabel}</th>
+                    <th style={TH_STYLE}>{t.history.txidLabel}</th>
+                    <th style={TH_STYLE}>{t.history.createdLabel}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {policyRuns.map((item) => (
+                    <tr key={item.id}>
+                      <td style={TD_STYLE}>
+                        <span
+                          style={{
+                            fontSize: 10,
+                            padding: '2px 6px',
+                            borderRadius: 3,
+                            background: 'rgba(96,165,250,0.1)',
+                            color: '#60a5fa',
+                          }}
+                        >
+                          {item.scenario_id ?? '—'}
+                        </span>
+                      </td>
+                      <td style={TD_STYLE}>
+                        <Badge success={item.success} />
+                      </td>
+                      <td style={TD_STYLE}>
+                        <ShortHash value={item.txids?.[0]} />
+                      </td>
+                      <td style={TD_STYLE}>
+                        <Timestamp value={item.created_at} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       )}
@@ -497,38 +539,40 @@ export default function HistoricalDashboard() {
           {reorgRuns.length === 0 ? (
             <p style={{ color: '#64748b', fontSize: 13 }}>{t.history.empty}</p>
           ) : (
-            <table style={TABLE_STYLE}>
-              <thead>
-                <tr>
-                  <th style={TH_STYLE}>{t.history.successLabel}</th>
-                  <th style={TH_STYLE}>{t.history.txidLabel}</th>
-                  <th style={TH_STYLE}>Original Block</th>
-                  <th style={TH_STYLE}>Final Block</th>
-                  <th style={TH_STYLE}>{t.history.createdLabel}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {reorgRuns.map((item) => (
-                  <tr key={item.id}>
-                    <td style={TD_STYLE}>
-                      <Badge success={item.success} />
-                    </td>
-                    <td style={TD_STYLE}>
-                      <ShortHash value={item.txid} />
-                    </td>
-                    <td style={TD_STYLE}>
-                      <ShortHash value={item.original_block_hash} />
-                    </td>
-                    <td style={TD_STYLE}>
-                      <ShortHash value={item.final_block_hash} />
-                    </td>
-                    <td style={TD_STYLE}>
-                      <Timestamp value={item.created_at} />
-                    </td>
+            <div style={TABLE_WRAP_STYLE}>
+              <table style={TABLE_STYLE}>
+                <thead>
+                  <tr>
+                    <th style={TH_STYLE}>{t.history.successLabel}</th>
+                    <th style={TH_STYLE}>{t.history.txidLabel}</th>
+                    <th style={TH_STYLE}>Original Block</th>
+                    <th style={TH_STYLE}>Final Block</th>
+                    <th style={TH_STYLE}>{t.history.createdLabel}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {reorgRuns.map((item) => (
+                    <tr key={item.id}>
+                      <td style={TD_STYLE}>
+                        <Badge success={item.success} />
+                      </td>
+                      <td style={TD_STYLE}>
+                        <ShortHash value={item.txid} />
+                      </td>
+                      <td style={TD_STYLE}>
+                        <ShortHash value={item.original_block_hash} />
+                      </td>
+                      <td style={TD_STYLE}>
+                        <ShortHash value={item.final_block_hash} />
+                      </td>
+                      <td style={TD_STYLE}>
+                        <Timestamp value={item.created_at} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       )}

@@ -236,6 +236,7 @@ interface ScenarioCardProps {
   onRun: (id: string) => void
   onReset: (id: string) => void
   onGoToDashboard: () => void
+  readOnly?: boolean
 }
 
 function ScenarioCard({
@@ -244,6 +245,7 @@ function ScenarioCard({
   onRun,
   onReset,
   onGoToDashboard,
+  readOnly,
 }: ScenarioCardProps) {
   const { t } = useI18n()
   const [detail, setDetail] = useState<PolicyScenario | null>(null)
@@ -342,16 +344,16 @@ function ScenarioCard({
           <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
             <button
               onClick={handleRun}
-              disabled={running}
+              disabled={readOnly || running}
               style={{
                 padding: '4px 14px',
                 fontSize: '11px',
                 fontWeight: 600,
-                background: running ? '#1f2937' : accentColor + 'cc',
-                color: running ? '#6b7280' : '#fff',
+                background: readOnly || running ? '#1f2937' : accentColor + 'cc',
+                color: readOnly || running ? '#6b7280' : '#fff',
                 border: 'none',
                 borderRadius: '4px',
-                cursor: running ? 'not-allowed' : 'pointer',
+                cursor: readOnly || running ? 'not-allowed' : 'pointer',
               }}
             >
               {running ? t.status.running : t.actions.run}
@@ -359,7 +361,7 @@ function ScenarioCard({
             {status !== 'idle' && (
               <button
                 onClick={handleReset}
-                disabled={running}
+                disabled={readOnly || running}
                 style={{
                   padding: '4px 10px',
                   fontSize: '11px',
@@ -367,7 +369,7 @@ function ScenarioCard({
                   color: '#9ca3af',
                   border: '1px solid #374151',
                   borderRadius: '4px',
-                  cursor: running ? 'not-allowed' : 'pointer',
+                  cursor: readOnly || running ? 'not-allowed' : 'pointer',
                 }}
               >
                 {t.actions.reset}
@@ -440,7 +442,13 @@ function ScenarioCard({
 // Main component
 // ---------------------------------------------------------------------------
 
-export function MempoolPolicyArena({ onGoToDashboard }: { onGoToDashboard?: () => void }) {
+export function MempoolPolicyArena({
+  onGoToDashboard,
+  readOnly = false,
+}: {
+  onGoToDashboard?: () => void
+  readOnly?: boolean
+}) {
   const { t } = useI18n()
   const [scenarios, setScenarios] = useState<PolicyScenarioSummary[]>([])
   const [loading, setLoading] = useState(false)
@@ -543,7 +551,7 @@ export function MempoolPolicyArena({ onGoToDashboard }: { onGoToDashboard?: () =
               onClick={() => {
                 void handleResetAll()
               }}
-              disabled={anyRunning}
+              disabled={readOnly || anyRunning}
               style={{
                 padding: '5px 12px',
                 fontSize: '11px',
@@ -551,7 +559,7 @@ export function MempoolPolicyArena({ onGoToDashboard }: { onGoToDashboard?: () =
                 color: '#9ca3af',
                 border: '1px solid #374151',
                 borderRadius: '4px',
-                cursor: anyRunning ? 'not-allowed' : 'pointer',
+                cursor: readOnly || anyRunning ? 'not-allowed' : 'pointer',
               }}
             >
               {t.actions.reset}
@@ -573,6 +581,22 @@ export function MempoolPolicyArena({ onGoToDashboard }: { onGoToDashboard?: () =
           }}
         >
           {error}
+        </div>
+      )}
+
+      {readOnly && (
+        <div
+          style={{
+            padding: '10px',
+            background: '#451a03',
+            border: '1px solid #92400e',
+            borderRadius: '6px',
+            fontSize: '12px',
+            color: '#fdba74',
+            marginBottom: '16px',
+          }}
+        >
+          {t.network.readOnlyActionBlocked}
         </div>
       )}
 
@@ -643,6 +667,7 @@ export function MempoolPolicyArena({ onGoToDashboard }: { onGoToDashboard?: () =
               void handleReset(id)
             }}
             onGoToDashboard={() => onGoToDashboard?.()}
+            readOnly={readOnly}
           />
         ))}
       </div>

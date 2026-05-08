@@ -9,6 +9,12 @@ export interface HealthData {
   rpc_error?: string | null
 }
 
+export interface NetworkModeData {
+  chain: string | null
+  read_only: boolean
+  reason: string
+}
+
 export interface MempoolData {
   size: number
   bytes: number
@@ -18,6 +24,48 @@ export interface MempoolData {
   minrelaytxfee: number
   rpc_ok: boolean
   error?: string | null
+}
+
+export interface ChartPoint {
+  ts: string
+  mempool_size?: number | null
+  mempool_bytes?: number | null
+  minfee?: number | null
+}
+
+export interface ChartData {
+  range: string
+  points: ChartPoint[]
+}
+
+export interface AlertConfig {
+  id?: number | null
+  metric: string
+  operator: string
+  threshold: number
+  severity: 'info' | 'warning' | 'critical'
+  enabled: boolean
+  created_at?: string | null
+}
+
+export type AlertConfigInput = Partial<AlertConfig>
+
+export interface AlertConfigListData {
+  items: AlertConfig[]
+}
+
+export interface ActiveAlert {
+  id?: number | null
+  metric: string
+  operator: string
+  threshold: number
+  severity: 'info' | 'warning' | 'critical'
+  current_value: number
+  enabled: boolean
+}
+
+export interface ActiveAlertsData {
+  items: ActiveAlert[]
 }
 
 export interface SummaryData {
@@ -393,6 +441,32 @@ export interface ClusterCompatibilityData {
   note: string | null
 }
 
+export interface MempoolClusterTx {
+  txid: string
+  vsize: number
+  fee_btc: number
+  fee_rate_sat_vb: number
+  depends: string[]
+  spentby: string[]
+}
+
+export interface MempoolCluster {
+  id: string
+  tx_count: number
+  total_vsize: number
+  total_fee_btc: number
+  avg_fee_rate_sat_vb: number
+  txs: MempoolClusterTx[]
+}
+
+export interface MempoolClustersData {
+  clusters: MempoolCluster[]
+  total_tx_count: number
+  cluster_count: number
+  rpc_ok: boolean
+  error: string | null
+}
+
 // --- Live Simulation ---
 
 export interface SimulationConfig {
@@ -402,6 +476,7 @@ export interface SimulationConfig {
 
 export interface SimulationData {
   running: boolean
+  read_only?: boolean
   blocks_mined: number
   txs_sent: number
   errors: number

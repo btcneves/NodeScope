@@ -31,6 +31,7 @@ _tx_interval: int = int(os.environ.get("SIMULATION_TX_INTERVAL", "12"))
 _lock = threading.Lock()
 _stop_event = threading.Event()
 _thread: threading.Thread | None = None
+_readonly_flag = False
 
 _state: dict[str, Any] = {
     "running": False,
@@ -222,9 +223,12 @@ def start() -> dict[str, Any]:
     global _thread
 
     with _lock:
-        if _state["running"]:
-            return get_status()
+        readonly = _readonly_flag
+        already_running = bool(_state["running"])
+    if readonly or already_running:
+        return get_status()
 
+    with _lock:
         # Reset stats
         _state["blocks_mined"] = 0
         _state["txs_sent"] = 0
@@ -247,8 +251,9 @@ def start() -> dict[str, Any]:
 
 def stop() -> dict[str, Any]:
     with _lock:
-        if not _state["running"]:
-            return get_status()
+        running = bool(_state["running"])
+    if not running:
+        return get_status()
 
     _stop_event.set()
     if _thread is not None:
@@ -274,6 +279,7 @@ def get_status() -> dict[str, Any]:
     with _lock:
         return {
             **_state,
+            "read_only": _readonly_flag,
             "config": {
                 "block_interval": _block_interval,
                 "tx_interval": _tx_interval,
@@ -295,6 +301,15 @@ def reset_stats() -> None:
 
 
 def auto_start() -> None:
+    if _readonly_flag:
+        logger.info("simulation: auto-start disabled because network mode is read-only")
+        return
     if os.environ.get("SIMULATION_ENABLED", "").lower() == "true":
         logger.info("simulation: auto-starting (SIMULATION_ENABLED=true)")
         start()
+
+
+def prevent_auto_start() -> None:
+    global _readonly_flag
+    with _lock:
+        _readonly_flag = True

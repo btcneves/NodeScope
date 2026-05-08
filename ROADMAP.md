@@ -28,6 +28,11 @@ Everything below is shipped and functional in the current release.
 | Live Simulation Engine | Auto-mines blocks and sends transactions at configurable intervals |
 | Prometheus metrics (`/metrics`) | 24+ metrics covering HTTP, RPC, ZMQ, mempool, chain, simulation, storage |
 | Operational Alerting Panel | Polls API every 15 s; surfaces RPC offline, simulation errors, env notes |
+| Configurable alert thresholds | CRUD API and dashboard controls for operational alert rules |
+| Historical trend charts | Mempool size and minimum fee time-series charts |
+| Read-only network guard | Blocks mutating lab operations outside regtest unless explicitly allowed |
+| API rate limiting | Sliding-window protection with demo-friendly defaults |
+| Visual cluster mempool view | Uses BC28+ cluster RPCs when available; otherwise displays honest fallback groups |
 | Optional API key auth | Mutating endpoints protected via `X-NodeScope-API-Key` when `NODESCOPE_REQUIRE_API_KEY=true` |
 | SQLite persistence | Proof reports, demo/policy/reorg run history; in-memory fallback if SQLite unavailable |
 | Historical Dashboard | Paginated view of all past runs across all scenario types |
@@ -59,13 +64,10 @@ Nothing is currently in active development.
 | Signet/testnet observer mode | `BITCOIN_NETWORK=signet` flag; ZMQ + RPC without wallet or regtest operations |
 | Dashboard adapted for signet | Remove "mine block" controls; read-only mode indicators |
 | Mainnet read-only mode | `BITCOIN_NETWORK=mainnet` with explicit network safeguards |
-| Rate limiting on `/events/stream` | Relevant for public deployments |
-| Cluster mempool visualization | Requires Bitcoin Core 28+; gated on getmempoolcluster availability |
+| Hosted deployment tuning | Public rate-limit profiles, reverse proxy examples, and SSE sizing |
+| Enhanced Bitcoin Core 28+ cluster views | More detailed diagrams when getmempoolcluster/getmempoolfeeratediagram are available |
 | Mempool eviction scenario | Demonstrate fee-based eviction from the mempool |
 | Advanced classification heuristics | UTXO consolidation, batch payments, Taproot script patterns |
-| Historical trend charts | Event rate, mempool depth, fee rate over time |
-| Configurable alert thresholds | Mempool size, fee rate, block interval alerts |
-| Grafana integration | Pre-built dashboard consuming `/metrics` |
 | OpenTelemetry traces | RPC, ZMQ, and API request traces |
 | Multi-node support | Monitor multiple Bitcoin Core instances simultaneously |
 

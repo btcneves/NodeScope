@@ -3,6 +3,7 @@ import type { Lang } from '../i18n'
 
 export type ActiveView =
   | 'dashboard'
+  | 'charts'
   | 'guided-demo'
   | 'inspector'
   | 'zmq-tape'
@@ -10,6 +11,7 @@ export type ActiveView =
   | 'reorg-lab'
   | 'history'
   | 'fee-estimation'
+  | 'cluster'
 
 interface Props {
   network: string
@@ -41,6 +43,7 @@ export function Header({
 
   const NAV: { id: ActiveView; label: string }[] = [
     { id: 'dashboard', label: t.nav.dashboard },
+    { id: 'charts', label: t.charts.navLabel },
     { id: 'guided-demo', label: t.nav.guidedDemo },
     { id: 'inspector', label: t.nav.txInspector },
     { id: 'zmq-tape', label: t.nav.zmqTape },
@@ -48,6 +51,7 @@ export function Header({
     { id: 'reorg-lab', label: t.nav.reorgLab },
     { id: 'history', label: t.history.title },
     { id: 'fee-estimation', label: t.fees.navLabel },
+    { id: 'cluster', label: t.nav.clusterMempool },
   ]
 
   const networkClass = ['mainnet', 'regtest', 'signet', 'testnet'].includes(network)
@@ -55,14 +59,14 @@ export function Header({
     : 'badge-regtest'
 
   return (
-    <header className="header" style={{ flexWrap: 'wrap', gap: '8px' }}>
+    <header className="header">
       <div className="header-brand">
         <span className="header-title">{t.header.title}</span>
         <span className={`badge ${networkClass}`}>{network}</span>
       </div>
 
       {/* Nav tabs */}
-      <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+      <div className="header-nav">
         {NAV.map(({ id, label }) => (
           <button
             key={id}

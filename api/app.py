@@ -14,7 +14,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import fee_service, history_service, metrics, simulation_service
+from . import (
+    alerts_service,
+    charts_service,
+    fee_service,
+    history_service,
+    metrics,
+    network_guard,
+    simulation_service,
+)
 from .demo import STATIC_DIR, demo_page, root_redirect
 from .demo_service import (
     get_status as demo_get_status,
@@ -34,6 +42,7 @@ from .policy_service import (
 from .policy_service import (
     reset_all as policy_reset_all,
 )
+from .rate_limiter import RateLimitMiddleware
 from .reorg_service import (
     get_proof as reorg_get_proof,
 )
@@ -47,7 +56,12 @@ from .reorg_service import (
     run as reorg_run,
 )
 from .schemas import (
+    ActiveAlertsResponse,
+    AlertConfigListResponse,
+    AlertConfigRequest,
+    AlertConfigResponse,
     BlockResponse,
+    ChartResponse,
     ClassificationsResponse,
     ClusterCompatibilityResponse,
     DemoProofResponse,
@@ -58,7 +72,9 @@ from .schemas import (
     HealthResponse,
     HistorySummaryResponse,
     IntelligenceSummaryResponse,
+    MempoolClustersResponse,
     MempoolSummaryResponse,
+    NetworkModeResponse,
     PolicyProofResponse,
     PolicyRunHistoryResponse,
     PolicyScenarioResponse,
@@ -79,6 +95,7 @@ from .service import (
     build_summary,
     get_classifications,
     get_cluster_compatibility,
+    get_cluster_mempool_visual,
     get_event_tape,
     get_intelligence_summary,
     get_latest_block,
@@ -115,9 +132,29 @@ async def _verify_api_key(
 _PROTECTED = [Depends(_verify_api_key)]
 
 
+async def _guard_readonly() -> None:
+    if network_guard.is_read_only():
+        mode = network_guard.detect_network_mode()
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "message": "State-changing actions are disabled outside regtest.",
+                "chain": mode.get("chain"),
+                "reason": mode.get("reason"),
+            },
+        )
+
+
+_WRITE_PROTECTED = [Depends(_verify_api_key), Depends(_guard_readonly)]
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    network_guard.refresh_network_mode()
+    if network_guard.is_read_only():
+        simulation_service.prevent_auto_start()
     simulation_service.auto_start()
+    charts_service.start_snapshot_loop()
     yield
 
 
@@ -155,10 +192,11 @@ app.add_middleware(
         "http://localhost:3000",
         "http://127.0.0.1:3000",
     ],
-    allow_methods=["GET", "POST", "PUT"],
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
 )
 app.middleware("http")(metrics_middleware)
+app.add_middleware(RateLimitMiddleware)
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
@@ -186,6 +224,11 @@ def health(log_dir: str | None = None, file: str | None = None) -> dict:
     return result
 
 
+@app.get("/network/mode", response_model=NetworkModeResponse)
+def network_mode() -> dict:
+    return network_guard.detect_network_mode()
+
+
 @app.get("/summary", response_model=SummaryResponse)
 def summary(log_dir: str | None = None, file: str | None = None) -> dict:
     return build_summary(log_dir=_resolve_path(log_dir), file=_resolve_path(file))
@@ -206,11 +249,70 @@ def mempool_summary() -> dict:
     return result
 
 
+@app.get("/charts/mempool", response_model=ChartResponse)
+def charts_mempool(range: str = "1h") -> dict:  # noqa: A002
+    return charts_service.get_mempool_chart(range)
+
+
+@app.get("/charts/fees", response_model=ChartResponse)
+def charts_fees(range: str = "1h") -> dict:  # noqa: A002
+    return charts_service.get_fees_chart(range)
+
+
+@app.get("/alerts/config", response_model=AlertConfigListResponse)
+def alerts_config() -> dict:
+    return {"items": alerts_service.list_configs()}
+
+
+@app.post(
+    "/alerts/config",
+    response_model=AlertConfigResponse,
+    dependencies=_WRITE_PROTECTED,
+)
+def alerts_config_create(req: AlertConfigRequest) -> dict:
+    try:
+        item = alerts_service.create_config(req.model_dump(exclude_none=True))
+    except (KeyError, TypeError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if item is None:
+        raise HTTPException(status_code=500, detail="Failed to create alert config")
+    return item
+
+
+@app.put(
+    "/alerts/config/{config_id}",
+    response_model=AlertConfigResponse,
+    dependencies=_WRITE_PROTECTED,
+)
+def alerts_config_update(config_id: int, req: AlertConfigRequest) -> dict:
+    try:
+        item = alerts_service.update_config(config_id, req.model_dump(exclude_none=True))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if item is None:
+        raise HTTPException(status_code=404, detail="Alert config not found")
+    return item
+
+
+@app.delete("/alerts/config/{config_id}", dependencies=_WRITE_PROTECTED)
+def alerts_config_delete(config_id: int) -> dict:
+    if not alerts_service.delete_config(config_id):
+        raise HTTPException(status_code=404, detail="Alert config not found")
+    return {"ok": True}
+
+
+@app.get("/alerts/active", response_model=ActiveAlertsResponse)
+def alerts_active() -> dict:
+    return {"items": alerts_service.evaluate_alerts()}
+
+
 @app.get("/events/recent", response_model=RecentEventsResponse)
 def recent_events(
     limit: int = Query(default=10, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
     event_type: str | None = Query(default=None),
+    sort_by: str = "ts",
+    sort_dir: str = "desc",
     log_dir: str | None = None,
     file: str | None = None,
 ) -> dict:
@@ -218,6 +320,8 @@ def recent_events(
         limit=limit,
         offset=offset,
         event_type=event_type,
+        sort_by=sort_by,
+        sort_dir=sort_dir,
         log_dir=_resolve_path(log_dir),
         file=_resolve_path(file),
     )
@@ -228,6 +332,8 @@ def classifications(
     limit: int = Query(default=10, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
     kind: str | None = Query(default=None),
+    sort_by: str = "ts",
+    sort_dir: str = "desc",
     log_dir: str | None = None,
     file: str | None = None,
 ) -> dict:
@@ -235,6 +341,8 @@ def classifications(
         limit=limit,
         offset=offset,
         kind=kind,
+        sort_by=sort_by,
+        sort_dir=sort_dir,
         log_dir=_resolve_path(log_dir),
         file=_resolve_path(file),
     )
@@ -316,13 +424,13 @@ def demo_status() -> dict:
     return demo_get_status()
 
 
-@app.post("/demo/run", response_model=DemoStatusResponse, dependencies=_PROTECTED)
+@app.post("/demo/run", response_model=DemoStatusResponse, dependencies=_WRITE_PROTECTED)
 def demo_run() -> dict:
     metrics.record_demo_run()
     return start_full_demo()
 
 
-@app.post("/demo/step/{step_id}", dependencies=_PROTECTED)
+@app.post("/demo/step/{step_id}", dependencies=_WRITE_PROTECTED)
 def demo_step(step_id: str) -> dict:
     result = run_step(step_id)
     if result.get("error") and result.get("status") not in ("error", "unavailable"):
@@ -330,7 +438,7 @@ def demo_step(step_id: str) -> dict:
     return result
 
 
-@app.post("/demo/reset", response_model=DemoStatusResponse, dependencies=_PROTECTED)
+@app.post("/demo/reset", response_model=DemoStatusResponse, dependencies=_WRITE_PROTECTED)
 def demo_reset() -> dict:
     return reset_demo()
 
@@ -355,7 +463,9 @@ def policy_scenarios() -> dict:
 
 
 @app.post(
-    "/policy/run/{scenario_id}", response_model=PolicyScenarioResponse, dependencies=_PROTECTED
+    "/policy/run/{scenario_id}",
+    response_model=PolicyScenarioResponse,
+    dependencies=_WRITE_PROTECTED,
 )
 def policy_run(scenario_id: str) -> dict:
     metrics.record_policy_scenario(scenario_id)
@@ -374,7 +484,9 @@ def policy_status(scenario_id: str) -> dict:
 
 
 @app.post(
-    "/policy/reset/{scenario_id}", response_model=PolicyScenarioResponse, dependencies=_PROTECTED
+    "/policy/reset/{scenario_id}",
+    response_model=PolicyScenarioResponse,
+    dependencies=_WRITE_PROTECTED,
 )
 def policy_reset_one(scenario_id: str) -> dict:
     result = reset_scenario(scenario_id)
@@ -383,7 +495,7 @@ def policy_reset_one(scenario_id: str) -> dict:
     return result
 
 
-@app.post("/policy/reset", response_model=ScenariosListResponse, dependencies=_PROTECTED)
+@app.post("/policy/reset", response_model=ScenariosListResponse, dependencies=_WRITE_PROTECTED)
 def policy_reset_all_endpoint() -> dict:
     return {"scenarios": policy_reset_all()}
 
@@ -413,13 +525,13 @@ def reorg_status() -> dict:
     return reorg_get_status()
 
 
-@app.post("/reorg/run", response_model=ReorgStatusResponse, dependencies=_PROTECTED)
+@app.post("/reorg/run", response_model=ReorgStatusResponse, dependencies=_WRITE_PROTECTED)
 def reorg_run_endpoint() -> dict:
     metrics.record_reorg_run()
     return reorg_run()
 
 
-@app.post("/reorg/reset", response_model=ReorgStatusResponse, dependencies=_PROTECTED)
+@app.post("/reorg/reset", response_model=ReorgStatusResponse, dependencies=_WRITE_PROTECTED)
 def reorg_reset_endpoint() -> dict:
     return reorg_reset()
 
@@ -439,6 +551,11 @@ def cluster_compatibility() -> dict:
     return get_cluster_compatibility()
 
 
+@app.get("/mempool/clusters", response_model=MempoolClustersResponse)
+def mempool_clusters() -> dict:
+    return get_cluster_mempool_visual()
+
+
 # ---------------------------------------------------------------------------
 # Live Simulation endpoints
 # ---------------------------------------------------------------------------
@@ -449,17 +566,23 @@ def simulation_status() -> dict:
     return simulation_service.get_status()
 
 
-@app.post("/simulation/start", response_model=SimulationStatusResponse, dependencies=_PROTECTED)
+@app.post(
+    "/simulation/start", response_model=SimulationStatusResponse, dependencies=_WRITE_PROTECTED
+)
 def simulation_start() -> dict:
     return simulation_service.start()
 
 
-@app.post("/simulation/stop", response_model=SimulationStatusResponse, dependencies=_PROTECTED)
+@app.post(
+    "/simulation/stop", response_model=SimulationStatusResponse, dependencies=_WRITE_PROTECTED
+)
 def simulation_stop() -> dict:
     return simulation_service.stop()
 
 
-@app.put("/simulation/config", response_model=SimulationStatusResponse, dependencies=_PROTECTED)
+@app.put(
+    "/simulation/config", response_model=SimulationStatusResponse, dependencies=_WRITE_PROTECTED
+)
 def simulation_config(req: SimulationConfigRequest) -> dict:
     return simulation_service.configure(
         block_interval=req.block_interval,
@@ -472,7 +595,7 @@ def simulation_config(req: SimulationConfigRequest) -> dict:
 # ---------------------------------------------------------------------------
 
 
-@app.post("/session/reset", dependencies=_PROTECTED)
+@app.post("/session/reset", dependencies=_WRITE_PROTECTED)
 def session_reset() -> dict:
     log_dir = os.environ.get("NODESCOPE_LOG_DIR", "/app/logs")
     today = datetime.date.today().isoformat()
@@ -514,9 +637,16 @@ def history_proofs(
     offset: int = Query(default=0, ge=0),
     source: str | None = Query(default=None),
     success: bool | None = Query(default=None),
+    sort_by: str = "id",
+    sort_dir: str = "desc",
 ) -> dict:
     items = history_service.get_proof_reports(
-        limit=limit, offset=offset, source=source, success=success
+        limit=limit,
+        offset=offset,
+        source=source,
+        success=success,
+        sort_by=sort_by,
+        sort_dir=sort_dir,
     )
     return {"items": items, "total_returned": len(items), "limit": limit, "offset": offset}
 

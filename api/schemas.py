@@ -20,6 +20,60 @@ class HealthResponse(BaseModel):
     rpc_error: str | None = None
 
 
+class NetworkModeResponse(BaseModel):
+    chain: str | None = None
+    read_only: bool
+    reason: str
+
+
+class ChartPointResponse(BaseModel):
+    ts: str
+    mempool_size: float | None = None
+    mempool_bytes: float | None = None
+    minfee: float | None = None
+
+
+class ChartResponse(BaseModel):
+    range: str
+    points: list[ChartPointResponse] = Field(default_factory=list)
+
+
+class AlertConfigRequest(BaseModel):
+    metric: str | None = None
+    operator: str | None = None
+    threshold: float | None = None
+    severity: str | None = "warning"
+    enabled: bool | None = True
+
+
+class AlertConfigResponse(BaseModel):
+    id: int | None = None
+    metric: str
+    operator: str
+    threshold: float
+    severity: str
+    enabled: bool
+    created_at: str | None = None
+
+
+class AlertConfigListResponse(BaseModel):
+    items: list[AlertConfigResponse]
+
+
+class ActiveAlertResponse(BaseModel):
+    id: int | None = None
+    metric: str
+    operator: str
+    threshold: float
+    severity: str
+    current_value: float
+    enabled: bool
+
+
+class ActiveAlertsResponse(BaseModel):
+    items: list[ActiveAlertResponse]
+
+
 class RawEventResponse(BaseModel):
     ts: str
     level: str
@@ -321,6 +375,32 @@ class ClusterCompatibilityResponse(BaseModel):
     note: str | None = None
 
 
+class ClusterTxResponse(BaseModel):
+    txid: str
+    vsize: int
+    fee_btc: float
+    fee_rate_sat_vb: float
+    depends: list[str] = Field(default_factory=list)
+    spentby: list[str] = Field(default_factory=list)
+
+
+class MempoolClusterResponse(BaseModel):
+    id: str
+    tx_count: int
+    total_vsize: int
+    total_fee_btc: float
+    avg_fee_rate_sat_vb: float
+    txs: list[ClusterTxResponse] = Field(default_factory=list)
+
+
+class MempoolClustersResponse(BaseModel):
+    clusters: list[MempoolClusterResponse] = Field(default_factory=list)
+    total_tx_count: int
+    cluster_count: int
+    rpc_ok: bool
+    error: str | None = None
+
+
 # --- Live Simulation ---
 
 
@@ -331,6 +411,7 @@ class SimulationConfig(BaseModel):
 
 class SimulationStatusResponse(BaseModel):
     running: bool
+    read_only: bool = False
     blocks_mined: int
     txs_sent: int
     errors: int
@@ -346,6 +427,7 @@ class SimulationStatusResponse(BaseModel):
 
 class SimulationConfigRequest(BaseModel):
     block_interval: int | None = None
+    tx_interval: int | None = None
 
 
 # ---------------------------------------------------------------------------
