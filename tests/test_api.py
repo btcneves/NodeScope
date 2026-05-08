@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import tempfile
 import threading
 import time
@@ -13,6 +14,8 @@ from api.app import (
     demo,
     demo_step,
     health,
+    history_export_csv,
+    history_export_json,
     latest_block,
     latest_tx,
     mempool_summary,
@@ -225,6 +228,67 @@ class ApiTests(unittest.TestCase):
             self.assertIn("event: nodescope_event", event_chunk)
             self.assertIn('"txid": "live-tx"', event_chunk)
             self.assertIn('"kind": "simple_payment_like"', event_chunk)
+
+
+class HistoryExportTests(unittest.TestCase):
+    def test_export_json_returns_response_with_correct_media_type(self) -> None:
+        response = history_export_json()
+        self.assertEqual(response.media_type, "application/json")
+        self.assertIn("nodescope-history.json", response.headers.get("content-disposition", ""))
+
+    def test_export_json_body_is_valid_json(self) -> None:
+        response = history_export_json()
+        payload = json.loads(response.body)
+        self.assertIn("metadata", payload)
+        self.assertIn("proof_reports", payload)
+        self.assertIn("demo_runs", payload)
+        self.assertIn("policy_runs", payload)
+        self.assertIn("reorg_runs", payload)
+
+    def test_export_json_metadata_has_required_keys(self) -> None:
+        response = history_export_json()
+        meta = json.loads(response.body)["metadata"]
+        self.assertIn("generated_at", meta)
+        self.assertIn("project", meta)
+        self.assertIn("counts", meta)
+        self.assertIn("filters", meta)
+        self.assertEqual(meta["project"], "NodeScope")
+
+    def test_export_json_empty_store_returns_empty_lists(self) -> None:
+        response = history_export_json()
+        payload = json.loads(response.body)
+        self.assertIsInstance(payload["proof_reports"], list)
+        self.assertIsInstance(payload["demo_runs"], list)
+        self.assertIsInstance(payload["policy_runs"], list)
+        self.assertIsInstance(payload["reorg_runs"], list)
+
+    def test_export_csv_returns_response_with_correct_media_type(self) -> None:
+        response = history_export_csv()
+        self.assertEqual(response.media_type, "text/csv")
+        self.assertIn("nodescope-history.csv", response.headers.get("content-disposition", ""))
+
+    def test_export_csv_body_has_header_row(self) -> None:
+        response = history_export_csv()
+        first_line = response.body.decode().splitlines()[0]
+        self.assertIn("table", first_line)
+        self.assertIn("id", first_line)
+        self.assertIn("status", first_line)
+        self.assertIn("created_at", first_line)
+
+    def test_export_csv_empty_store_returns_only_header(self) -> None:
+        response = history_export_csv()
+        lines = [line for line in response.body.decode().splitlines() if line.strip()]
+        self.assertEqual(len(lines), 1)
+
+    def test_export_json_source_filter_is_reflected_in_metadata(self) -> None:
+        response = history_export_json(source="demo")
+        meta = json.loads(response.body)["metadata"]
+        self.assertEqual(meta["filters"]["source"], "demo")
+
+    def test_export_json_success_filter_is_reflected_in_metadata(self) -> None:
+        response = history_export_json(success=True)
+        meta = json.loads(response.body)["metadata"]
+        self.assertEqual(meta["filters"]["success"], True)
 
 
 if __name__ == "__main__":

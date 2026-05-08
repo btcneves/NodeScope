@@ -7,7 +7,7 @@ Release: v1.1.0
 Docker quickstart: validated
 Smoke test: passing (PASS=15 FAIL=0 WARN=0)
 Frontend build: passing (TypeScript + Vite)
-Python tests: passing (54 unit tests — 38 prior + 16 storage)
+Python tests: passing (80 unit tests — see CI for current breakdown)
 CI: passing (GitHub Actions — backend, frontend Node 18/20/24, public-clean check)
 
 ## Official Evaluator Flow
@@ -123,6 +123,8 @@ Results vary by environment. Numbers should be validated locally, not assumed fr
 | GET | `/history/demo-runs` | Paginated demo run history |
 | GET | `/history/policy-runs` | Paginated policy run history (optional `scenario_id` filter) |
 | GET | `/history/reorg-runs` | Paginated reorg run history |
+| GET | `/history/export.json` | Full history export as downloadable JSON (filters: `source`, `success`, `since`, `until`, `limit`) |
+| GET | `/history/export.csv` | Full history export as downloadable CSV |
 
 Storage backend is selected via environment variables:
 
@@ -164,11 +166,13 @@ If SQLite initialisation fails, the API transparently falls back to an in-memory
 | Feature | Status |
 |---|---|
 | Presentation Pack | Ready (PR #9) |
+| History export CSV/JSON | Ready |
+| Grafana + Prometheus observability pack | Ready |
+| Frontend ESLint + Prettier | Ready |
 | Postgres / TimescaleDB for event persistence | Planned |
 | API keys for mutating endpoints (optional) | Ready (PR #8) |
 | OpenTelemetry traces (RPC, ZMQ, API) | Planned |
 | Multi-node support | Planned |
 | Kubernetes manifests / Helm chart | Planned |
-| Grafana integration | Planned |
 | signet / mainnet read-only mode | Planned |
 | Cluster mempool visualization (Bitcoin Core 28+) | Planned |

@@ -19,13 +19,11 @@ function ArcGauge({ score, label }: { score: number; label: string }) {
   const R = 52
   const CX = 70
   const CY = 74
-  const C = 2 * Math.PI * R          // full circumference ~326.7
-  const ARC = C * 0.75               // 270° arc ~245
+  const C = 2 * Math.PI * R // full circumference ~326.7
+  const ARC = C * 0.75 // 270° arc ~245
   const FILL = (score / 100) * ARC
 
-  const color =
-    label === 'healthy'  ? '#3fb886' :
-    label === 'degraded' ? '#e3b341' : '#f85149'
+  const color = label === 'healthy' ? '#3fb886' : label === 'degraded' ? '#e3b341' : '#f85149'
 
   // Both arcs rotate so the 90° gap is at the bottom
   const rotation = `rotate(135, ${CX}, ${CY})`
@@ -35,13 +33,18 @@ function ArcGauge({ score, label }: { score: number; label: string }) {
       <defs>
         <filter id="arc-glow" x="-20%" y="-20%" width="140%" height="140%">
           <feGaussianBlur stdDeviation="3" result="blur" />
-          <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
         </filter>
       </defs>
 
       {/* Background track */}
       <circle
-        cx={CX} cy={CY} r={R}
+        cx={CX}
+        cy={CY}
+        r={R}
         fill="none"
         stroke="#1f2937"
         strokeWidth="10"
@@ -52,7 +55,9 @@ function ArcGauge({ score, label }: { score: number; label: string }) {
 
       {/* Score arc */}
       <circle
-        cx={CX} cy={CY} r={R}
+        cx={CX}
+        cy={CY}
+        r={R}
         fill="none"
         stroke={color}
         strokeWidth="10"
@@ -65,7 +70,8 @@ function ArcGauge({ score, label }: { score: number; label: string }) {
 
       {/* Score number */}
       <text
-        x={CX} y={CY - 6}
+        x={CX}
+        y={CY - 6}
         textAnchor="middle"
         fill={color}
         fontSize="32"
@@ -77,13 +83,21 @@ function ArcGauge({ score, label }: { score: number; label: string }) {
       </text>
 
       {/* /100 */}
-      <text x={CX} y={CY + 10} textAnchor="middle" fill="#374151" fontSize="10" fontFamily="monospace">
+      <text
+        x={CX}
+        y={CY + 10}
+        textAnchor="middle"
+        fill="#374151"
+        fontSize="10"
+        fontFamily="monospace"
+      >
         / 100
       </text>
 
       {/* Status label */}
       <text
-        x={CX} y={CY + 26}
+        x={CX}
+        y={CY + 26}
         textAnchor="middle"
         fill={color}
         fontSize="10"
@@ -119,38 +133,58 @@ function ComponentRow({
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '5px 0' }}>
       {/* Status dot */}
-      <span style={{
-        width: 7, height: 7, borderRadius: '50%', flexShrink: 0,
-        background: active ? '#3fb886' : '#374151',
-        boxShadow: active ? '0 0 6px #3fb886' : 'none',
-        transition: 'background 0.3s, box-shadow 0.3s',
-      }} />
+      <span
+        style={{
+          width: 7,
+          height: 7,
+          borderRadius: '50%',
+          flexShrink: 0,
+          background: active ? '#3fb886' : '#374151',
+          boxShadow: active ? '0 0 6px #3fb886' : 'none',
+          transition: 'background 0.3s, box-shadow 0.3s',
+        }}
+      />
 
       {/* Label */}
-      <span style={{ width: 58, fontSize: 11, color: active ? '#e5e7eb' : '#6b7280', fontFamily: 'monospace', flexShrink: 0 }}>
+      <span
+        style={{
+          width: 58,
+          fontSize: 11,
+          color: active ? '#e5e7eb' : '#6b7280',
+          fontFamily: 'monospace',
+          flexShrink: 0,
+        }}
+      >
         <Term text={tooltip}>{label}</Term>
       </span>
 
       {/* Bar track */}
-      <div style={{ flex: 1, height: 5, background: '#1a2233', borderRadius: 3, overflow: 'hidden' }}>
-        <div style={{
-          height: '100%',
-          width: active ? `${maxPts}%` : '0%',
-          background: active
-            ? `linear-gradient(90deg, #0d7a5f, #3fb886)`
-            : '#1f2937',
-          borderRadius: 3,
-          boxShadow: active ? '0 0 8px #3fb88666' : 'none',
-          transition: 'width 0.7s cubic-bezier(0.4,0,0.2,1), background 0.3s',
-        }} />
+      <div
+        style={{ flex: 1, height: 5, background: '#1a2233', borderRadius: 3, overflow: 'hidden' }}
+      >
+        <div
+          style={{
+            height: '100%',
+            width: active ? `${maxPts}%` : '0%',
+            background: active ? `linear-gradient(90deg, #0d7a5f, #3fb886)` : '#1f2937',
+            borderRadius: 3,
+            boxShadow: active ? '0 0 8px #3fb88666' : 'none',
+            transition: 'width 0.7s cubic-bezier(0.4,0,0.2,1), background 0.3s',
+          }}
+        />
       </div>
 
       {/* Points */}
-      <span style={{
-        fontSize: 11, fontFamily: 'monospace', minWidth: 28, textAlign: 'right',
-        color: active ? color : '#4b5563',
-        transition: 'color 0.3s',
-      }}>
+      <span
+        style={{
+          fontSize: 11,
+          fontFamily: 'monospace',
+          minWidth: 28,
+          textAlign: 'right',
+          color: active ? color : '#4b5563',
+          transition: 'color 0.3s',
+        }}
+      >
         +{pts}
       </span>
     </div>
@@ -161,24 +195,30 @@ function ComponentRow({
 // Main component
 // ---------------------------------------------------------------------------
 
-export function NodeHealthScore({ health, mempool, latestBlock, sseConnected, intelligence }: NodeHealthScoreProps) {
+export function NodeHealthScore({
+  health,
+  mempool,
+  latestBlock,
+  sseConnected,
+  intelligence,
+}: NodeHealthScoreProps) {
   const { t } = useI18n()
 
   // Use backend-computed values when available — they reflect real ZMQ/SSE status
   // instead of client-side proxies (sseConnected ≠ zmq events flowing)
-  const score = intelligence?.node_health_score
-    ?? computeHealthScore(health, mempool, latestBlock, sseConnected).score
-  const label = intelligence?.node_health_label
-    ?? computeHealthScore(health, mempool, latestBlock, sseConnected).label
+  const score =
+    intelligence?.node_health_score ??
+    computeHealthScore(health, mempool, latestBlock, sseConnected).score
+  const label =
+    intelligence?.node_health_label ??
+    computeHealthScore(health, mempool, latestBlock, sseConnected).label
 
-  const rpcOk     = intelligence ? intelligence.rpc_status === 'online'
-                                 : (health?.rpc_ok ?? false)
-  const zmqOk     = intelligence ? intelligence.zmq_status === 'subscribed'
-                                 : sseConnected
-  const mempoolOk = intelligence ? intelligence.mempool_pressure !== 'unknown'
-                                 : (mempool?.rpc_ok ?? false)
-  const blocksOk  = intelligence ? score >= 80
-                                 : score >= 90
+  const rpcOk = intelligence ? intelligence.rpc_status === 'online' : (health?.rpc_ok ?? false)
+  const zmqOk = intelligence ? intelligence.zmq_status === 'subscribed' : sseConnected
+  const mempoolOk = intelligence
+    ? intelligence.mempool_pressure !== 'unknown'
+    : (mempool?.rpc_ok ?? false)
+  const blocksOk = intelligence ? score >= 80 : score >= 90
 
   return (
     <div className="panel health-score-panel">
@@ -200,10 +240,20 @@ export function NodeHealthScore({ health, mempool, latestBlock, sseConnected, in
 
         {/* Component breakdown */}
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <ComponentRow label="RPC"              maxPts={40} active={rpcOk}     tooltip={t.healthScore.rpc} />
-          <ComponentRow label="ZMQ"              maxPts={30} active={zmqOk}     tooltip={t.healthScore.zmq} />
-          <ComponentRow label="Mempool"          maxPts={20} active={mempoolOk} tooltip={t.healthScore.mempool} />
-          <ComponentRow label={t.dashboard.kpiBlocks} maxPts={10} active={blocksOk} tooltip={t.healthScore.blocks} />
+          <ComponentRow label="RPC" maxPts={40} active={rpcOk} tooltip={t.healthScore.rpc} />
+          <ComponentRow label="ZMQ" maxPts={30} active={zmqOk} tooltip={t.healthScore.zmq} />
+          <ComponentRow
+            label="Mempool"
+            maxPts={20}
+            active={mempoolOk}
+            tooltip={t.healthScore.mempool}
+          />
+          <ComponentRow
+            label={t.dashboard.kpiBlocks}
+            maxPts={10}
+            active={blocksOk}
+            tooltip={t.healthScore.blocks}
+          />
         </div>
       </div>
     </div>

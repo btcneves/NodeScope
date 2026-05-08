@@ -5,6 +5,24 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [Unreleased]
+
+### Added
+- `GET /history/export.json` — full history export in JSON format with metadata and optional filters (source, success, since, until, limit)
+- `GET /history/export.csv` — full history export in CSV format for spreadsheet tooling
+- Export JSON / Export CSV buttons in Historical Dashboard (EN-US / PT-BR)
+- Grafana + Prometheus optional observability pack (`docker-compose.observability.yml`, `observability/`)
+- Pre-built Grafana dashboard `nodescope-overview.json` with panels for all 30+ real NodeScope metrics
+- `make observability-up` and `make observability-down` Makefile targets
+- ESLint (v9 flat config) + Prettier for frontend — `npm run lint`, `npm run format:check`
+- CI now runs `npm run lint` and `npm run format:check` in the frontend job
+
+### Changed
+- Python unit test count updated to 80 (71 prior + 9 new export tests)
+- README and documentation updated to reflect new endpoints and observability pack
+
+---
+
 ## [1.1.0] — 2026-05-07
 
 **Professional Lab release.** Major expansion from the v1.0.x observability dashboard into a
@@ -144,7 +162,7 @@ instrumentation, and a complete bilingual interface.
 - ROADMAP.md — restructured as Implemented / In Progress / Planned / Deferred
 - docs/api.md — complete rewrite documenting all 43 endpoints, authentication, and Prometheus metrics
 - PROJECT_STATUS.md — capabilities table and roadmap updated to reflect v1.1.0 delivery
-- Tests: 54 unit tests (38 prior + 16 storage tests for `api/storage.py`)
+- Tests: 71 unit tests as of v1.1.0 (38 prior + 16 storage + 17 fee_service)
 
 ---
 

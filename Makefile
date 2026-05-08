@@ -10,7 +10,7 @@ COMPOSE_FILE ?= docker-compose.yml
 export COMPOSE_FILE
 COMPOSE ?= docker compose
 
-.PHONY: help setup setup-local venv backend monitor frontend test test-local build build-local smoke smoke-local demo replay-demo screenshots clean public-clean docker-up docker-down docker-demo docker-full-demo docker-wait lint docker-config benchmark load-smoke
+.PHONY: help setup setup-local venv backend monitor frontend test test-local build build-local smoke smoke-local demo replay-demo screenshots clean public-clean docker-up docker-down docker-demo docker-full-demo docker-wait lint docker-config benchmark load-smoke observability-up observability-down
 
 help:
 	@echo "NodeScope Makefile - Available Targets"
@@ -48,6 +48,10 @@ help:
 	@echo ""
 	@echo "Maintenance:"
 	@echo "  make clean         Remove generated local artifacts"
+	@echo ""
+	@echo "Observability (optional):"
+	@echo "  make observability-up    Start Prometheus + Grafana"
+	@echo "  make observability-down  Stop Prometheus + Grafana"
 
 setup: setup-local
 
@@ -146,6 +150,12 @@ benchmark:
 
 load-smoke:
 	python3 scripts/load_smoke.py --concurrency 5 --requests 100
+
+observability-up:
+	docker compose -f docker-compose.yml -f docker-compose.observability.yml up -d
+
+observability-down:
+	docker compose -f docker-compose.observability.yml down
 
 clean:
 	find . -type d -name __pycache__ -not -path "./.venv/*" -exec rm -rf {} + 2>/dev/null || true

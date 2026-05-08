@@ -9,42 +9,40 @@ import { LearnMore } from './ui/LearnMore'
 // Single event row
 // ---------------------------------------------------------------------------
 
-function EventRow({
-  ev,
-  onInspect,
-}: {
-  ev: TapeEvent
-  onInspect: (txid: string) => void
-}) {
+function EventRow({ ev, onInspect }: { ev: TapeEvent; onInspect: (txid: string) => void }) {
   const { t } = useI18n()
   const isRawtx = ev.topic === 'rawtx'
   const topicColor = isRawtx ? '#60a5fa' : '#a78bfa'
   const topicLabel = isRawtx ? t.zmq.rawTx : t.zmq.rawBlock
 
   return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: '10px',
-      padding: '8px 12px',
-      background: '#0f172a',
-      border: '1px solid #1f2937',
-      borderRadius: '4px',
-      marginBottom: '4px',
-      fontSize: '11px',
-      fontFamily: 'monospace',
-    }}>
-      <span style={{
-        minWidth: '68px',
-        padding: '2px 6px',
-        borderRadius: '3px',
-        background: topicColor + '22',
-        color: topicColor,
-        border: `1px solid ${topicColor}44`,
-        fontWeight: 700,
-        fontSize: '10px',
-        textAlign: 'center',
-      }}>
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        padding: '8px 12px',
+        background: '#0f172a',
+        border: '1px solid #1f2937',
+        borderRadius: '4px',
+        marginBottom: '4px',
+        fontSize: '11px',
+        fontFamily: 'monospace',
+      }}
+    >
+      <span
+        style={{
+          minWidth: '68px',
+          padding: '2px 6px',
+          borderRadius: '3px',
+          background: topicColor + '22',
+          color: topicColor,
+          border: `1px solid ${topicColor}44`,
+          fontWeight: 700,
+          fontSize: '10px',
+          textAlign: 'center',
+        }}
+      >
         {topicLabel}
       </span>
 
@@ -54,21 +52,23 @@ function EventRow({
 
       <span style={{ color: '#d1d5db', flex: 1 }}>
         {isRawtx ? (
-          ev.txid
-            ? <span
-                title={ev.txid}
-                style={{ cursor: 'pointer', color: '#93c5fd', textDecoration: 'underline' }}
-                onClick={() => ev.txid && onInspect(ev.txid)}
-              >
-                {ev.short_id ?? ev.txid.slice(0, 16) + '…'}
-              </span>
-            : '—'
+          ev.txid ? (
+            <span
+              title={ev.txid}
+              style={{ cursor: 'pointer', color: '#93c5fd', textDecoration: 'underline' }}
+              onClick={() => ev.txid && onInspect(ev.txid)}
+            >
+              {ev.short_id ?? ev.txid.slice(0, 16) + '…'}
+            </span>
+          ) : (
+            '—'
+          )
         ) : (
           <span title={ev.blockhash ?? undefined} style={{ color: '#c4b5fd' }}>
-            {ev.blockhash ? ev.short_id ?? ev.blockhash.slice(0, 16) + '…' : '—'}
-            {ev.height !== null && ev.height !== undefined
-              ? <span style={{ color: '#6b7280', marginLeft: '6px' }}>h={ev.height}</span>
-              : null}
+            {ev.blockhash ? (ev.short_id ?? ev.blockhash.slice(0, 16) + '…') : '—'}
+            {ev.height !== null && ev.height !== undefined ? (
+              <span style={{ color: '#6b7280', marginLeft: '6px' }}>h={ev.height}</span>
+            ) : null}
           </span>
         )}
       </span>
@@ -76,9 +76,7 @@ function EventRow({
       {isRawtx && ev.vsize != null && (
         <span style={{ color: '#6b7280', minWidth: '80px' }}>{ev.vsize} vbytes</span>
       )}
-      {isRawtx && ev.has_op_return && (
-        <span style={{ color: '#f59e0b' }}>OP_RETURN</span>
-      )}
+      {isRawtx && ev.has_op_return && <span style={{ color: '#f59e0b' }}>OP_RETURN</span>}
       {isRawtx && ev.script_types.length > 0 && (
         <span style={{ color: '#4b5563' }}>{ev.script_types.slice(0, 2).join(', ')}</span>
       )}
@@ -132,11 +130,13 @@ export function ZmqEventTape({ onInspectTxid }: Props) {
     }
   }, [topicFilter])
 
-  useEffect(() => { void fetchData() }, [fetchData])
+  useEffect(() => {
+    void fetchData()
+  }, [fetchData])
 
   const items = data?.items ?? []
-  const rawtxCount = items.filter(e => e.topic === 'rawtx').length
-  const rawblockCount = items.filter(e => e.topic === 'rawblock').length
+  const rawtxCount = items.filter((e) => e.topic === 'rawtx').length
+  const rawblockCount = items.filter((e) => e.topic === 'rawblock').length
 
   const btnStyle = (active: boolean): React.CSSProperties => ({
     padding: '3px 10px',
@@ -152,27 +152,58 @@ export function ZmqEventTape({ onInspectTxid }: Props) {
     <div style={{ fontFamily: 'monospace', color: '#e5e7eb' }}>
       {/* Header */}
       <div style={{ marginBottom: '16px' }}>
-        <div style={{ fontSize: '18px', fontWeight: 700, color: '#f9fafb', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div
+          style={{
+            fontSize: '18px',
+            fontWeight: 700,
+            color: '#f9fafb',
+            marginBottom: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+          }}
+        >
           <Term term="ZMQ">{t.zmq.title}</Term>
         </div>
-        <div style={{ fontSize: '12px', color: '#9ca3af' }}>
-          {t.zmq.subtitle}
-        </div>
+        <div style={{ fontSize: '12px', color: '#9ca3af' }}>{t.zmq.subtitle}</div>
       </div>
 
       {/* Controls */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-        <button style={btnStyle(topicFilter === 'all')} onClick={() => setTopicFilter('all')}>{t.zmq.filterAll}</button>
+      <div
+        style={{
+          display: 'flex',
+          gap: '8px',
+          marginBottom: '12px',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+        }}
+      >
+        <button style={btnStyle(topicFilter === 'all')} onClick={() => setTopicFilter('all')}>
+          {t.zmq.filterAll}
+        </button>
         <button style={btnStyle(topicFilter === 'rawtx')} onClick={() => setTopicFilter('rawtx')}>
           <Term term="rawtx">rawtx</Term>
         </button>
-        <button style={btnStyle(topicFilter === 'rawblock')} onClick={() => setTopicFilter('rawblock')}>
+        <button
+          style={btnStyle(topicFilter === 'rawblock')}
+          onClick={() => setTopicFilter('rawblock')}
+        >
           <Term term="rawblock">rawblock</Term>
         </button>
         <button
-          onClick={() => { void fetchData() }}
+          onClick={() => {
+            void fetchData()
+          }}
           disabled={loading}
-          style={{ padding: '3px 10px', fontSize: '11px', background: '#0f766e', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+          style={{
+            padding: '3px 10px',
+            fontSize: '11px',
+            background: '#0f766e',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}
         >
           {loading ? t.status.loading : t.actions.refresh}
         </button>
@@ -185,14 +216,33 @@ export function ZmqEventTape({ onInspectTxid }: Props) {
 
       {/* Error */}
       {error && (
-        <div style={{ padding: '8px', background: '#1c0a0a', border: '1px solid #7f1d1d', borderRadius: '4px', fontSize: '12px', color: '#f87171', marginBottom: '10px' }}>
+        <div
+          style={{
+            padding: '8px',
+            background: '#1c0a0a',
+            border: '1px solid #7f1d1d',
+            borderRadius: '4px',
+            fontSize: '12px',
+            color: '#f87171',
+            marginBottom: '10px',
+          }}
+        >
           {error}
         </div>
       )}
 
       {/* Column headers */}
       {items.length > 0 && (
-        <div style={{ display: 'flex', gap: '10px', padding: '4px 12px', fontSize: '10px', color: '#4b5563', marginBottom: '2px' }}>
+        <div
+          style={{
+            display: 'flex',
+            gap: '10px',
+            padding: '4px 12px',
+            fontSize: '10px',
+            color: '#4b5563',
+            marginBottom: '2px',
+          }}
+        >
           <span style={{ minWidth: '68px' }}>topic</span>
           <span style={{ minWidth: '190px' }}>timestamp (UTC)</span>
           <span>id</span>
@@ -201,7 +251,16 @@ export function ZmqEventTape({ onInspectTxid }: Props) {
 
       {/* Events */}
       {items.length === 0 && !loading && !error && (
-        <div style={{ padding: '20px', textAlign: 'center', background: '#0f172a', borderRadius: '6px', fontSize: '12px', color: '#6b7280' }}>
+        <div
+          style={{
+            padding: '20px',
+            textAlign: 'center',
+            background: '#0f172a',
+            borderRadius: '6px',
+            fontSize: '12px',
+            color: '#6b7280',
+          }}
+        >
           {data ? t.zmq.noEvents : t.status.loading}
         </div>
       )}
@@ -209,9 +268,7 @@ export function ZmqEventTape({ onInspectTxid }: Props) {
         <EventRow key={`${ev.ts ?? i}-${i}`} ev={ev} onInspect={onInspectTxid} />
       ))}
 
-      <LearnMore>
-        {t.learn.zmq}
-      </LearnMore>
+      <LearnMore>{t.learn.zmq}</LearnMore>
     </div>
   )
 }

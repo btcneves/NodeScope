@@ -10,20 +10,29 @@ import { LearnMore } from './ui/LearnMore'
 // ---------------------------------------------------------------------------
 
 const STATUS_COLOR: Record<string, string> = {
-  success:     '#22c55e',
-  limited:     '#f59e0b',
+  success: '#22c55e',
+  limited: '#f59e0b',
   unavailable: '#9ca3af',
-  error:       '#ef4444',
+  error: '#ef4444',
 }
 
 function StatusChip({ status, label }: { status: string; label: string }) {
   const color = STATUS_COLOR[status] ?? '#6b7280'
   return (
-    <span style={{
-      padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 700,
-      background: color + '22', color, border: `1px solid ${color}55`,
-      textTransform: 'uppercase', letterSpacing: '0.04em', fontFamily: 'monospace',
-    }}>
+    <span
+      style={{
+        padding: '2px 8px',
+        borderRadius: '4px',
+        fontSize: '10px',
+        fontWeight: 700,
+        background: color + '22',
+        color,
+        border: `1px solid ${color}55`,
+        textTransform: 'uppercase',
+        letterSpacing: '0.04em',
+        fontFamily: 'monospace',
+      }}
+    >
       {label}
     </span>
   )
@@ -47,17 +56,32 @@ function FeeBar({
   const pct = value != null && max > 0 ? Math.min(100, (value / max) * 100) : 0
   return (
     <div style={{ marginBottom: '6px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#9ca3af', marginBottom: '2px' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          fontSize: '11px',
+          color: '#9ca3af',
+          marginBottom: '2px',
+        }}
+      >
         <span>{label}</span>
         <span style={{ fontFamily: 'monospace', color: value != null ? color : '#6b7280' }}>
           {value != null ? `${value.toFixed(2)} sat/vB` : '—'}
         </span>
       </div>
-      <div style={{ height: '8px', background: '#1f2937', borderRadius: '4px', overflow: 'hidden' }}>
-        <div style={{
-          height: '100%', width: `${pct}%`, background: color,
-          borderRadius: '4px', transition: 'width 0.4s ease',
-        }} />
+      <div
+        style={{ height: '8px', background: '#1f2937', borderRadius: '4px', overflow: 'hidden' }}
+      >
+        <div
+          style={{
+            height: '100%',
+            width: `${pct}%`,
+            background: color,
+            borderRadius: '4px',
+            transition: 'width 0.4s ease',
+          }}
+        />
       </div>
     </div>
   )
@@ -67,19 +91,17 @@ function FeeBar({
 // Estimates table row
 // ---------------------------------------------------------------------------
 
-function EstimateRow({
-  item,
-  t,
-}: {
-  item: FeeEstimateItem
-  t: ReturnType<typeof useI18n>['t']
-}) {
+function EstimateRow({ item, t }: { item: FeeEstimateItem; t: ReturnType<typeof useI18n>['t'] }) {
   const statusLabel =
-    item.status === 'success'     ? t.status.success :
-    item.status === 'limited'     ? t.fees.estimateLimited :
-    item.status === 'unavailable' ? t.fees.estimateUnavailable :
-    item.status === 'error'       ? t.status.error :
-    item.status
+    item.status === 'success'
+      ? t.status.success
+      : item.status === 'limited'
+        ? t.fees.estimateLimited
+        : item.status === 'unavailable'
+          ? t.fees.estimateUnavailable
+          : item.status === 'error'
+            ? t.status.error
+            : item.status
 
   return (
     <tr>
@@ -110,10 +132,14 @@ function ComparisonRow({ item }: { item: FeeComparisonItem }) {
   return (
     <tr>
       <td style={{ padding: '6px 10px', fontSize: '12px', color: '#c084fc' }}>{item.label}</td>
-      <td style={{ padding: '6px 10px', fontFamily: 'monospace', fontSize: '12px', color: '#34d399' }}>
+      <td
+        style={{ padding: '6px 10px', fontFamily: 'monospace', fontSize: '12px', color: '#34d399' }}
+      >
         {item.feerate_sat_vb != null ? `${item.feerate_sat_vb.toFixed(2)} sat/vB` : '—'}
       </td>
-      <td style={{ padding: '6px 10px', fontFamily: 'monospace', fontSize: '11px', color: '#9ca3af' }}>
+      <td
+        style={{ padding: '6px 10px', fontFamily: 'monospace', fontSize: '11px', color: '#9ca3af' }}
+      >
         {item.feerate_btc_kvb != null ? item.feerate_btc_kvb.toFixed(8) : '—'}
       </td>
       <td style={{ padding: '6px 10px', fontSize: '11px', color: '#6b7280' }}>{item.note ?? ''}</td>
@@ -154,9 +180,7 @@ export function FeeEstimationPlayground() {
     setLoading(true)
     setError(null)
     try {
-      const result = withComparison
-        ? await api.feesCompare(mode)
-        : await api.feesEstimate(mode)
+      const result = withComparison ? await api.feesCompare(mode) : await api.feesEstimate(mode)
       setData(result)
     } catch (err) {
       setError(String(err))
@@ -167,8 +191,8 @@ export function FeeEstimationPlayground() {
 
   const maxSatVb = data
     ? Math.max(
-        ...data.estimates.map(e => e.feerate_sat_vb ?? 0),
-        ...data.compared_fee_rates.map(c => c.feerate_sat_vb ?? 0),
+        ...data.estimates.map((e) => e.feerate_sat_vb ?? 0),
+        ...data.compared_fee_rates.map((c) => c.feerate_sat_vb ?? 0)
       )
     : 0
 
@@ -201,13 +225,20 @@ export function FeeEstimationPlayground() {
         {/* Controls */}
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
           <div>
-            <label style={{ fontSize: '12px', color: '#9ca3af', marginRight: '6px' }}>{t.fees.mode}:</label>
+            <label style={{ fontSize: '12px', color: '#9ca3af', marginRight: '6px' }}>
+              {t.fees.mode}:
+            </label>
             <select
               value={mode}
-              onChange={e => setMode(e.target.value as 'CONSERVATIVE' | 'ECONOMICAL')}
+              onChange={(e) => setMode(e.target.value as 'CONSERVATIVE' | 'ECONOMICAL')}
               style={{
-                background: '#1f2937', border: '1px solid #374151', borderRadius: '4px',
-                color: '#e2e8f0', padding: '4px 8px', fontSize: '12px', fontFamily: 'monospace',
+                background: '#1f2937',
+                border: '1px solid #374151',
+                borderRadius: '4px',
+                color: '#e2e8f0',
+                padding: '4px 8px',
+                fontSize: '12px',
+                fontFamily: 'monospace',
                 cursor: 'pointer',
               }}
             >
@@ -220,22 +251,38 @@ export function FeeEstimationPlayground() {
             </select>
           </div>
 
-          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#9ca3af', cursor: 'pointer' }}>
+          <label
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '12px',
+              color: '#9ca3af',
+              cursor: 'pointer',
+            }}
+          >
             <input
               type="checkbox"
               checked={withComparison}
-              onChange={e => setWithComparison(e.target.checked)}
+              onChange={(e) => setWithComparison(e.target.checked)}
             />
             {t.fees.compareWithRealFees}
           </label>
 
           <button
-            onClick={() => { void fetchEstimates() }}
+            onClick={() => {
+              void fetchEstimates()
+            }}
             disabled={loading}
             style={{
-              padding: '6px 16px', borderRadius: '4px', border: '1px solid #3b82f6',
-              background: loading ? '#1f2937' : '#1d4ed8', color: '#fff',
-              fontSize: '12px', cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'monospace',
+              padding: '6px 16px',
+              borderRadius: '4px',
+              border: '1px solid #3b82f6',
+              background: loading ? '#1f2937' : '#1d4ed8',
+              color: '#fff',
+              fontSize: '12px',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              fontFamily: 'monospace',
             }}
           >
             {loading ? t.fees.runningEstimation : t.fees.refresh}
@@ -243,7 +290,16 @@ export function FeeEstimationPlayground() {
         </div>
 
         {error && (
-          <div style={{ marginTop: '12px', padding: '8px', background: '#450a0a', borderRadius: '4px', fontSize: '12px', color: '#f87171' }}>
+          <div
+            style={{
+              marginTop: '12px',
+              padding: '8px',
+              background: '#450a0a',
+              borderRadius: '4px',
+              fontSize: '12px',
+              color: '#f87171',
+            }}
+          >
             {error}
           </div>
         )}
@@ -251,32 +307,50 @@ export function FeeEstimationPlayground() {
 
       {/* Regtest warning */}
       {data?.network === 'regtest' && (
-        <div style={{
-          background: '#1c1400', border: '1px solid #78350f', borderRadius: '6px',
-          padding: '10px 14px', marginBottom: '16px', fontSize: '12px', color: '#fbbf24',
-        }}>
+        <div
+          style={{
+            background: '#1c1400',
+            border: '1px solid #78350f',
+            borderRadius: '6px',
+            padding: '10px 14px',
+            marginBottom: '16px',
+            fontSize: '12px',
+            color: '#fbbf24',
+          }}
+        >
           ⚠ {t.fees.regtestWarning}
         </div>
       )}
 
       {/* General warnings */}
-      {data?.warnings && data.warnings.filter(w => w !== data.warnings[0] || data.network !== 'regtest').map((w, i) => (
-        data.network !== 'regtest' && (
-          <div key={i} style={{
-            background: '#1c1400', border: '1px solid #78350f', borderRadius: '6px',
-            padding: '10px 14px', marginBottom: '8px', fontSize: '12px', color: '#fbbf24',
-          }}>
-            ⚠ {w}
-          </div>
-        )
-      ))}
+      {data?.warnings &&
+        data.warnings
+          .filter((w) => w !== data.warnings[0] || data.network !== 'regtest')
+          .map(
+            (w, i) =>
+              data.network !== 'regtest' && (
+                <div
+                  key={i}
+                  style={{
+                    background: '#1c1400',
+                    border: '1px solid #78350f',
+                    borderRadius: '6px',
+                    padding: '10px 14px',
+                    marginBottom: '8px',
+                    fontSize: '12px',
+                    color: '#fbbf24',
+                  }}
+                >
+                  ⚠ {w}
+                </div>
+              )
+          )}
 
       {/* Estimates table */}
       {data && (
         <div style={cardStyle}>
           <div style={sectionTitle}>
-            <Term term="estimatesmartfee">estimatesmartfee</Term>
-            {' '}— {data.estimate_mode}
+            <Term term="estimatesmartfee">estimatesmartfee</Term> — {data.estimate_mode}
           </div>
 
           {data.estimates.length === 0 ? (
@@ -310,16 +384,25 @@ export function FeeEstimationPlayground() {
             </div>
           )}
 
-          <p style={{ marginTop: '10px', fontSize: '11px', color: '#4b5563', fontFamily: 'monospace' }}>
+          <p
+            style={{
+              marginTop: '10px',
+              fontSize: '11px',
+              color: '#4b5563',
+              fontFamily: 'monospace',
+            }}
+          >
             {t.fees.conversionNote}
           </p>
         </div>
       )}
 
       {/* Visual bars */}
-      {data && data.estimates.some(e => e.feerate_sat_vb != null) && (
+      {data && data.estimates.some((e) => e.feerate_sat_vb != null) && (
         <div style={cardStyle}>
-          <div style={sectionTitle}>{t.fees.feerateSatVb} — {data.estimate_mode}</div>
+          <div style={sectionTitle}>
+            {t.fees.feerateSatVb} — {data.estimate_mode}
+          </div>
           {data.estimates.map((item, i) => (
             <FeeBar
               key={i}
@@ -329,15 +412,16 @@ export function FeeEstimationPlayground() {
               color={item.feerate_sat_vb != null ? '#3b82f6' : '#374151'}
             />
           ))}
-          {withComparison && data.compared_fee_rates.map((item, i) => (
-            <FeeBar
-              key={`cmp-${i}`}
-              value={item.feerate_sat_vb}
-              max={maxSatVb}
-              label={item.label}
-              color="#c084fc"
-            />
-          ))}
+          {withComparison &&
+            data.compared_fee_rates.map((item, i) => (
+              <FeeBar
+                key={`cmp-${i}`}
+                value={item.feerate_sat_vb}
+                max={maxSatVb}
+                label={item.label}
+                color="#c084fc"
+              />
+            ))}
         </div>
       )}
 
@@ -356,8 +440,12 @@ export function FeeEstimationPlayground() {
                 <thead>
                   <tr>
                     <th style={TH_STYLE}>{t.fees.comparisonSource}</th>
-                    <th style={TH_STYLE}><Term term="sat/vB">{t.fees.feerateSatVb}</Term></th>
-                    <th style={TH_STYLE}><Term term="BTC/kvB">{t.fees.feerateBtcKvb}</Term></th>
+                    <th style={TH_STYLE}>
+                      <Term term="sat/vB">{t.fees.feerateSatVb}</Term>
+                    </th>
+                    <th style={TH_STYLE}>
+                      <Term term="BTC/kvB">{t.fees.feerateBtcKvb}</Term>
+                    </th>
                     <th style={TH_STYLE}>{t.fees.errors}</th>
                   </tr>
                 </thead>
@@ -376,12 +464,18 @@ export function FeeEstimationPlayground() {
 
       {/* Unavailable features */}
       {data && data.unavailable_features.length > 0 && (
-        <div style={{
-          background: '#0f172a', border: '1px solid #1e3a5f', borderRadius: '6px',
-          padding: '10px 14px', marginBottom: '16px', fontSize: '12px', color: '#60a5fa',
-        }}>
-          <strong>ℹ Unavailable:</strong>{' '}
-          {data.unavailable_features.join(' · ')}
+        <div
+          style={{
+            background: '#0f172a',
+            border: '1px solid #1e3a5f',
+            borderRadius: '6px',
+            padding: '10px 14px',
+            marginBottom: '16px',
+            fontSize: '12px',
+            color: '#60a5fa',
+          }}
+        >
+          <strong>ℹ Unavailable:</strong> {data.unavailable_features.join(' · ')}
         </div>
       )}
 
@@ -392,10 +486,16 @@ export function FeeEstimationPlayground() {
 
       {/* Metadata footer */}
       {data && (
-        <div style={{
-          padding: '10px', background: '#0a0a0a', borderRadius: '6px',
-          fontSize: '11px', color: '#4b5563', fontFamily: 'monospace',
-        }}>
+        <div
+          style={{
+            padding: '10px',
+            background: '#0a0a0a',
+            borderRadius: '6px',
+            fontSize: '11px',
+            color: '#4b5563',
+            fontFamily: 'monospace',
+          }}
+        >
           {data.bitcoin_core_version && <span>node: {data.bitcoin_core_version} · </span>}
           <span>network: {data.network ?? 'unknown'} · </span>
           <span>generated: {data.generated_at}</span>

@@ -1,7 +1,15 @@
 import { useI18n } from '../i18n'
 import type { Lang } from '../i18n'
 
-export type ActiveView = 'dashboard' | 'guided-demo' | 'inspector' | 'zmq-tape' | 'policy-arena' | 'reorg-lab' | 'history' | 'fee-estimation'
+export type ActiveView =
+  | 'dashboard'
+  | 'guided-demo'
+  | 'inspector'
+  | 'zmq-tape'
+  | 'policy-arena'
+  | 'reorg-lab'
+  | 'history'
+  | 'fee-estimation'
 
 interface Props {
   network: string
@@ -19,17 +27,26 @@ const LANG_OPTIONS: { value: Lang; label: string }[] = [
   { value: 'pt-BR', label: 'PT' },
 ]
 
-export function Header({ network, apiOk, rpcOk, sseConnected, onRefresh, activeView, onSetView, onNewSession }: Props) {
+export function Header({
+  network,
+  apiOk,
+  rpcOk,
+  sseConnected,
+  onRefresh,
+  activeView,
+  onSetView,
+  onNewSession,
+}: Props) {
   const { t, lang, setLang } = useI18n()
 
   const NAV: { id: ActiveView; label: string }[] = [
-    { id: 'dashboard',    label: t.nav.dashboard },
-    { id: 'guided-demo',  label: t.nav.guidedDemo },
-    { id: 'inspector',    label: t.nav.txInspector },
-    { id: 'zmq-tape',     label: t.nav.zmqTape },
+    { id: 'dashboard', label: t.nav.dashboard },
+    { id: 'guided-demo', label: t.nav.guidedDemo },
+    { id: 'inspector', label: t.nav.txInspector },
+    { id: 'zmq-tape', label: t.nav.zmqTape },
     { id: 'policy-arena', label: t.nav.policyArena },
-    { id: 'reorg-lab',    label: t.nav.reorgLab },
-    { id: 'history',        label: t.history.title },
+    { id: 'reorg-lab', label: t.nav.reorgLab },
+    { id: 'history', label: t.history.title },
     { id: 'fee-estimation', label: t.fees.navLabel },
   ]
 
@@ -103,7 +120,9 @@ export function Header({ network, apiOk, rpcOk, sseConnected, onRefresh, activeV
           <span className={`dot ${sseConnected ? 'dot-ok' : 'dot-loading'}`} />
           {t.header.sseStatus}
         </span>
-        <button className="refresh-btn" onClick={onRefresh}>{t.actions.refresh}</button>
+        <button className="refresh-btn" onClick={onRefresh}>
+          {t.actions.refresh}
+        </button>
         {onNewSession && (
           <button
             onClick={onNewSession}

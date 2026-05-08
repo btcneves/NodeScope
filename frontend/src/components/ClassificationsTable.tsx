@@ -29,7 +29,9 @@ export function ClassificationsTable({ classifications }: Props) {
   return (
     <div className="panel" style={{ marginBottom: '24px' }}>
       <div className="panel-header">
-        <span className="panel-title"><Term text={t.panelDesc.classifications}>{t.dashboard.classifications}</Term></span>
+        <span className="panel-title">
+          <Term text={t.panelDesc.classifications}>{t.dashboard.classifications}</Term>
+        </span>
         <span style={{ fontSize: '11px', color: 'var(--muted)' }}>
           {classifications.length} {t.dashboard.items}
         </span>
@@ -77,7 +79,9 @@ export function ClassificationsTable({ classifications }: Props) {
                 >
                   {identifier}&hellip;
                 </span>
-                {copiedKey === identifierKey && <span className="copy-feedback">{t.dashboard.copied}</span>}
+                {copiedKey === identifierKey && (
+                  <span className="copy-feedback">{t.dashboard.copied}</span>
+                )}
                 <span
                   className={reason ? 'copyable-text' : undefined}
                   title={reason ? `${t.dashboard.copyReason}: ${reason}` : undefined}
@@ -102,7 +106,9 @@ export function ClassificationsTable({ classifications }: Props) {
                 >
                   {reason ?? ''}
                 </span>
-                {copiedKey === reasonKey && <span className="copy-feedback">{t.dashboard.copied}</span>}
+                {copiedKey === reasonKey && (
+                  <span className="copy-feedback">{t.dashboard.copied}</span>
+                )}
               </div>
             )
           })

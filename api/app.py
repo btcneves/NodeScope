@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import csv
 import datetime
+import io
+import json
 import os
 import time
 from contextlib import asynccontextmanager
@@ -552,6 +555,100 @@ def history_reorg_runs(
 ) -> dict:
     items = history_service.get_reorg_runs(limit=limit, offset=offset)
     return {"items": items, "total_returned": len(items), "limit": limit, "offset": offset}
+
+
+@app.get("/history/export.json")
+def history_export_json(
+    source: str | None = Query(default=None),
+    success: bool | None = Query(default=None),
+    since: str | None = Query(default=None),
+    until: str | None = Query(default=None),
+    limit: int = Query(default=1000, ge=1, le=10000),
+) -> Response:
+    payload = history_service.build_export_payload(
+        source=source, success=success, since=since, until=until, limit=limit
+    )
+    content = json.dumps(payload, indent=2, default=str)
+    return Response(
+        content=content,
+        media_type="application/json",
+        headers={"Content-Disposition": 'attachment; filename="nodescope-history.json"'},
+    )
+
+
+@app.get("/history/export.csv")
+def history_export_csv(
+    source: str | None = Query(default=None),
+    success: bool | None = Query(default=None),
+    since: str | None = Query(default=None),
+    until: str | None = Query(default=None),
+    limit: int = Query(default=1000, ge=1, le=10000),
+) -> Response:
+    payload = history_service.build_export_payload(
+        source=source, success=success, since=since, until=until, limit=limit
+    )
+    buf = io.StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(
+        ["table", "id", "source", "scenario_id", "status", "success", "txid", "created_at"]
+    )
+    for row in payload.get("proof_reports", []):
+        writer.writerow(
+            [
+                "proof_report",
+                row.get("id"),
+                row.get("source"),
+                "",
+                row.get("status"),
+                row.get("success"),
+                row.get("txid"),
+                row.get("created_at"),
+            ]
+        )
+    for row in payload.get("demo_runs", []):
+        writer.writerow(
+            [
+                "demo_run",
+                row.get("id"),
+                "demo",
+                "",
+                row.get("status"),
+                row.get("success"),
+                row.get("txid"),
+                row.get("created_at"),
+            ]
+        )
+    for row in payload.get("policy_runs", []):
+        writer.writerow(
+            [
+                "policy_run",
+                row.get("id"),
+                "policy",
+                row.get("scenario_id"),
+                row.get("status"),
+                row.get("success"),
+                "",
+                row.get("created_at"),
+            ]
+        )
+    for row in payload.get("reorg_runs", []):
+        writer.writerow(
+            [
+                "reorg_run",
+                row.get("id"),
+                "reorg",
+                "",
+                row.get("status"),
+                row.get("success"),
+                row.get("txid"),
+                row.get("created_at"),
+            ]
+        )
+    return Response(
+        content=buf.getvalue(),
+        media_type="text/csv",
+        headers={"Content-Disposition": 'attachment; filename="nodescope-history.csv"'},
+    )
 
 
 # ---------------------------------------------------------------------------

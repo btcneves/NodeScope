@@ -447,6 +447,10 @@ export interface Translations {
     storageInfo: string
     sqlite: string
     memory: string
+    exportJson: string
+    exportCsv: string
+    exportDownloaded: string
+    exportFailed: string
   }
 
   // Fee Estimation Playground

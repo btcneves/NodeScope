@@ -13,7 +13,7 @@ export function computeHealthScore(
   health: HealthData | null,
   mempool: MempoolData | null,
   latestBlock: BlockData | null,
-  sseConnected: boolean,
+  sseConnected: boolean
 ): HealthScore {
   const rpcPoints = health?.rpc_ok ? 40 : 0
   const zmqPoints = sseConnected ? 30 : 0

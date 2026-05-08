@@ -31,7 +31,9 @@ export function TxPanel({ tx }: Props) {
   return (
     <div className="panel">
       <div className="panel-header">
-        <span className="panel-title"><Term term="TXID">{t.dashboard.latestTx}</Term></span>
+        <span className="panel-title">
+          <Term term="TXID">{t.dashboard.latestTx}</Term>
+        </span>
       </div>
       <div className="panel-body">
         {!tx ? (
@@ -39,7 +41,9 @@ export function TxPanel({ tx }: Props) {
         ) : (
           <>
             <div className="event-row">
-              <span className="kpi-label" style={{ minWidth: '60px' }}><Term term="TXID">TXID</Term></span>
+              <span className="kpi-label" style={{ minWidth: '60px' }}>
+                <Term term="TXID">TXID</Term>
+              </span>
               <span
                 className="event-hash mono copyable-text"
                 title={t.dashboard.clickCopyTxid}
@@ -58,19 +62,27 @@ export function TxPanel({ tx }: Props) {
               {copied && <span className="copy-feedback">{t.dashboard.copied}</span>}
             </div>
             <div className="event-row">
-              <span className="kpi-label" style={{ minWidth: '60px' }}>Kind</span>
+              <span className="kpi-label" style={{ minWidth: '60px' }}>
+                Kind
+              </span>
               <span className={`badge badge-${kindBadgeClass(tx.kind)}`}>{tx.kind}</span>
             </div>
             <div className="event-row">
-              <span className="kpi-label" style={{ minWidth: '60px' }}><Term term="Input">{t.inspector.inputs}</Term></span>
+              <span className="kpi-label" style={{ minWidth: '60px' }}>
+                <Term term="Input">{t.inspector.inputs}</Term>
+              </span>
               <span>{tx.inputs}</span>
             </div>
             <div className="event-row">
-              <span className="kpi-label" style={{ minWidth: '60px' }}><Term term="Output">{t.inspector.outputs}</Term></span>
+              <span className="kpi-label" style={{ minWidth: '60px' }}>
+                <Term term="Output">{t.inspector.outputs}</Term>
+              </span>
               <span>{tx.outputs}</span>
             </div>
             <div className="event-row">
-              <span className="kpi-label" style={{ minWidth: '60px' }}><Term term="Output">{t.inspector.totalOutput}</Term></span>
+              <span className="kpi-label" style={{ minWidth: '60px' }}>
+                <Term term="Output">{t.inspector.totalOutput}</Term>
+              </span>
               <span className="mono">{tx.total_out.toFixed(8)} BTC</span>
             </div>
           </>

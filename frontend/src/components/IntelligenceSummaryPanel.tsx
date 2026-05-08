@@ -19,7 +19,9 @@ function PressureBadge({ pressure }: { pressure: string }) {
 }
 
 function StatusDot({ ok }: { ok: boolean }) {
-  return <span className={`dot ${ok ? 'dot-ok' : 'dot-error'}`} style={{ display: 'inline-block' }} />
+  return (
+    <span className={`dot ${ok ? 'dot-ok' : 'dot-error'}`} style={{ display: 'inline-block' }} />
+  )
 }
 
 export function IntelligenceSummaryPanel({ data }: Props) {

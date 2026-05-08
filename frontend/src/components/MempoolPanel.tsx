@@ -11,7 +11,9 @@ export function MempoolPanel({ mempool }: Props) {
   return (
     <div className="panel">
       <div className="panel-header">
-        <span className="panel-title"><Term term="Mempool">{t.dashboard.mempool}</Term></span>
+        <span className="panel-title">
+          <Term term="Mempool">{t.dashboard.mempool}</Term>
+        </span>
         {mempool?.rpc_ok && (
           <span className="live-indicator">
             <span className="live-dot" />
@@ -21,9 +23,7 @@ export function MempoolPanel({ mempool }: Props) {
       </div>
       <div className="panel-body">
         {!mempool || !mempool.rpc_ok ? (
-          <div className="empty-state">
-            {mempool ? t.dashboard.rpcOffline : t.status.loading}
-          </div>
+          <div className="empty-state">{mempool ? t.dashboard.rpcOffline : t.status.loading}</div>
         ) : (
           <div className="mempool-grid">
             <div className="mempool-item">
@@ -31,7 +31,9 @@ export function MempoolPanel({ mempool }: Props) {
               <div className="mempool-value">{mempool.size}</div>
             </div>
             <div className="mempool-item">
-              <div className="mempool-label"><Term term="vbytes">{t.generic.size}</Term></div>
+              <div className="mempool-label">
+                <Term term="vbytes">{t.generic.size}</Term>
+              </div>
               <div className="mempool-value">{(mempool.bytes / 1024).toFixed(1)} KB</div>
             </div>
             <div className="mempool-item">
@@ -39,7 +41,9 @@ export function MempoolPanel({ mempool }: Props) {
               <div className="mempool-value">{(mempool.usage / 1024).toFixed(0)} KB</div>
             </div>
             <div className="mempool-item">
-              <div className="mempool-label"><Term term="Fee rate">{t.dashboard.minFee}</Term></div>
+              <div className="mempool-label">
+                <Term term="Fee rate">{t.dashboard.minFee}</Term>
+              </div>
               <div className="mempool-value mono" style={{ fontSize: '14px' }}>
                 {mempool.mempoolminfee.toFixed(8)}
               </div>

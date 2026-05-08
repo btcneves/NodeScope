@@ -63,7 +63,7 @@ export default function AlertingPanel() {
 
     // --- Simulation errors ---
     try {
-      const sim = await api.simulationStatus() as SimulationData
+      const sim = (await api.simulationStatus()) as SimulationData
       if (sim.errors > 0) {
         newAlerts.push({
           id: 'sim_errors',
@@ -123,19 +123,26 @@ export default function AlertingPanel() {
         marginBottom: 18,
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 10,
+        }}
+      >
         <span style={{ fontWeight: 700, fontSize: 14, color: panelHeaderColor, letterSpacing: 1 }}>
           {t.alerts.title.toUpperCase()}
         </span>
         {lastCheck && (
-          <span style={{ fontSize: 11, color: '#555' }}>
-            {lastCheck.toLocaleTimeString()}
-          </span>
+          <span style={{ fontSize: 11, color: '#555' }}>{lastCheck.toLocaleTimeString()}</span>
         )}
       </div>
 
       {allGood ? (
-        <div style={{ color: '#22c55e', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div
+          style={{ color: '#22c55e', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}
+        >
           <span>✓</span>
           <span>{t.alerts.allGood}</span>
         </div>
@@ -166,7 +173,9 @@ export default function AlertingPanel() {
                 {SEVERITY_ICON[alert.severity]}
               </span>
               <div>
-                <div style={{ color: SEVERITY_COLORS[alert.severity], fontWeight: 600, fontSize: 13 }}>
+                <div
+                  style={{ color: SEVERITY_COLORS[alert.severity], fontWeight: 600, fontSize: 13 }}
+                >
                   <span
                     style={{
                       fontSize: 10,

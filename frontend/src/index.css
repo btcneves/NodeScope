@@ -11,21 +11,38 @@
   --blue: #388bfd;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
 /* Thin dark scrollbar — webkit */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #4b5563; }
-::-webkit-scrollbar-corner { background: transparent; }
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #30363d;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #4b5563;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
 
 /* Thin dark scrollbar — Firefox */
-* { scrollbar-width: thin; scrollbar-color: #30363d transparent; }
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #30363d transparent;
+}
 
 input[type='number']::-webkit-inner-spin-button,
 input[type='number']::-webkit-outer-spin-button {
@@ -40,7 +57,10 @@ input[type='number'] {
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
   min-height: 100vh;
 }
 
@@ -142,8 +162,13 @@ body {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }
 
 .main {
@@ -373,7 +398,7 @@ body {
   border-right: 1px solid var(--border);
 }
 
-.mempool-item:nth-last-child(-n+2) {
+.mempool-item:nth-last-child(-n + 2) {
   border-bottom: none;
 }
 
@@ -406,7 +431,9 @@ body {
   border-radius: 6px;
   font-size: 11px;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
 }
 
 .refresh-btn:hover {
@@ -429,9 +456,18 @@ body {
   justify-content: center;
 }
 
-.badge-health-healthy  { background: rgba(63, 184, 134, 0.15); color: var(--accent-bright); }
-.badge-health-degraded { background: rgba(227, 179, 65, 0.15); color: var(--warn); }
-.badge-health-critical { background: rgba(248, 81, 73, 0.15); color: var(--error); }
+.badge-health-healthy {
+  background: rgba(63, 184, 134, 0.15);
+  color: var(--accent-bright);
+}
+.badge-health-degraded {
+  background: rgba(227, 179, 65, 0.15);
+  color: var(--warn);
+}
+.badge-health-critical {
+  background: rgba(248, 81, 73, 0.15);
+  color: var(--error);
+}
 
 /* ── Transaction Lifecycle ───────────────────────────────────────── */
 
@@ -469,7 +505,10 @@ body {
   border-radius: 50%;
   border: 2px solid var(--border);
   background: var(--bg);
-  transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+  transition:
+    background 0.3s,
+    border-color 0.3s,
+    box-shadow 0.3s;
 }
 
 .lifecycle-step--active .lifecycle-dot,
@@ -524,8 +563,12 @@ body {
   .lifecycle-step {
     min-width: 60px;
   }
-  .lifecycle-label { font-size: 10px; }
-  .lifecycle-sub   { display: none; }
+  .lifecycle-label {
+    font-size: 10px;
+  }
+  .lifecycle-sub {
+    display: none;
+  }
 }
 
 /* ── ReplayEnginePanel ───────────────────────────────────────────── */
@@ -593,7 +636,10 @@ body {
 
 .sync-header .sync-rpc,
 .sync-header .sync-zmq {
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
   font-size: 11px;
   font-weight: 600;
   color: var(--muted);
@@ -660,7 +706,9 @@ body {
   font-size: 12px;
   cursor: pointer;
   z-index: 1001;
-  transition: color 0.15s, border-color 0.15s;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
 }
 
 .pres-close:hover {

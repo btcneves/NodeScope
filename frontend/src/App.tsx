@@ -58,7 +58,11 @@ export default function App() {
   const [activeView, setActiveView] = useState<ActiveView>('dashboard')
   const [inspectorTxid, setInspectorTxid] = useState('')
   const [guidedDemoSteps, setGuidedDemoSteps] = useState<DemoStep[]>([])
-  const { events: sseEvents, connected: sseConnected, clearEvents: clearSseEvents } = useSSE('/events/stream')
+  const {
+    events: sseEvents,
+    connected: sseConnected,
+    clearEvents: clearSseEvents,
+  } = useSSE('/events/stream')
 
   // i18n state
   const [lang, setLangState] = useState<Lang>(getStoredLang)
@@ -91,10 +95,14 @@ export default function App() {
       if (b.status === 'fulfilled') setLatestBlock(b.value)
       if (tx.status === 'fulfilled') setLatestTx(tx.value)
       if (intel.status === 'fulfilled') setIntelligence(intel.value)
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }
 
-  useEffect(() => { void fetchAll() }, [])
+  useEffect(() => {
+    void fetchAll()
+  }, [])
   useInterval(fetchAll, 5000)
 
   const network = health?.chain ?? health?.network ?? 'regtest'
@@ -110,7 +118,9 @@ export default function App() {
     if (!window.confirm(t.header.newSessionConfirm)) return
     try {
       await api.sessionReset()
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
     clearSseEvents()
     setEvents([])
     setClassifications([])
@@ -129,10 +139,14 @@ export default function App() {
       apiOk={apiOk}
       rpcOk={rpcOk}
       sseConnected={sseConnected}
-      onRefresh={() => { void fetchAll() }}
+      onRefresh={() => {
+        void fetchAll()
+      }}
       activeView={activeView}
       onSetView={setActiveView}
-      onNewSession={() => { void handleNewSession() }}
+      onNewSession={() => {
+        void handleNewSession()
+      }}
     />
   )
 
@@ -141,29 +155,33 @@ export default function App() {
       {activeView === 'guided-demo' ? (
         <div className="app" style={{ height: '100vh', overflow: 'hidden' }}>
           {header}
-          <div style={{
-            display: 'flex',
-            gap: '20px',
-            padding: '16px 24px',
-            height: 'calc(100vh - 56px)',
-            overflow: 'hidden',
-            maxWidth: '1300px',
-            margin: '0 auto',
-            width: '100%',
-          }}>
+          <div
+            style={{
+              display: 'flex',
+              gap: '20px',
+              padding: '16px 24px',
+              height: 'calc(100vh - 56px)',
+              overflow: 'hidden',
+              maxWidth: '1300px',
+              margin: '0 auto',
+              width: '100%',
+            }}
+          >
             {/* Left: scrollable steps list */}
             <div style={{ flex: 1, overflowY: 'auto', minWidth: 0, paddingRight: 4 }}>
               <GuidedDemo onStepsChange={setGuidedDemoSteps} />
             </div>
             {/* Right: fixed sidebar — lifecycle + explain */}
-            <div style={{
-              width: '300px',
-              flexShrink: 0,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '12px',
-              overflowY: 'auto',
-            }}>
+            <div
+              style={{
+                width: '300px',
+                flexShrink: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+                overflowY: 'auto',
+              }}
+            >
               <TransactionLifecycle
                 rpcOk={rpcOk}
                 zmqConnected={sseConnected}
@@ -207,7 +225,10 @@ export default function App() {
           {header}
           <main className="main" style={{ maxWidth: '900px', margin: '0 auto' }}>
             <ExplainBox text={t.explain.reorgLab} />
-            <ReorgLab onInspect={handleInspect} onGoToDashboard={() => setActiveView('dashboard')} />
+            <ReorgLab
+              onInspect={handleInspect}
+              onGoToDashboard={() => setActiveView('dashboard')}
+            />
           </main>
           <Footer />
         </div>
@@ -247,11 +268,7 @@ export default function App() {
               <IntelligenceSummaryPanel data={intelligence} />
             </div>
             <SimulationPanel />
-            <TransactionLifecycle
-              rpcOk={rpcOk}
-              zmqConnected={sseConnected}
-              sseEvents={sseEvents}
-            />
+            <TransactionLifecycle rpcOk={rpcOk} zmqConnected={sseConnected} sseEvents={sseEvents} />
             <div className="grid-3">
               <MempoolPanel mempool={mempool} />
               <BlocksPanel block={latestBlock} />

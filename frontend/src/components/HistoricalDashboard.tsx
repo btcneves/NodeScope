@@ -70,11 +70,7 @@ function Timestamp({ value }: { value: string | null | undefined }) {
   if (!value) return <span style={{ color: '#64748b' }}>—</span>
   try {
     const d = new Date(value)
-    return (
-      <span style={{ color: '#94a3b8', fontSize: 11 }}>
-        {d.toLocaleString()}
-      </span>
-    )
+    return <span style={{ color: '#94a3b8', fontSize: 11 }}>{d.toLocaleString()}</span>
   } catch {
     return <span style={{ color: '#94a3b8', fontSize: 11 }}>{value}</span>
   }
@@ -110,6 +106,7 @@ export default function HistoricalDashboard() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState<number | null>(null)
+  const [exportMsg, setExportMsg] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'proofs' | 'demo' | 'policy' | 'reorg'>('proofs')
 
   const load = useCallback(async () => {
@@ -138,6 +135,22 @@ export default function HistoricalDashboard() {
   useEffect(() => {
     load()
   }, [load])
+
+  function handleExport(format: 'json' | 'csv') {
+    try {
+      const a = document.createElement('a')
+      a.href = `/history/export.${format}`
+      a.download = `nodescope-history.${format}`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      setExportMsg(t.history.exportDownloaded)
+      setTimeout(() => setExportMsg(null), 3000)
+    } catch {
+      setExportMsg(t.history.exportFailed)
+      setTimeout(() => setExportMsg(null), 3000)
+    }
+  }
 
   function copyProof(item: ProofReportHistoryItem) {
     if (!item.summary) return
@@ -186,9 +199,7 @@ export default function HistoricalDashboard() {
                 fontSize: 11,
                 padding: '2px 8px',
                 borderRadius: 4,
-                background: summary.storage_up
-                  ? 'rgba(34,197,94,0.15)'
-                  : 'rgba(239,68,68,0.15)',
+                background: summary.storage_up ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)',
                 color: summary.storage_up ? '#4ade80' : '#f87171',
               }}
             >
@@ -206,27 +217,23 @@ export default function HistoricalDashboard() {
               value={summary.proof_reports}
               color="#a78bfa"
             />
-            <SummaryCard
-              label={t.history.demoRuns}
-              value={summary.demo_runs}
-              color="#34d399"
-            />
-            <SummaryCard
-              label={t.history.policyRuns}
-              value={summary.policy_runs}
-              color="#60a5fa"
-            />
-            <SummaryCard
-              label={t.history.reorgRuns}
-              value={summary.reorg_runs}
-              color="#f59e0b"
-            />
+            <SummaryCard label={t.history.demoRuns} value={summary.demo_runs} color="#34d399" />
+            <SummaryCard label={t.history.policyRuns} value={summary.policy_runs} color="#60a5fa" />
+            <SummaryCard label={t.history.reorgRuns} value={summary.reorg_runs} color="#f59e0b" />
           </div>
         </div>
       )}
 
-      {/* Refresh + error */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 16, alignItems: 'center' }}>
+      {/* Refresh + export + error */}
+      <div
+        style={{
+          display: 'flex',
+          gap: 8,
+          marginBottom: 16,
+          alignItems: 'center',
+          flexWrap: 'wrap',
+        }}
+      >
         <button
           onClick={load}
           disabled={loading}
@@ -242,14 +249,41 @@ export default function HistoricalDashboard() {
         >
           {loading ? '…' : t.history.refresh}
         </button>
-        {error && (
-          <span style={{ fontSize: 12, color: '#f87171' }}>{error}</span>
-        )}
+        <button
+          onClick={() => handleExport('json')}
+          style={{
+            padding: '6px 14px',
+            background: 'transparent',
+            border: '1px solid #334155',
+            borderRadius: 6,
+            color: '#94a3b8',
+            cursor: 'pointer',
+            fontSize: 12,
+          }}
+        >
+          {t.history.exportJson}
+        </button>
+        <button
+          onClick={() => handleExport('csv')}
+          style={{
+            padding: '6px 14px',
+            background: 'transparent',
+            border: '1px solid #334155',
+            borderRadius: 6,
+            color: '#94a3b8',
+            cursor: 'pointer',
+            fontSize: 12,
+          }}
+        >
+          {t.history.exportCsv}
+        </button>
+        {exportMsg && <span style={{ fontSize: 12, color: '#34d399' }}>{exportMsg}</span>}
+        {error && <span style={{ fontSize: 12, color: '#f87171' }}>{error}</span>}
       </div>
 
       {/* Tabs */}
       <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
-        {tabs.map(tab => (
+        {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
@@ -303,7 +337,7 @@ export default function HistoricalDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {proofs.map(item => (
+                {proofs.map((item) => (
                   <tr key={item.id}>
                     <td style={TD_STYLE}>
                       <span style={{ fontSize: 12, color: '#e2e8f0' }}>
@@ -381,16 +415,22 @@ export default function HistoricalDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {demoRuns.map(item => (
+                {demoRuns.map((item) => (
                   <tr key={item.id}>
-                    <td style={TD_STYLE}><Badge success={item.success} /></td>
-                    <td style={TD_STYLE}><ShortHash value={item.txid} /></td>
+                    <td style={TD_STYLE}>
+                      <Badge success={item.success} />
+                    </td>
+                    <td style={TD_STYLE}>
+                      <ShortHash value={item.txid} />
+                    </td>
                     <td style={TD_STYLE}>
                       <span style={{ fontSize: 11, color: '#94a3b8' }}>
                         {item.duration_ms != null ? `${Math.round(item.duration_ms)} ms` : '—'}
                       </span>
                     </td>
-                    <td style={TD_STYLE}><Timestamp value={item.created_at} /></td>
+                    <td style={TD_STYLE}>
+                      <Timestamp value={item.created_at} />
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -417,7 +457,7 @@ export default function HistoricalDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {policyRuns.map(item => (
+                {policyRuns.map((item) => (
                   <tr key={item.id}>
                     <td style={TD_STYLE}>
                       <span
@@ -432,11 +472,15 @@ export default function HistoricalDashboard() {
                         {item.scenario_id ?? '—'}
                       </span>
                     </td>
-                    <td style={TD_STYLE}><Badge success={item.success} /></td>
+                    <td style={TD_STYLE}>
+                      <Badge success={item.success} />
+                    </td>
                     <td style={TD_STYLE}>
                       <ShortHash value={item.txids?.[0]} />
                     </td>
-                    <td style={TD_STYLE}><Timestamp value={item.created_at} /></td>
+                    <td style={TD_STYLE}>
+                      <Timestamp value={item.created_at} />
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -464,13 +508,23 @@ export default function HistoricalDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {reorgRuns.map(item => (
+                {reorgRuns.map((item) => (
                   <tr key={item.id}>
-                    <td style={TD_STYLE}><Badge success={item.success} /></td>
-                    <td style={TD_STYLE}><ShortHash value={item.txid} /></td>
-                    <td style={TD_STYLE}><ShortHash value={item.original_block_hash} /></td>
-                    <td style={TD_STYLE}><ShortHash value={item.final_block_hash} /></td>
-                    <td style={TD_STYLE}><Timestamp value={item.created_at} /></td>
+                    <td style={TD_STYLE}>
+                      <Badge success={item.success} />
+                    </td>
+                    <td style={TD_STYLE}>
+                      <ShortHash value={item.txid} />
+                    </td>
+                    <td style={TD_STYLE}>
+                      <ShortHash value={item.original_block_hash} />
+                    </td>
+                    <td style={TD_STYLE}>
+                      <ShortHash value={item.final_block_hash} />
+                    </td>
+                    <td style={TD_STYLE}>
+                      <Timestamp value={item.created_at} />
+                    </td>
                   </tr>
                 ))}
               </tbody>

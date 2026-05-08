@@ -22,12 +22,32 @@ export function KpiRow({ summary, mempool, health }: Props) {
     : '—'
 
   const kpis = [
-    { label: <Term term="Block height">{t.proof.blockHeight}</Term>, value: blockHeight, sub: t.dashboard.rpcSnapshot },
-    { label: <Term term="Mempool">{t.dashboard.kpiTxs}</Term>, value: mempoolValue, sub: mempoolSub },
-    { label: <Term term="rawtx">ZMQ TX Events</Term>, value: summary?.rawtx_count ?? '—', sub: 'zmq_rawtx' },
-    { label: <Term term="rawblock">ZMQ Blocks</Term>, value: summary?.rawblock_count ?? '—', sub: 'zmq_rawblock' },
+    {
+      label: <Term term="Block height">{t.proof.blockHeight}</Term>,
+      value: blockHeight,
+      sub: t.dashboard.rpcSnapshot,
+    },
+    {
+      label: <Term term="Mempool">{t.dashboard.kpiTxs}</Term>,
+      value: mempoolValue,
+      sub: mempoolSub,
+    },
+    {
+      label: <Term term="rawtx">ZMQ TX Events</Term>,
+      value: summary?.rawtx_count ?? '—',
+      sub: 'zmq_rawtx',
+    },
+    {
+      label: <Term term="rawblock">ZMQ Blocks</Term>,
+      value: summary?.rawblock_count ?? '—',
+      sub: 'zmq_rawblock',
+    },
     { label: t.dashboard.classified, value: classifiedCount, sub: t.dashboard.byEngine },
-    { label: t.dashboard.eventStore, value: summary?.total_events ?? '—', sub: t.dashboard.totalInLog },
+    {
+      label: t.dashboard.eventStore,
+      value: summary?.total_events ?? '—',
+      sub: t.dashboard.totalInLog,
+    },
   ]
 
   return (

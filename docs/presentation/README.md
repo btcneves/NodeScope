@@ -46,7 +46,7 @@ Open `http://localhost:5173` → click "Run Full Demo" in Guided Demo.
 | Docker services | 4 (bitcoind, api, monitor, frontend) |
 | Guided Demo steps | 14 |
 | Smoke tests | PASS=15 FAIL=0 |
-| Python unit tests | 54 |
+| Python unit tests | 80 |
 | Prometheus metrics | 28+ |
 | i18n | PT-BR / EN-US |
 | Cluster mempool (BC28+ RPCs) | Unavailable on BC26 (documented) |

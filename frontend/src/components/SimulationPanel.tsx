@@ -13,31 +13,50 @@ function relTime(ts: string | null): string {
   return `${Math.floor(s / 3600)}h atrás`
 }
 
-function CountdownBar({ label, countdown, interval, color }: {
+function CountdownBar({
+  label,
+  countdown,
+  interval,
+  color,
+}: {
   label: string
   countdown: number | null
   interval: number
   color: string
 }) {
-  const pct = countdown != null
-    ? Math.min(100, Math.max(0, ((interval - countdown) / interval) * 100))
-    : 0
+  const pct =
+    countdown != null ? Math.min(100, Math.max(0, ((interval - countdown) / interval) * 100)) : 0
   return (
     <div style={{ marginBottom: 10 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#9ca3af', marginBottom: 4 }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          fontSize: 11,
+          color: '#9ca3af',
+          marginBottom: 4,
+        }}
+      >
         <span>{label}</span>
-        <span style={{ fontVariantNumeric: 'tabular-nums', color: countdown != null ? '#d1d5db' : '#4b5563' }}>
+        <span
+          style={{
+            fontVariantNumeric: 'tabular-nums',
+            color: countdown != null ? '#d1d5db' : '#4b5563',
+          }}
+        >
           {countdown != null ? `${countdown}s` : '—'}
         </span>
       </div>
       <div style={{ background: '#1f2937', borderRadius: 4, height: 5, overflow: 'hidden' }}>
-        <div style={{
-          width: `${pct}%`,
-          height: '100%',
-          background: color,
-          transition: 'width 1s linear',
-          borderRadius: 4,
-        }} />
+        <div
+          style={{
+            width: `${pct}%`,
+            height: '100%',
+            background: color,
+            transition: 'width 1s linear',
+            borderRadius: 4,
+          }}
+        />
       </div>
     </div>
   )
@@ -55,10 +74,14 @@ export function SimulationPanel() {
   const fetchStatus = useCallback(async () => {
     try {
       setData(await api.simulationStatus())
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, [])
 
-  useEffect(() => { void fetchStatus() }, [fetchStatus])
+  useEffect(() => {
+    void fetchStatus()
+  }, [fetchStatus])
   useInterval(fetchStatus, 2000)
 
   // Sync config inputs when not actively editing
@@ -75,8 +98,11 @@ export function SimulationPanel() {
     try {
       const result = data.running ? await api.simulationStop() : await api.simulationStart()
       setData(result)
-    } catch { /* ignore */ }
-    finally { setLoading(false) }
+    } catch {
+      /* ignore */
+    } finally {
+      setLoading(false)
+    }
   }
 
   const submitConfig = async () => {
@@ -86,7 +112,9 @@ export function SimulationPanel() {
     if (!isNaN(bi) && !isNaN(ti) && bi >= 5 && ti >= 3) {
       try {
         setData(await api.simulationConfig(bi, ti))
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     }
   }
 
@@ -95,18 +123,36 @@ export function SimulationPanel() {
   const errColor = (data?.errors ?? 0) > 0 ? '#f59e0b' : '#6b7280'
 
   const stat = (label: string, value: number | string, color: string) => (
-    <div style={{
-      flex: 1,
-      textAlign: 'center',
-      padding: '8px 6px',
-      background: '#0d1117',
-      borderRadius: 6,
-      border: '1px solid #1f2937',
-    }}>
-      <div style={{ fontSize: 20, fontWeight: 700, color, fontVariantNumeric: 'tabular-nums', lineHeight: 1.2 }}>
+    <div
+      style={{
+        flex: 1,
+        textAlign: 'center',
+        padding: '8px 6px',
+        background: '#0d1117',
+        borderRadius: 6,
+        border: '1px solid #1f2937',
+      }}
+    >
+      <div
+        style={{
+          fontSize: 20,
+          fontWeight: 700,
+          color,
+          fontVariantNumeric: 'tabular-nums',
+          lineHeight: 1.2,
+        }}
+      >
         {value}
       </div>
-      <div style={{ fontSize: 10, color: '#6b7280', marginTop: 3, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+      <div
+        style={{
+          fontSize: 10,
+          color: '#6b7280',
+          marginTop: 3,
+          textTransform: 'uppercase',
+          letterSpacing: '0.05em',
+        }}
+      >
         {label}
       </div>
     </div>
@@ -118,12 +164,17 @@ export function SimulationPanel() {
       <div className="panel-header">
         <span className="panel-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {running && (
-            <span style={{
-              width: 7, height: 7, borderRadius: '50%',
-              background: '#22c55e', display: 'inline-block',
-              boxShadow: '0 0 6px #22c55e88',
-              animation: 'pulse 2s infinite',
-            }} />
+            <span
+              style={{
+                width: 7,
+                height: 7,
+                borderRadius: '50%',
+                background: '#22c55e',
+                display: 'inline-block',
+                boxShadow: '0 0 6px #22c55e88',
+                animation: 'pulse 2s infinite',
+              }}
+            />
           )}
           {t.simulation.title}
         </span>
@@ -132,7 +183,9 @@ export function SimulationPanel() {
             {running ? t.simulation.running : t.simulation.stopped}
           </span>
           <button
-            onClick={() => { void handleStartStop() }}
+            onClick={() => {
+              void handleStartStop()
+            }}
             disabled={loading || data === null}
             style={{
               background: running ? '#1c1c1c' : '#14532d',
@@ -176,19 +229,39 @@ export function SimulationPanel() {
 
         {/* Last activity */}
         <div style={{ borderTop: '1px solid #1f2937', paddingTop: 10, marginTop: 2 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#6b7280', marginBottom: 4 }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              fontSize: 11,
+              color: '#6b7280',
+              marginBottom: 4,
+            }}
+          >
             <span style={{ color: '#9ca3af' }}>
               {t.simulation.lastBlock}
-              {data?.last_block_height != null &&
-                <span style={{ color: '#4b5563' }}> #{data.last_block_height}</span>}
+              {data?.last_block_height != null && (
+                <span style={{ color: '#4b5563' }}> #{data.last_block_height}</span>
+              )}
             </span>
             <span>{relTime(data?.last_block_at ?? null)}</span>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#6b7280' }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              fontSize: 11,
+              color: '#6b7280',
+            }}
+          >
             <span style={{ color: '#9ca3af' }}>
               {t.simulation.lastTx}
-              {data?.last_txid &&
-                <span style={{ color: '#4b5563', fontFamily: 'monospace' }}> {data.last_txid.slice(0, 10)}…</span>}
+              {data?.last_txid && (
+                <span style={{ color: '#4b5563', fontFamily: 'monospace' }}>
+                  {' '}
+                  {data.last_txid.slice(0, 10)}…
+                </span>
+              )}
             </span>
             <span>{relTime(data?.last_tx_at ?? null)}</span>
           </div>
@@ -197,12 +270,17 @@ export function SimulationPanel() {
         {/* Config toggle */}
         <div style={{ marginTop: 10 }}>
           <button
-            onClick={() => setConfigOpen(o => !o)}
+            onClick={() => setConfigOpen((o) => !o)}
             style={{
-              background: 'none', border: 'none',
-              color: '#4b5563', cursor: 'pointer',
-              fontSize: 11, padding: '2px 0',
-              display: 'flex', alignItems: 'center', gap: 4,
+              background: 'none',
+              border: 'none',
+              color: '#4b5563',
+              cursor: 'pointer',
+              fontSize: 11,
+              padding: '2px 0',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
             }}
           >
             <span style={{ fontSize: 9 }}>{configOpen ? '▲' : '▼'}</span>
@@ -211,38 +289,58 @@ export function SimulationPanel() {
 
           {configOpen && (
             <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+              >
                 <span style={{ fontSize: 11, color: '#9ca3af' }}>{t.simulation.blockInterval}</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                   <input
-                    type="number" min={5}
+                    type="number"
+                    min={5}
                     value={blockInput}
-                    onChange={e => setBlockInput(e.target.value)}
+                    onChange={(e) => setBlockInput(e.target.value)}
                     onFocus={() => setEditing(true)}
-                    onBlur={() => { void submitConfig() }}
-                    onKeyDown={e => e.key === 'Enter' && e.currentTarget.blur()}
+                    onBlur={() => {
+                      void submitConfig()
+                    }}
+                    onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
                     style={{
-                      width: 56, background: '#1f2937', border: '1px solid #374151',
-                      borderRadius: 4, color: '#d1d5db', padding: '3px 6px', fontSize: 11,
+                      width: 56,
+                      background: '#1f2937',
+                      border: '1px solid #374151',
+                      borderRadius: 4,
+                      color: '#d1d5db',
+                      padding: '3px 6px',
+                      fontSize: 11,
                       textAlign: 'right',
                     }}
                   />
                   <span style={{ fontSize: 11, color: '#6b7280' }}>{t.simulation.seconds}</span>
                 </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+              >
                 <span style={{ fontSize: 11, color: '#9ca3af' }}>{t.simulation.txInterval}</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                   <input
-                    type="number" min={3}
+                    type="number"
+                    min={3}
                     value={txInput}
-                    onChange={e => setTxInput(e.target.value)}
+                    onChange={(e) => setTxInput(e.target.value)}
                     onFocus={() => setEditing(true)}
-                    onBlur={() => { void submitConfig() }}
-                    onKeyDown={e => e.key === 'Enter' && e.currentTarget.blur()}
+                    onBlur={() => {
+                      void submitConfig()
+                    }}
+                    onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
                     style={{
-                      width: 56, background: '#1f2937', border: '1px solid #374151',
-                      borderRadius: 4, color: '#d1d5db', padding: '3px 6px', fontSize: 11,
+                      width: 56,
+                      background: '#1f2937',
+                      border: '1px solid #374151',
+                      borderRadius: 4,
+                      color: '#d1d5db',
+                      padding: '3px 6px',
+                      fontSize: 11,
                       textAlign: 'right',
                     }}
                   />
