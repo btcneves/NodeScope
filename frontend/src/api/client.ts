@@ -1,5 +1,5 @@
 async function get<T>(path: string): Promise<T> {
-  const res = await fetch(path)  // path is relative; Vite proxy handles routing
+  const res = await fetch(path) // path is relative; Vite proxy handles routing
   if (!res.ok) throw new Error(`${path}: ${res.status}`)
   return res.json() as Promise<T>
 }
@@ -14,8 +14,10 @@ export const api = {
   health: () => get<import('../types/api').HealthData>('/health'),
   summary: () => get<import('../types/api').SummaryData>('/summary'),
   mempool: () => get<import('../types/api').MempoolData>('/mempool/summary'),
-  recentEvents: (limit = 20) => get<import('../types/api').RecentEventsData>(`/events/recent?limit=${limit}`),
-  classifications: (limit = 20) => get<import('../types/api').ClassificationsData>(`/events/classifications?limit=${limit}`),
+  recentEvents: (limit = 20) =>
+    get<import('../types/api').RecentEventsData>(`/events/recent?limit=${limit}`),
+  classifications: (limit = 20) =>
+    get<import('../types/api').ClassificationsData>(`/events/classifications?limit=${limit}`),
   latestBlock: () => get<import('../types/api').BlockData | null>('/blocks/latest'),
   latestTx: () => get<import('../types/api').TxData | null>('/tx/latest'),
   txById: (txid: string) => get<import('../types/api').TxData>(`/tx/${txid}`),
@@ -24,7 +26,9 @@ export const api = {
   txInspect: (txid: string) => get<import('../types/api').TxInspectorData>(`/tx/inspect/${txid}`),
   // ZMQ Event Tape
   eventTape: (limit = 50, topic?: string) =>
-    get<import('../types/api').EventTapeData>(`/events/tape?limit=${limit}${topic ? `&topic=${topic}` : ''}`),
+    get<import('../types/api').EventTapeData>(
+      `/events/tape?limit=${limit}${topic ? `&topic=${topic}` : ''}`
+    ),
   eventTapeByTxid: (txid: string) =>
     get<import('../types/api').EventTapeData>(`/events/tape/${txid}`),
   // Guided Demo
@@ -46,15 +50,19 @@ export const api = {
   reorgReset: () => post<import('../types/api').ReorgStatusData>('/reorg/reset'),
   reorgProof: () => get<{ proof: import('../types/api').ReorgProof | null }>('/reorg/proof'),
   // Cluster Mempool Compatibility
-  clusterCompatibility: () => get<import('../types/api').ClusterCompatibilityData>('/mempool/cluster/compatibility'),
+  clusterCompatibility: () =>
+    get<import('../types/api').ClusterCompatibilityData>('/mempool/cluster/compatibility'),
   // Simulation
   simulationStatus: () => get<import('../types/api').SimulationData>('/simulation/status'),
   simulationStart: () => post<import('../types/api').SimulationData>('/simulation/start'),
   simulationStop: () => post<import('../types/api').SimulationData>('/simulation/stop'),
   simulationConfig: (blockInterval?: number, txInterval?: number) => {
     const body = JSON.stringify({ block_interval: blockInterval, tx_interval: txInterval })
-    return fetch('/simulation/config', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body })
-      .then(r => r.json() as Promise<import('../types/api').SimulationData>)
+    return fetch('/simulation/config', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body,
+    }).then((r) => r.json() as Promise<import('../types/api').SimulationData>)
   },
   // Session
   sessionReset: () => post<{ ok: boolean; truncated: boolean; file: string }>('/session/reset'),
@@ -64,17 +72,25 @@ export const api = {
     const params = new URLSearchParams({ limit: String(limit), offset: String(offset) })
     if (source) params.set('source', source)
     if (success !== undefined) params.set('success', String(success))
-    return get<import('../types/api').HistoryListResponse<import('../types/api').ProofReportHistoryItem>>(`/history/proofs?${params}`)
+    return get<
+      import('../types/api').HistoryListResponse<import('../types/api').ProofReportHistoryItem>
+    >(`/history/proofs?${params}`)
   },
   historyDemoRuns: (limit = 20, offset = 0) =>
-    get<import('../types/api').HistoryListResponse<import('../types/api').DemoRunHistoryItem>>(`/history/demo-runs?limit=${limit}&offset=${offset}`),
+    get<import('../types/api').HistoryListResponse<import('../types/api').DemoRunHistoryItem>>(
+      `/history/demo-runs?limit=${limit}&offset=${offset}`
+    ),
   historyPolicyRuns: (limit = 20, offset = 0, scenario?: string) => {
     const params = new URLSearchParams({ limit: String(limit), offset: String(offset) })
     if (scenario) params.set('scenario', scenario)
-    return get<import('../types/api').HistoryListResponse<import('../types/api').PolicyRunHistoryItem>>(`/history/policy-runs?${params}`)
+    return get<
+      import('../types/api').HistoryListResponse<import('../types/api').PolicyRunHistoryItem>
+    >(`/history/policy-runs?${params}`)
   },
   historyReorgRuns: (limit = 20, offset = 0) =>
-    get<import('../types/api').HistoryListResponse<import('../types/api').ReorgRunHistoryItem>>(`/history/reorg-runs?limit=${limit}&offset=${offset}`),
+    get<import('../types/api').HistoryListResponse<import('../types/api').ReorgRunHistoryItem>>(
+      `/history/reorg-runs?limit=${limit}&offset=${offset}`
+    ),
   // Fee Estimation Playground
   feesEstimate: (mode?: string) =>
     get<import('../types/api').FeeEstimateData>(`/fees/estimate${mode ? `?mode=${mode}` : ''}`),

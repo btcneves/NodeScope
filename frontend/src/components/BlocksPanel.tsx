@@ -35,7 +35,9 @@ export function BlocksPanel({ block }: Props) {
   return (
     <div className="panel">
       <div className="panel-header">
-        <span className="panel-title"><Term term="Block hash">{t.dashboard.latestBlock}</Term></span>
+        <span className="panel-title">
+          <Term term="Block hash">{t.dashboard.latestBlock}</Term>
+        </span>
       </div>
       <div className="panel-body">
         {!block ? (
@@ -43,13 +45,17 @@ export function BlocksPanel({ block }: Props) {
         ) : (
           <>
             <div className="event-row">
-              <span className="kpi-label"><Term term="Block height">{t.generic.height}</Term></span>
+              <span className="kpi-label">
+                <Term term="Block height">{t.generic.height}</Term>
+              </span>
               <span className="kpi-value" style={{ fontSize: '20px' }}>
                 {block.height ?? '—'}
               </span>
             </div>
             <div className="event-row">
-              <span className="kpi-label" style={{ minWidth: '60px' }}><Term term="Block hash">{t.generic.hash}</Term></span>
+              <span className="kpi-label" style={{ minWidth: '60px' }}>
+                <Term term="Block hash">{t.generic.hash}</Term>
+              </span>
               <span
                 className="event-hash mono copyable-text"
                 title={t.dashboard.clickCopyHash}
@@ -68,10 +74,10 @@ export function BlocksPanel({ block }: Props) {
               {copied && <span className="copy-feedback">{t.dashboard.copied}</span>}
             </div>
             <div className="event-row">
-              <span className="kpi-label" style={{ minWidth: '60px' }}>{t.generic.time}</span>
-              <span className="event-time">
-                {block.ts ? relTime(block.ts) : '—'}
+              <span className="kpi-label" style={{ minWidth: '60px' }}>
+                {t.generic.time}
               </span>
+              <span className="event-time">{block.ts ? relTime(block.ts) : '—'}</span>
             </div>
           </>
         )}

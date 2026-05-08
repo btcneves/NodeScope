@@ -53,7 +53,8 @@ export const enUS: Translations = {
 
   demo: {
     title: 'Guided Demo — Evaluate in 1 Minute',
-    subtitle: 'End-to-end Bitcoin Core lab: RPC → wallet → mine → send → mempool → ZMQ → confirm → proof',
+    subtitle:
+      'End-to-end Bitcoin Core lab: RPC → wallet → mine → send → mempool → ZMQ → confirm → proof',
     stepsComplete: 'steps complete',
     errors: 'error(s)',
     demoRunning: '● Demo running…',
@@ -64,20 +65,34 @@ export const enUS: Translations = {
     no: 'no',
     na: 'n/a',
     stepDesc: {
-      check_rpc: 'Verifies the Bitcoin Core RPC connection is reachable and responds to getblockchaininfo.',
-      check_zmq: 'Queries getzmqnotifications to confirm ZMQ push sockets are configured for rawtx and rawblock channels.',
-      create_or_load_wallet: 'Creates or loads the nodescope_demo descriptor wallet used for sending and receiving in the demo.',
-      generate_mining_address: 'Derives a new bech32 (P2WPKH) address from the wallet to receive block subsidy rewards.',
-      mine_initial_blocks: 'Mines 101 blocks so the coinbase outputs are mature (≥100 confirmations) and spendable.',
-      create_destination_address: 'Derives a second wallet address to act as the recipient of the demo transaction.',
-      send_demo_transaction: 'Broadcasts a 0.001 BTC transaction from the wallet to the destination address via sendtoaddress RPC.',
-      detect_mempool_entry: 'Calls getmempoolentry to confirm the transaction is in the node\'s unconfirmed transaction pool.',
-      detect_zmq_rawtx: 'Captures the ZMQ rawtx push event that Bitcoin Core emits when a transaction enters the mempool.',
-      decode_transaction: 'Calls getrawtransaction + decoderawtransaction to extract inputs, outputs, fee, vbytes, weight and script types.',
-      mine_confirmation_block: 'Mines 1 block via generatetoaddress to include the transaction and produce its first confirmation.',
-      detect_zmq_rawblock: 'Captures the ZMQ rawblock push event that Bitcoin Core emits when a new block is connected to the chain.',
-      confirm_transaction: 'Calls gettransaction to verify the transaction has ≥1 confirmation and is now permanently on-chain.',
-      generate_proof_report: 'Assembles all collected data (RPC calls, ZMQ events, TXID, fees, block height, confirmations) into an exportable proof.',
+      check_rpc:
+        'Verifies the Bitcoin Core RPC connection is reachable and responds to getblockchaininfo.',
+      check_zmq:
+        'Queries getzmqnotifications to confirm ZMQ push sockets are configured for rawtx and rawblock channels.',
+      create_or_load_wallet:
+        'Creates or loads the nodescope_demo descriptor wallet used for sending and receiving in the demo.',
+      generate_mining_address:
+        'Derives a new bech32 (P2WPKH) address from the wallet to receive block subsidy rewards.',
+      mine_initial_blocks:
+        'Mines 101 blocks so the coinbase outputs are mature (≥100 confirmations) and spendable.',
+      create_destination_address:
+        'Derives a second wallet address to act as the recipient of the demo transaction.',
+      send_demo_transaction:
+        'Broadcasts a 0.001 BTC transaction from the wallet to the destination address via sendtoaddress RPC.',
+      detect_mempool_entry:
+        "Calls getmempoolentry to confirm the transaction is in the node's unconfirmed transaction pool.",
+      detect_zmq_rawtx:
+        'Captures the ZMQ rawtx push event that Bitcoin Core emits when a transaction enters the mempool.',
+      decode_transaction:
+        'Calls getrawtransaction + decoderawtransaction to extract inputs, outputs, fee, vbytes, weight and script types.',
+      mine_confirmation_block:
+        'Mines 1 block via generatetoaddress to include the transaction and produce its first confirmation.',
+      detect_zmq_rawblock:
+        'Captures the ZMQ rawblock push event that Bitcoin Core emits when a new block is connected to the chain.',
+      confirm_transaction:
+        'Calls gettransaction to verify the transaction has ≥1 confirmation and is now permanently on-chain.',
+      generate_proof_report:
+        'Assembles all collected data (RPC calls, ZMQ events, TXID, fees, block height, confirmations) into an exportable proof.',
     },
   },
 
@@ -147,7 +162,8 @@ export const enUS: Translations = {
 
   policy: {
     title: 'Mempool Policy Arena',
-    subtitle: 'Observe how Bitcoin Core handles transactions with different fee policies, RBF, and CPFP',
+    subtitle:
+      'Observe how Bitcoin Core handles transactions with different fee policies, RBF, and CPFP',
     scenarios: 'Scenarios',
     normal: 'Normal Transaction',
     lowFee: 'Low Fee Transaction',
@@ -164,18 +180,24 @@ export const enUS: Translations = {
     notesTitle: 'Notes',
     noteRegtest: 'All scenarios run on regtest — no real funds, no mainnet.',
     noteRbf: 'RBF requires walletrbf=1 in bitcoind config; otherwise it is marked experimental.',
-    noteCpfp: 'CPFP child construction uses the raw transaction pipeline and may fall back if the parent UTXO is not wallet-tracked.',
-    noteStatus: 'Experimental means the scenario was attempted with a graceful fallback. Error means the scenario stopped.',
+    noteCpfp:
+      'CPFP child construction uses the raw transaction pipeline and may fall back if the parent UTXO is not wallet-tracked.',
+    noteStatus:
+      'Experimental means the scenario was attempted with a graceful fallback. Error means the scenario stopped.',
     descNormal: 'Send a standard transaction, observe mempool entry, mine a block and confirm.',
-    descLowFee: 'Send with fee_rate=1 sat/vbyte, compare fee data vs a normal tx. Uses sendtoaddress fee_rate param (BC 26+).',
-    descRbf: 'Send a replaceable transaction, then use bumpfee to replace it with a higher-fee version before it confirms.',
-    descCpfp: 'Send a low-fee parent, then construct a child that spends the unconfirmed output with a higher fee to boost the package rate.',
+    descLowFee:
+      'Send with fee_rate=1 sat/vbyte, compare fee data vs a normal tx. Uses sendtoaddress fee_rate param (BC 26+).',
+    descRbf:
+      'Send a replaceable transaction, then use bumpfee to replace it with a higher-fee version before it confirms.',
+    descCpfp:
+      'Send a low-fee parent, then construct a child that spends the unconfirmed output with a higher fee to boost the package rate.',
     viewOnDashboard: '↗ View on Dashboard',
   },
 
   reorg: {
     title: 'Reorg Lab',
-    subtitle: 'Simulate a controlled chain reorganization in regtest and observe the impact on transaction confirmations',
+    subtitle:
+      'Simulate a controlled chain reorganization in regtest and observe the impact on transaction confirmations',
     runReorg: '▶ Run Reorg',
     running: 'Running…',
     reset: 'Reset',
@@ -200,7 +222,8 @@ export const enUS: Translations = {
     finalConfirmations: 'Final confirmations',
     chainRecovery: 'Chain recovery',
     reconsiderBlockCalled: 'Reconsider block called',
-    warningExperimental: 'This scenario is marked experimental. Regtest reorgs are controlled and safe.',
+    warningExperimental:
+      'This scenario is marked experimental. Regtest reorgs are controlled and safe.',
     warningRestored: 'Chain was restored via a new block after invalidation.',
     yes: 'yes',
     no: 'no',
@@ -325,42 +348,64 @@ export const enUS: Translations = {
   },
 
   panelDesc: {
-    intelligence: 'Aggregated view of node health, connectivity status, mempool pressure and recent event classification. Derived from live RPC and ZMQ data.',
-    replayEngine: 'Reads the NDJSON event log written by the monitor. Shows how many ZMQ events have been captured and are available for replay or analysis.',
-    nodeHealth: 'Composite health score (0–100) computed from RPC connectivity, ZMQ subscription, mempool access and recent block activity.',
-    liveFeed: 'Real-time stream of ZMQ events as they arrive from Bitcoin Core — rawtx (new transactions) and rawblock (new blocks).',
-    events: 'Recent events captured from the ZMQ stream and stored in the event log. Includes transaction and block events.',
-    classifications: 'Each captured event is classified by type (coinbase, complex, simple, etc.) using heuristics applied to the decoded transaction.',
-    rpcZmqSync: 'Compares the latest block height seen via RPC with the latest rawblock event from ZMQ to detect drift between the two data sources.',
+    intelligence:
+      'Aggregated view of node health, connectivity status, mempool pressure and recent event classification. Derived from live RPC and ZMQ data.',
+    replayEngine:
+      'Reads the NDJSON event log written by the monitor. Shows how many ZMQ events have been captured and are available for replay or analysis.',
+    nodeHealth:
+      'Composite health score (0–100) computed from RPC connectivity, ZMQ subscription, mempool access and recent block activity.',
+    liveFeed:
+      'Real-time stream of ZMQ events as they arrive from Bitcoin Core — rawtx (new transactions) and rawblock (new blocks).',
+    events:
+      'Recent events captured from the ZMQ stream and stored in the event log. Includes transaction and block events.',
+    classifications:
+      'Each captured event is classified by type (coinbase, complex, simple, etc.) using heuristics applied to the decoded transaction.',
+    rpcZmqSync:
+      'Compares the latest block height seen via RPC with the latest rawblock event from ZMQ to detect drift between the two data sources.',
   },
 
   healthScore: {
     rpc: 'RPC connection to Bitcoin Core is active. Contributes +40 to the health score. Without RPC the node cannot be queried.',
     zmq: 'ZMQ event stream is connected and receiving events. Contributes +30. Without ZMQ, live transaction and block events are unavailable.',
-    mempool: 'Mempool data is accessible via RPC. Contributes +20. Indicates the node is processing and accepting transactions.',
-    blocks: 'Recent block activity detected (score ≥ 90). Contributes +10. Confirms the chain is actively progressing.',
+    mempool:
+      'Mempool data is accessible via RPC. Contributes +20. Indicates the node is processing and accepting transactions.',
+    blocks:
+      'Recent block activity detected (score ≥ 90). Contributes +10. Confirms the chain is actively progressing.',
   },
 
   explain: {
-    dashboard: 'Real-time overview of the Bitcoin Core node. Shows connectivity status (RPC, ZMQ, SSE), mempool state, latest blocks and transactions, and live event feed.',
-    guidedDemo: 'Runs the complete Bitcoin Core transaction lifecycle: wallet creation → RPC call → mempool entry → ZMQ event detection → block confirmation → proof generation. Each step is individually verifiable.',
-    inspector: 'Decodes any transaction using Bitcoin Core RPC (getrawtransaction + decoderawtransaction). Shows inputs, outputs, script types, fees, vbytes, weight, and confirmation status.',
-    zmqTape: 'Shows raw events published by Bitcoin Core over ZMQ (rawtx and rawblock channels). Each event is correlated with RPC data to verify authenticity and extract on-chain details.',
-    policyArena: 'Demonstrates how Bitcoin Core applies mempool policies: normal fee transaction, below-minimum fee rejection, RBF (Replace-By-Fee) replacement, and CPFP (Child-Pays-For-Parent) package evaluation.',
-    reorgLab: 'Simulates a controlled chain reorganization in regtest: mines blocks on one chain, then mines a longer competing chain to trigger a reorg. Observe how confirmed transactions return to the mempool.',
-    clusterMempool: 'Detects whether the connected Bitcoin Core node supports cluster mempool RPCs (introduced in v28+). Falls back to standard mempool data with honest disclosure when unavailable.',
-    proofReport: 'Cryptographically-auditable summary of the demo execution: RPC calls, ZMQ events, TXID, block height, confirmations. Can be exported as JSON for independent verification.',
+    dashboard:
+      'Real-time overview of the Bitcoin Core node. Shows connectivity status (RPC, ZMQ, SSE), mempool state, latest blocks and transactions, and live event feed.',
+    guidedDemo:
+      'Runs the complete Bitcoin Core transaction lifecycle: wallet creation → RPC call → mempool entry → ZMQ event detection → block confirmation → proof generation. Each step is individually verifiable.',
+    inspector:
+      'Decodes any transaction using Bitcoin Core RPC (getrawtransaction + decoderawtransaction). Shows inputs, outputs, script types, fees, vbytes, weight, and confirmation status.',
+    zmqTape:
+      'Shows raw events published by Bitcoin Core over ZMQ (rawtx and rawblock channels). Each event is correlated with RPC data to verify authenticity and extract on-chain details.',
+    policyArena:
+      'Demonstrates how Bitcoin Core applies mempool policies: normal fee transaction, below-minimum fee rejection, RBF (Replace-By-Fee) replacement, and CPFP (Child-Pays-For-Parent) package evaluation.',
+    reorgLab:
+      'Simulates a controlled chain reorganization in regtest: mines blocks on one chain, then mines a longer competing chain to trigger a reorg. Observe how confirmed transactions return to the mempool.',
+    clusterMempool:
+      'Detects whether the connected Bitcoin Core node supports cluster mempool RPCs (introduced in v28+). Falls back to standard mempool data with honest disclosure when unavailable.',
+    proofReport:
+      'Cryptographically-auditable summary of the demo execution: RPC calls, ZMQ events, TXID, block height, confirmations. Can be exported as JSON for independent verification.',
   },
 
   learn: {
-    normalTx: 'A standard Bitcoin transaction has one or more inputs (spending UTXOs) and outputs. Its fee rate (sat/vbyte) determines mempool priority. Miners select transactions in descending fee-rate order. The default minimum relay fee is 1 sat/vbyte — any transaction meeting this threshold enters the mempool and waits for inclusion in a block.',
-    lowFee: 'Transactions below the minimum relay fee are rejected outright by Bitcoin Core. Transactions just above the minimum may linger in the mempool when blocks are full, or be evicted when the mempool size limit (default 300 MB) is reached, dropping the lowest fee-rate entries first. Use RBF (bump fee) or CPFP (child transaction) to accelerate a stuck low-fee transaction.',
+    normalTx:
+      'A standard Bitcoin transaction has one or more inputs (spending UTXOs) and outputs. Its fee rate (sat/vbyte) determines mempool priority. Miners select transactions in descending fee-rate order. The default minimum relay fee is 1 sat/vbyte — any transaction meeting this threshold enters the mempool and waits for inclusion in a block.',
+    lowFee:
+      'Transactions below the minimum relay fee are rejected outright by Bitcoin Core. Transactions just above the minimum may linger in the mempool when blocks are full, or be evicted when the mempool size limit (default 300 MB) is reached, dropping the lowest fee-rate entries first. Use RBF (bump fee) or CPFP (child transaction) to accelerate a stuck low-fee transaction.',
     rbf: 'Replace-By-Fee (BIP125): a sender can broadcast a new version of an unconfirmed transaction with a higher fee. Bitcoin Core replaces the original in the mempool if the new transaction pays at least the incremental relay fee. Miners prioritize higher-fee transactions, so RBF helps stuck transactions get confirmed faster.',
     cpfp: 'Child-Pays-For-Parent: when a parent transaction carries a low fee, a child transaction spending one of its outputs can include a high enough fee to make the combined fee rate attractive for miners. Miners evaluate the package together, so the child "pulls" the parent into the next block.',
-    reorg: 'A chain reorganization occurs when a competing chain with more cumulative proof-of-work becomes the canonical chain. Bitcoin Core switches to the longer chain, reverting any blocks that are no longer in the main chain. Transactions from reverted blocks return to the mempool and await re-confirmation.',
-    cluster: 'Cluster mempool (Bitcoin Core v28+) groups related transactions into clusters and evaluates their combined fee rate for eviction and mining decisions. This improves the accuracy of fee estimation and mempool management. Earlier versions use per-transaction ancestor/descendant limits instead.',
+    reorg:
+      'A chain reorganization occurs when a competing chain with more cumulative proof-of-work becomes the canonical chain. Bitcoin Core switches to the longer chain, reverting any blocks that are no longer in the main chain. Transactions from reverted blocks return to the mempool and await re-confirmation.',
+    cluster:
+      'Cluster mempool (Bitcoin Core v28+) groups related transactions into clusters and evaluates their combined fee rate for eviction and mining decisions. This improves the accuracy of fee estimation and mempool management. Earlier versions use per-transaction ancestor/descendant limits instead.',
     zmq: 'Bitcoin Core publishes internal events over ZMQ (ZeroMQ) push sockets. NodeScope subscribes to rawtx (new transactions entering the mempool) and rawblock (new blocks connected to the chain). Each event is cross-validated with RPC to confirm on-chain data.',
-    proof: 'The Proof Report captures all verifiable data points from a demo run: RPC responses, ZMQ event timestamps, TXID, block hash, fee details, and confirmation count. It can be exported as JSON and verified independently against a Bitcoin Core node.',
+    proof:
+      'The Proof Report captures all verifiable data points from a demo run: RPC responses, ZMQ event timestamps, TXID, block hash, fee details, and confirmation count. It can be exported as JSON and verified independently against a Bitcoin Core node.',
     whyMatters: 'Why this matters',
   },
 
@@ -368,19 +413,24 @@ export const enUS: Translations = {
     title: 'Operational Alerts',
     allGood: 'All systems operational',
     rpcOffline: 'Bitcoin Core RPC offline',
-    rpcOfflineDesc: 'The API cannot reach Bitcoin Core via RPC. Check that bitcoind is running and reachable.',
+    rpcOfflineDesc:
+      'The API cannot reach Bitcoin Core via RPC. Check that bitcoind is running and reachable.',
     zmqStale: 'ZMQ event stream stale',
-    zmqStaleDesc: 'No ZMQ events received recently. The monitor may have disconnected from the ZMQ socket.',
+    zmqStaleDesc:
+      'No ZMQ events received recently. The monitor may have disconnected from the ZMQ socket.',
     demoFailure: 'Guided Demo reported failures',
     demoFailureDesc: 'One or more Guided Demo steps ended in error. Run Reset and try again.',
     simulationError: 'Live simulation errors detected',
     simulationErrorDesc: 'The auto-mining simulation encountered errors. Check logs for details.',
     clusterUnavailable: 'Cluster mempool RPCs unavailable',
-    clusterUnavailableDesc: 'Bitcoin Core v28+ is required for cluster mempool RPCs. Current environment uses an earlier version.',
+    clusterUnavailableDesc:
+      'Bitcoin Core v28+ is required for cluster mempool RPCs. Current environment uses an earlier version.',
     reorgExperimental: 'Reorg Lab is experimental',
-    reorgExperimentalDesc: 'Reorg Lab runs only on regtest. Results may vary. Not suitable for production use.',
+    reorgExperimentalDesc:
+      'Reorg Lab runs only on regtest. Results may vary. Not suitable for production use.',
     metricsUnavailable: 'Prometheus metrics unavailable',
-    metricsUnavailableDesc: 'prometheus-client is not installed. Install it to enable the /metrics endpoint.',
+    metricsUnavailableDesc:
+      'prometheus-client is not installed. Install it to enable the /metrics endpoint.',
     severity: {
       critical: 'Critical',
       warning: 'Warning',
@@ -427,6 +477,10 @@ export const enUS: Translations = {
     storageInfo: 'Storage is active. Runs are persisted across restarts.',
     sqlite: 'SQLite (local)',
     memory: 'Memory (ephemeral)',
+    exportJson: 'Export JSON',
+    exportCsv: 'Export CSV',
+    exportDownloaded: 'Export downloaded',
+    exportFailed: 'Export failed',
   },
 
   fees: {
@@ -442,13 +496,14 @@ export const enUS: Translations = {
     errors: 'Errors / Notes',
     refresh: '↻ Refresh',
     compareWithRealFees: 'Compare with scenario fee rates',
-    noHistoryAvailable: 'No scenario runs available for comparison. Run a demo or policy scenario first.',
+    noHistoryAvailable:
+      'No scenario runs available for comparison. Run a demo or policy scenario first.',
     regtestWarning:
       'Running in regtest: estimatesmartfee has no real fee market. ' +
       'Results may be unavailable. This does not represent mainnet fee conditions.',
     learnMoreTitle: 'How does fee estimation work?',
     learnMoreBody:
-      'Bitcoin Core\'s estimatesmartfee predicts the minimum fee rate (sat/vB) needed for ' +
+      "Bitcoin Core's estimatesmartfee predicts the minimum fee rate (sat/vB) needed for " +
       'a transaction to confirm within a target number of blocks. ' +
       'It analyses past block data — in regtest there is no real market, so results are often unavailable. ' +
       'On mainnet or signet, this is a critical tool for wallets to avoid overpaying or getting stuck.',
@@ -461,7 +516,7 @@ export const enUS: Translations = {
     conversionNote: 'Conversion: BTC/kvB × 100,000 = sat/vB',
     navLabel: 'Fee Estimation',
     explainBox:
-      'The Fee Estimation Playground calls Bitcoin Core\'s estimatesmartfee RPC for different ' +
+      "The Fee Estimation Playground calls Bitcoin Core's estimatesmartfee RPC for different " +
       'confirmation targets and shows the results side-by-side. In regtest there is no real fee market, ' +
       'so results are honestly marked as unavailable or limited.',
   },

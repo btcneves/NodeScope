@@ -14,18 +14,18 @@ const POLL_INTERVAL_MS = 1500
 const SCENARIO_COLORS: Record<string, string> = {
   normal_transaction: '#22c55e',
   low_fee_transaction: '#f59e0b',
-  rbf_replacement:     '#3b82f6',
-  cpfp_package:        '#a78bfa',
+  rbf_replacement: '#3b82f6',
+  cpfp_package: '#a78bfa',
 }
 
 const STATUS_COLOR: Record<string, string> = {
-  idle:         '#6b7280',
-  running:      '#f59e0b',
-  success:      '#22c55e',
-  error:        '#ef4444',
+  idle: '#6b7280',
+  running: '#f59e0b',
+  success: '#22c55e',
+  error: '#ef4444',
   experimental: '#f97316',
-  unavailable:  '#9ca3af',
-  pending:      '#374151',
+  unavailable: '#9ca3af',
+  pending: '#374151',
 }
 
 // ---------------------------------------------------------------------------
@@ -35,11 +35,18 @@ const STATUS_COLOR: Record<string, string> = {
 function statusDot(status: string) {
   const color = STATUS_COLOR[status] ?? '#6b7280'
   return (
-    <span style={{
-      display: 'inline-block', width: '8px', height: '8px',
-      borderRadius: '50%', background: color, marginRight: '6px', flexShrink: 0,
-      boxShadow: status === 'running' ? `0 0 6px ${color}` : undefined,
-    }} />
+    <span
+      style={{
+        display: 'inline-block',
+        width: '8px',
+        height: '8px',
+        borderRadius: '50%',
+        background: color,
+        marginRight: '6px',
+        flexShrink: 0,
+        boxShadow: status === 'running' ? `0 0 6px ${color}` : undefined,
+      }}
+    />
   )
 }
 
@@ -48,11 +55,20 @@ function StatusChip({ status }: { status: string }) {
   const color = STATUS_COLOR[status] ?? '#6b7280'
   const label = status in t.status ? t.status[status as keyof typeof t.status] : status
   return (
-    <span style={{
-      padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 700,
-      background: color + '22', color, border: `1px solid ${color}55`,
-      textTransform: 'uppercase', letterSpacing: '0.04em', fontFamily: 'monospace',
-    }}>
+    <span
+      style={{
+        padding: '2px 8px',
+        borderRadius: '4px',
+        fontSize: '10px',
+        fontWeight: 700,
+        background: color + '22',
+        color,
+        border: `1px solid ${color}55`,
+        textTransform: 'uppercase',
+        letterSpacing: '0.04em',
+        fontFamily: 'monospace',
+      }}
+    >
       {label}
     </span>
   )
@@ -79,17 +95,22 @@ function StepRow({ step }: { step: PolicyStep }) {
   const hasDetail = step.technical_output != null || step.error
 
   return (
-    <div style={{
-      borderBottom: '1px solid #1f2937',
-      background: step.status === 'running' ? '#0d1f0d' : 'transparent',
-    }}>
+    <div
+      style={{
+        borderBottom: '1px solid #1f2937',
+        background: step.status === 'running' ? '#0d1f0d' : 'transparent',
+      }}
+    >
       <div
         style={{
-          display: 'flex', alignItems: 'flex-start', gap: '8px', padding: '7px 12px',
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: '8px',
+          padding: '7px 12px',
           cursor: hasDetail ? 'pointer' : 'default',
           fontSize: '12px',
         }}
-        onClick={() => hasDetail && setExpanded(e => !e)}
+        onClick={() => hasDetail && setExpanded((e) => !e)}
       >
         {statusDot(step.status)}
         <span style={{ color: '#9ca3af', minWidth: '200px', flexShrink: 0 }}>{step.title}</span>
@@ -113,11 +134,19 @@ function StepRow({ step }: { step: PolicyStep }) {
             </div>
           )}
           {step.technical_output != null && (
-            <pre style={{
-              background: '#060d14', border: '1px solid #1f2937', borderRadius: '4px',
-              padding: '8px', fontSize: '10px', color: '#9ca3af', overflow: 'auto',
-              maxHeight: '200px', margin: 0,
-            }}>
+            <pre
+              style={{
+                background: '#060d14',
+                border: '1px solid #1f2937',
+                borderRadius: '4px',
+                padding: '8px',
+                fontSize: '10px',
+                color: '#9ca3af',
+                overflow: 'auto',
+                maxHeight: '200px',
+                margin: 0,
+              }}
+            >
               {typeof step.technical_output === 'string'
                 ? step.technical_output
                 : JSON.stringify(step.technical_output, null, 2)}
@@ -146,23 +175,51 @@ function ProofPanel({ proof, scenarioId }: { proof: Record<string, unknown>; sce
   }
 
   return (
-    <div style={{ marginTop: '12px', background: '#060d14', border: '1px solid #1f2937', borderRadius: '6px', padding: '12px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-        <span style={{ fontSize: '12px', fontWeight: 600, color: '#9ca3af' }}>{t.demo.proofReport} — {scenarioId}</span>
+    <div
+      style={{
+        marginTop: '12px',
+        background: '#060d14',
+        border: '1px solid #1f2937',
+        borderRadius: '6px',
+        padding: '12px',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '8px',
+        }}
+      >
+        <span style={{ fontSize: '12px', fontWeight: 600, color: '#9ca3af' }}>
+          {t.demo.proofReport} — {scenarioId}
+        </span>
         <button
           onClick={handleCopy}
           style={{
-            padding: '3px 10px', fontSize: '10px', background: '#0f766e',
-            color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer',
+            padding: '3px 10px',
+            fontSize: '10px',
+            background: '#0f766e',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
           }}
         >
           {copied ? t.actions.copied : t.actions.copy + ' JSON'}
         </button>
       </div>
-      <pre style={{
-        fontSize: '10px', color: '#6b7280', overflow: 'auto', maxHeight: '300px', margin: 0,
-        fontFamily: 'monospace',
-      }}>
+      <pre
+        style={{
+          fontSize: '10px',
+          color: '#6b7280',
+          overflow: 'auto',
+          maxHeight: '300px',
+          margin: 0,
+          fontFamily: 'monospace',
+        }}
+      >
         {json}
       </pre>
     </div>
@@ -181,7 +238,13 @@ interface ScenarioCardProps {
   onGoToDashboard: () => void
 }
 
-function ScenarioCard({ summary, accentColor, onRun, onReset, onGoToDashboard }: ScenarioCardProps) {
+function ScenarioCard({
+  summary,
+  accentColor,
+  onRun,
+  onReset,
+  onGoToDashboard,
+}: ScenarioCardProps) {
   const { t } = useI18n()
   const [detail, setDetail] = useState<PolicyScenario | null>(null)
   const [polling, setPolling] = useState(false)
@@ -214,7 +277,9 @@ function ScenarioCard({ summary, accentColor, onRun, onReset, onGoToDashboard }:
   // Poll while running
   useEffect(() => {
     if (!polling) return
-    const interval = setInterval(() => { void fetchDetail() }, POLL_INTERVAL_MS)
+    const interval = setInterval(() => {
+      void fetchDetail()
+    }, POLL_INTERVAL_MS)
     return () => clearInterval(interval)
   }, [polling, fetchDetail])
 
@@ -226,7 +291,9 @@ function ScenarioCard({ summary, accentColor, onRun, onReset, onGoToDashboard }:
   const handleRun = () => {
     setPolling(true)
     onRun(summary.id)
-    setTimeout(() => { void fetchDetail() }, 400)
+    setTimeout(() => {
+      void fetchDetail()
+    }, 400)
   }
 
   const handleReset = () => {
@@ -240,18 +307,32 @@ function ScenarioCard({ summary, accentColor, onRun, onReset, onGoToDashboard }:
   const accentBorder = accentColor + '44'
 
   return (
-    <div style={{
-      background: '#0f172a', border: `1px solid ${accentBorder}`,
-      borderLeft: `3px solid ${accentColor}`,
-      borderRadius: '6px', overflow: 'hidden',
-      display: 'flex', flexDirection: 'column',
-    }}>
+    <div
+      style={{
+        background: '#0f172a',
+        border: `1px solid ${accentBorder}`,
+        borderLeft: `3px solid ${accentColor}`,
+        borderRadius: '6px',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       {/* Header */}
       <div style={{ padding: '12px 16px', borderBottom: '1px solid #1f2937' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            gap: '8px',
+          }}
+        >
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-              <span style={{ fontSize: '14px', fontWeight: 700, color: '#f9fafb' }}>{summary.title}</span>
+              <span style={{ fontSize: '14px', fontWeight: 700, color: '#f9fafb' }}>
+                {summary.title}
+              </span>
               <StatusChip status={status} />
             </div>
             <div style={{ fontSize: '11px', color: '#6b7280' }}>
@@ -263,10 +344,13 @@ function ScenarioCard({ summary, accentColor, onRun, onReset, onGoToDashboard }:
               onClick={handleRun}
               disabled={running}
               style={{
-                padding: '4px 14px', fontSize: '11px', fontWeight: 600,
+                padding: '4px 14px',
+                fontSize: '11px',
+                fontWeight: 600,
                 background: running ? '#1f2937' : accentColor + 'cc',
                 color: running ? '#6b7280' : '#fff',
-                border: 'none', borderRadius: '4px',
+                border: 'none',
+                borderRadius: '4px',
                 cursor: running ? 'not-allowed' : 'pointer',
               }}
             >
@@ -277,9 +361,12 @@ function ScenarioCard({ summary, accentColor, onRun, onReset, onGoToDashboard }:
                 onClick={handleReset}
                 disabled={running}
                 style={{
-                  padding: '4px 10px', fontSize: '11px',
-                  background: '#1f2937', color: '#9ca3af',
-                  border: '1px solid #374151', borderRadius: '4px',
+                  padding: '4px 10px',
+                  fontSize: '11px',
+                  background: '#1f2937',
+                  color: '#9ca3af',
+                  border: '1px solid #374151',
+                  borderRadius: '4px',
                   cursor: running ? 'not-allowed' : 'pointer',
                 }}
               >
@@ -295,7 +382,7 @@ function ScenarioCard({ summary, accentColor, onRun, onReset, onGoToDashboard }:
         {/* Steps */}
         {detail && detail.steps.length > 0 && (
           <div style={{ fontFamily: 'monospace' }}>
-            {detail.steps.map(step => (
+            {detail.steps.map((step) => (
               <StepRow key={step.id} step={step} />
             ))}
           </div>
@@ -315,7 +402,7 @@ function ScenarioCard({ summary, accentColor, onRun, onReset, onGoToDashboard }:
         )}
 
         {/* Idle placeholder */}
-        {(!detail || detail.steps.every(s => s.status === 'pending')) && status === 'idle' && (
+        {(!detail || detail.steps.every((s) => s.status === 'pending')) && status === 'idle' && (
           <div style={{ padding: '16px', textAlign: 'center', fontSize: '11px', color: '#4b5563' }}>
             {t.policy.noSteps}
           </div>
@@ -324,17 +411,20 @@ function ScenarioCard({ summary, accentColor, onRun, onReset, onGoToDashboard }:
 
       {/* Learn more + navigation bridge */}
       <div style={{ padding: '0 16px 14px', borderTop: '1px solid #1f2937' }}>
-        <LearnMore>
-          {SCENARIO_LEARN[summary.id] ?? ''}
-        </LearnMore>
+        <LearnMore>{SCENARIO_LEARN[summary.id] ?? ''}</LearnMore>
         {status !== 'idle' && !running && (
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
             <button
               onClick={onGoToDashboard}
               style={{
-                padding: '4px 12px', fontSize: '11px', background: 'transparent',
-                color: '#60a5fa', border: '1px solid #1e3a5f', borderRadius: '4px',
-                cursor: 'pointer', fontFamily: 'monospace',
+                padding: '4px 12px',
+                fontSize: '11px',
+                background: 'transparent',
+                color: '#60a5fa',
+                border: '1px solid #1e3a5f',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontFamily: 'monospace',
               }}
             >
               {t.policy.viewOnDashboard}
@@ -369,7 +459,9 @@ export function MempoolPolicyArena({ onGoToDashboard }: { onGoToDashboard?: () =
     }
   }, [])
 
-  useEffect(() => { void fetchList() }, [fetchList])
+  useEffect(() => {
+    void fetchList()
+  }, [fetchList])
 
   const handleRun = async (id: string) => {
     try {
@@ -398,38 +490,67 @@ export function MempoolPolicyArena({ onGoToDashboard }: { onGoToDashboard?: () =
     }
   }
 
-  const anyRunning = scenarios.some(s => s.running)
+  const anyRunning = scenarios.some((s) => s.running)
 
   return (
     <div style={{ fontFamily: 'monospace', color: '#e5e7eb' }}>
       {/* Header */}
       <div style={{ marginBottom: '20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            flexWrap: 'wrap',
+            gap: '10px',
+          }}
+        >
           <div>
-            <div style={{ fontSize: '20px', fontWeight: 700, color: '#f9fafb', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div
+              style={{
+                fontSize: '20px',
+                fontWeight: 700,
+                color: '#f9fafb',
+                marginBottom: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+              }}
+            >
               <Term term="Mempool">{t.policy.title}</Term>
             </div>
-            <div style={{ fontSize: '12px', color: '#9ca3af' }}>
-              {t.policy.subtitle}
-            </div>
+            <div style={{ fontSize: '12px', color: '#9ca3af' }}>{t.policy.subtitle}</div>
           </div>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             <button
-              onClick={() => { void fetchList() }}
+              onClick={() => {
+                void fetchList()
+              }}
               disabled={loading}
               style={{
-                padding: '5px 12px', fontSize: '11px', background: '#0f766e',
-                color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer',
+                padding: '5px 12px',
+                fontSize: '11px',
+                background: '#0f766e',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
               }}
             >
               {loading ? t.status.loading : t.actions.refresh}
             </button>
             <button
-              onClick={() => { void handleResetAll() }}
+              onClick={() => {
+                void handleResetAll()
+              }}
               disabled={anyRunning}
               style={{
-                padding: '5px 12px', fontSize: '11px', background: '#1f2937',
-                color: '#9ca3af', border: '1px solid #374151', borderRadius: '4px',
+                padding: '5px 12px',
+                fontSize: '11px',
+                background: '#1f2937',
+                color: '#9ca3af',
+                border: '1px solid #374151',
+                borderRadius: '4px',
                 cursor: anyRunning ? 'not-allowed' : 'pointer',
               }}
             >
@@ -440,35 +561,67 @@ export function MempoolPolicyArena({ onGoToDashboard }: { onGoToDashboard?: () =
       </div>
 
       {error && (
-        <div style={{
-          padding: '10px', background: '#1c0a0a', border: '1px solid #7f1d1d',
-          borderRadius: '6px', fontSize: '12px', color: '#f87171', marginBottom: '16px',
-        }}>
+        <div
+          style={{
+            padding: '10px',
+            background: '#1c0a0a',
+            border: '1px solid #7f1d1d',
+            borderRadius: '6px',
+            fontSize: '12px',
+            color: '#f87171',
+            marginBottom: '16px',
+          }}
+        >
           {error}
         </div>
       )}
 
       {/* Scenario legend */}
-      <div style={{
-        display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap',
-        padding: '10px 14px', background: '#0f172a', borderRadius: '6px',
-        border: '1px solid #1f2937', fontSize: '11px',
-      }}>
-        {(['normal_transaction', 'low_fee_transaction', 'rbf_replacement', 'cpfp_package'] as const).map(id => (
+      <div
+        style={{
+          display: 'flex',
+          gap: '12px',
+          marginBottom: '16px',
+          flexWrap: 'wrap',
+          padding: '10px 14px',
+          background: '#0f172a',
+          borderRadius: '6px',
+          border: '1px solid #1f2937',
+          fontSize: '11px',
+        }}
+      >
+        {(
+          ['normal_transaction', 'low_fee_transaction', 'rbf_replacement', 'cpfp_package'] as const
+        ).map((id) => (
           <span key={id} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <span style={{ width: '10px', height: '10px', borderRadius: '2px', background: SCENARIO_COLORS[id], display: 'inline-block' }} />
+            <span
+              style={{
+                width: '10px',
+                height: '10px',
+                borderRadius: '2px',
+                background: SCENARIO_COLORS[id],
+                display: 'inline-block',
+              }}
+            />
             <span style={{ color: '#9ca3af' }}>
-              {id === 'normal_transaction' ? <Term term="Normal transaction">{t.policy.normal}</Term>
-               : id === 'low_fee_transaction' ? <Term term="Low fee">{t.policy.lowFee}</Term>
-               : id === 'rbf_replacement' ? <Term term="RBF">{t.policy.rbf}</Term>
-               : <Term term="CPFP">{t.policy.cpfp}</Term>}
+              {id === 'normal_transaction' ? (
+                <Term term="Normal transaction">{t.policy.normal}</Term>
+              ) : id === 'low_fee_transaction' ? (
+                <Term term="Low fee">{t.policy.lowFee}</Term>
+              ) : id === 'rbf_replacement' ? (
+                <Term term="RBF">{t.policy.rbf}</Term>
+              ) : (
+                <Term term="CPFP">{t.policy.cpfp}</Term>
+              )}
             </span>
           </span>
         ))}
         <span style={{ color: '#4b5563', marginLeft: 'auto' }}>
-          {t.policy.statusLegend}: {['idle', 'running', 'success', 'error', 'experimental'].map(s => (
+          {t.policy.statusLegend}:{' '}
+          {['idle', 'running', 'success', 'error', 'experimental'].map((s) => (
             <span key={s} style={{ marginLeft: '6px' }}>
-              {statusDot(s)}<span style={{ color: '#6b7280' }}>
+              {statusDot(s)}
+              <span style={{ color: '#6b7280' }}>
                 {s in t.status ? t.status[s as keyof typeof t.status] : s}
               </span>
             </span>
@@ -478,34 +631,65 @@ export function MempoolPolicyArena({ onGoToDashboard }: { onGoToDashboard?: () =
 
       {/* Scenario grid — 2 columns */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-        {scenarios.map(s => (
+        {scenarios.map((s) => (
           <ScenarioCard
             key={s.id}
             summary={s}
             accentColor={SCENARIO_COLORS[s.id] ?? '#6b7280'}
-            onRun={id => { void handleRun(id) }}
-            onReset={id => { void handleReset(id) }}
+            onRun={(id) => {
+              void handleRun(id)
+            }}
+            onReset={(id) => {
+              void handleReset(id)
+            }}
             onGoToDashboard={() => onGoToDashboard?.()}
           />
         ))}
       </div>
 
       {scenarios.length === 0 && !loading && !error && (
-        <div style={{
-          padding: '40px', textAlign: 'center', background: '#0f172a',
-          borderRadius: '6px', fontSize: '12px', color: '#6b7280',
-        }}>
+        <div
+          style={{
+            padding: '40px',
+            textAlign: 'center',
+            background: '#0f172a',
+            borderRadius: '6px',
+            fontSize: '12px',
+            color: '#6b7280',
+          }}
+        >
           {t.policy.noSteps}
         </div>
       )}
 
       {/* Notes */}
-      <div style={{ marginTop: '20px', padding: '12px 16px', background: '#0a0f1a', borderRadius: '6px', border: '1px solid #1f2937', fontSize: '11px', color: '#6b7280' }}>
-        <div style={{ marginBottom: '4px', color: '#9ca3af', fontWeight: 600 }}>{t.policy.notesTitle}</div>
-        <div>• <Term term="Regtest">{t.policy.noteRegtest}</Term></div>
-        <div>• <Term term="RBF">{t.policy.noteRbf}</Term></div>
-        <div>• <Term term="CPFP">{t.policy.noteCpfp}</Term></div>
-        <div>• <StatusChip status="experimental" /> / <StatusChip status="error" /> — {t.policy.noteStatus}</div>
+      <div
+        style={{
+          marginTop: '20px',
+          padding: '12px 16px',
+          background: '#0a0f1a',
+          borderRadius: '6px',
+          border: '1px solid #1f2937',
+          fontSize: '11px',
+          color: '#6b7280',
+        }}
+      >
+        <div style={{ marginBottom: '4px', color: '#9ca3af', fontWeight: 600 }}>
+          {t.policy.notesTitle}
+        </div>
+        <div>
+          • <Term term="Regtest">{t.policy.noteRegtest}</Term>
+        </div>
+        <div>
+          • <Term term="RBF">{t.policy.noteRbf}</Term>
+        </div>
+        <div>
+          • <Term term="CPFP">{t.policy.noteCpfp}</Term>
+        </div>
+        <div>
+          • <StatusChip status="experimental" /> / <StatusChip status="error" /> —{' '}
+          {t.policy.noteStatus}
+        </div>
       </div>
     </div>
   )

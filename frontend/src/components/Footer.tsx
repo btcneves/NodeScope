@@ -12,10 +12,26 @@ export function Footer() {
     { label: f.github, href: GITHUB_OWNER, external: true },
     { label: f.repository, href: REPO, external: true },
     { label: f.docs, href: 'https://github.com/btcneves/NodeScope/tree/main/docs', external: true },
-    { label: f.projectStatus, href: 'https://github.com/btcneves/NodeScope/blob/main/PROJECT_STATUS.md', external: true },
-    { label: f.roadmap, href: 'https://github.com/btcneves/NodeScope/blob/main/ROADMAP.md', external: true },
-    { label: f.security, href: 'https://github.com/btcneves/NodeScope/blob/main/SECURITY.md', external: true },
-    { label: f.license, href: 'https://github.com/btcneves/NodeScope/blob/main/LICENSE', external: true },
+    {
+      label: f.projectStatus,
+      href: 'https://github.com/btcneves/NodeScope/blob/main/PROJECT_STATUS.md',
+      external: true,
+    },
+    {
+      label: f.roadmap,
+      href: 'https://github.com/btcneves/NodeScope/blob/main/ROADMAP.md',
+      external: true,
+    },
+    {
+      label: f.security,
+      href: 'https://github.com/btcneves/NodeScope/blob/main/SECURITY.md',
+      external: true,
+    },
+    {
+      label: f.license,
+      href: 'https://github.com/btcneves/NodeScope/blob/main/LICENSE',
+      external: true,
+    },
     { label: f.contact, href: CONTACT },
   ]
 
@@ -29,9 +45,7 @@ export function Footer() {
               key={link.label}
               href={link.href}
               style={styles.link}
-              {...(link.external
-                ? { target: '_blank', rel: 'noreferrer' }
-                : {})}
+              {...(link.external ? { target: '_blank', rel: 'noreferrer' } : {})}
             >
               {link.label}
             </a>

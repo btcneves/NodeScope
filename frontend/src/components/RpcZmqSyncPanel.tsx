@@ -36,23 +36,20 @@ export function RpcZmqSyncPanel({ health, summary, latestBlock }: Props) {
   const zmqBlocks = summary?.rawblock_count ?? '—'
 
   const inSync =
-    typeof rpcHeight === 'number' &&
-    typeof zmqHeight === 'number' &&
-    rpcHeight === zmqHeight
+    typeof rpcHeight === 'number' && typeof zmqHeight === 'number' && rpcHeight === zmqHeight
 
-  const syncLabel = typeof rpcHeight === 'number' && typeof zmqHeight === 'number'
-    ? inSync
-      ? t.dashboard.inSync
-      : `${Math.abs(rpcHeight - zmqHeight)} ${t.dashboard.blocksBehind}`
-    : '—'
+  const syncLabel =
+    typeof rpcHeight === 'number' && typeof zmqHeight === 'number'
+      ? inSync
+        ? t.dashboard.inSync
+        : `${Math.abs(rpcHeight - zmqHeight)} ${t.dashboard.blocksBehind}`
+      : '—'
 
   return (
     <div className="panel">
       <div className="panel-title">
         <Term text={t.panelDesc.rpcZmqSync}>{t.dashboard.rpcZmqSync}</Term>
-        <span className={`sync-badge ${inSync ? 'sync-ok' : 'sync-warn'}`}>
-          {syncLabel}
-        </span>
+        <span className={`sync-badge ${inSync ? 'sync-ok' : 'sync-warn'}`}>{syncLabel}</span>
       </div>
       <div className="sync-header">
         <span className="sync-label" />
@@ -60,9 +57,21 @@ export function RpcZmqSyncPanel({ health, summary, latestBlock }: Props) {
         <span className="sync-zmq">ZMQ</span>
       </div>
       <SyncRow label={t.dashboard.status} rpc={rpcStatus} zmq={t.dashboard.subscribed} />
-      <SyncRow label={<Term term="Block height">{t.proof.blockHeight}</Term>} rpc={rpcHeight} zmq={zmqHeight} />
-      <SyncRow label={<Term term="rawtx">TX events</Term>} rpc={t.dashboard.snapshot} zmq={zmqTxs} />
-      <SyncRow label={<Term term="rawblock">Block events</Term>} rpc={t.dashboard.snapshot} zmq={zmqBlocks} />
+      <SyncRow
+        label={<Term term="Block height">{t.proof.blockHeight}</Term>}
+        rpc={rpcHeight}
+        zmq={zmqHeight}
+      />
+      <SyncRow
+        label={<Term term="rawtx">TX events</Term>}
+        rpc={t.dashboard.snapshot}
+        zmq={zmqTxs}
+      />
+      <SyncRow
+        label={<Term term="rawblock">Block events</Term>}
+        rpc={t.dashboard.snapshot}
+        zmq={zmqBlocks}
+      />
     </div>
   )
 }

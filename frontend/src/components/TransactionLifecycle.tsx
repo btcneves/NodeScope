@@ -29,10 +29,10 @@ interface TransactionLifecycleProps {
 }
 
 function StageLabel({ id, label }: { id: string; label: string }) {
-  if (id === 'mempool')       return <Term term="Mempool"   >{label}</Term>
-  if (id === 'zmq-rawtx')    return <Term term="rawtx"     >{label}</Term>
-  if (id === 'zmq-rawblock')  return <Term term="rawblock"  >{label}</Term>
-  if (id === 'mined')         return <Term term="Block hash">{label}</Term>
+  if (id === 'mempool') return <Term term="Mempool">{label}</Term>
+  if (id === 'zmq-rawtx') return <Term term="rawtx">{label}</Term>
+  if (id === 'zmq-rawblock') return <Term term="rawblock">{label}</Term>
+  if (id === 'mined') return <Term term="Block hash">{label}</Term>
   return <>{label}</>
 }
 
@@ -60,8 +60,10 @@ export function TransactionLifecycle({
 
     // Collect events newer than the last we processed, then sort oldest-first
     const newEvents = sseEvents
-      .filter(ev => {
-        const ts = (ev.payload?.event as Record<string, unknown> | undefined)?.ts as string | undefined
+      .filter((ev) => {
+        const ts = (ev.payload?.event as Record<string, unknown> | undefined)?.ts as
+          | string
+          | undefined
         return ts !== undefined && ts > lastProcessedTs.current
       })
       .reverse()
@@ -80,7 +82,7 @@ export function TransactionLifecycle({
       if (origin === 'rawtx' && data?.coinbase_input_present) continue
 
       if (origin === 'rawtx' && data?.txid) {
-        setTracked(prev => {
+        setTracked((prev) => {
           if (prev && !prev.confirmed) return prev
           return {
             txid: data.txid as string,
@@ -94,7 +96,7 @@ export function TransactionLifecycle({
       }
 
       if (origin === 'rawblock') {
-        setTracked(prev => {
+        setTracked((prev) => {
           if (!prev || prev.rawblockSeen) return prev
           return {
             ...prev,
@@ -111,7 +113,7 @@ export function TransactionLifecycle({
   useEffect(() => {
     if (!tracked?.rawblockSeen || tracked.confirmed) return
     const t = setTimeout(() => {
-      setTracked(prev => prev ? { ...prev, confirmed: true } : prev)
+      setTracked((prev) => (prev ? { ...prev, confirmed: true } : prev))
     }, 1200)
     return () => clearTimeout(t)
   }, [tracked?.rawblockSeen, tracked?.confirmed])
@@ -131,21 +133,31 @@ export function TransactionLifecycle({
     }
   }, [tracked?.confirmed])
 
-  const fmt = (iso: string | null) =>
-    iso ? new Date(iso).toLocaleTimeString() : '—'
+  const fmt = (iso: string | null) => (iso ? new Date(iso).toLocaleTimeString() : '—')
 
   // When demo steps are provided, derive stage activation from step statuses
-  const stepOk = (id: string) => demoSteps?.find(s => s.id === id)?.status === 'success'
+  const stepOk = (id: string) => demoSteps?.find((s) => s.id === id)?.status === 'success'
   const demoActive = demoSteps !== undefined
 
-  const demoTracked: TrackedTx | null = demoActive && stepOk('send_demo_transaction') ? {
-    txid: (demoSteps!.find(s => s.id === 'send_demo_transaction')?.data?.txid as string | undefined) ?? '…',
-    rawtxTs: demoSteps!.find(s => s.id === 'detect_zmq_rawtx')?.timestamp ?? new Date().toISOString(),
-    rawblockSeen: stepOk('mine_confirmation_block'),
-    rawblockTs: demoSteps!.find(s => s.id === 'detect_zmq_rawblock')?.timestamp ?? null,
-    blockHeight: (demoSteps!.find(s => s.id === 'mine_confirmation_block')?.data?.height as number | null) ?? null,
-    confirmed: stepOk('confirm_transaction'),
-  } : null
+  const demoTracked: TrackedTx | null =
+    demoActive && stepOk('send_demo_transaction')
+      ? {
+          txid:
+            (demoSteps!.find((s) => s.id === 'send_demo_transaction')?.data?.txid as
+              | string
+              | undefined) ?? '…',
+          rawtxTs:
+            demoSteps!.find((s) => s.id === 'detect_zmq_rawtx')?.timestamp ??
+            new Date().toISOString(),
+          rawblockSeen: stepOk('mine_confirmation_block'),
+          rawblockTs: demoSteps!.find((s) => s.id === 'detect_zmq_rawblock')?.timestamp ?? null,
+          blockHeight:
+            (demoSteps!.find((s) => s.id === 'mine_confirmation_block')?.data?.height as
+              | number
+              | null) ?? null,
+          confirmed: stepOk('confirm_transaction'),
+        }
+      : null
 
   const effectiveTracked = demoActive ? demoTracked : tracked
 
@@ -172,16 +184,19 @@ export function TransactionLifecycle({
         {
           id: 'mined',
           label: t.dashboard.lifecycleBlockMined,
-          sub: effectiveTracked.blockHeight != null
-            ? `${t.generic.height} ${effectiveTracked.blockHeight}`
-            : '…',
+          sub:
+            effectiveTracked.blockHeight != null
+              ? `${t.generic.height} ${effectiveTracked.blockHeight}`
+              : '…',
           active: demoActive ? stepOk('mine_confirmation_block') : effectiveTracked.rawblockSeen,
         },
         {
           id: 'zmq-rawblock',
           label: 'ZMQ rawblock',
           sub: effectiveTracked.rawblockTs ? fmt(effectiveTracked.rawblockTs) : '…',
-          active: demoActive ? stepOk('detect_zmq_rawblock') : (effectiveTracked.rawblockSeen && zmqConnected),
+          active: demoActive
+            ? stepOk('detect_zmq_rawblock')
+            : effectiveTracked.rawblockSeen && zmqConnected,
         },
         {
           id: 'confirmed',
@@ -191,12 +206,12 @@ export function TransactionLifecycle({
         },
       ]
     : [
-        { id: 'broadcast',    label: t.dashboard.lifecycleBroadcast,         sub: '—', active: false },
-        { id: 'mempool',      label: 'Mempool',                               sub: '—', active: false },
-        { id: 'zmq-rawtx',   label: 'ZMQ rawtx',                             sub: '—', active: false },
-        { id: 'mined',        label: t.dashboard.lifecycleBlockMined,         sub: '—', active: false },
-        { id: 'zmq-rawblock', label: 'ZMQ rawblock',                          sub: '—', active: false },
-        { id: 'confirmed',    label: t.dashboard.lifecycleConfirmed,          sub: '—', active: false },
+        { id: 'broadcast', label: t.dashboard.lifecycleBroadcast, sub: '—', active: false },
+        { id: 'mempool', label: 'Mempool', sub: '—', active: false },
+        { id: 'zmq-rawtx', label: 'ZMQ rawtx', sub: '—', active: false },
+        { id: 'mined', label: t.dashboard.lifecycleBlockMined, sub: '—', active: false },
+        { id: 'zmq-rawblock', label: 'ZMQ rawblock', sub: '—', active: false },
+        { id: 'confirmed', label: t.dashboard.lifecycleConfirmed, sub: '—', active: false },
       ]
 
   const idleUnavailable = !rpcOk || !zmqConnected
@@ -237,23 +252,36 @@ export function TransactionLifecycle({
                     <StageLabel id={stage.id} label={stage.label} />
                   </div>
                   {stage.sub !== '—' && (
-                    <div className="lifecycle-sub" style={{ textAlign: 'left' }}>{stage.sub}</div>
+                    <div className="lifecycle-sub" style={{ textAlign: 'left' }}>
+                      {stage.sub}
+                    </div>
                   )}
                 </div>
                 {stage.active && (
-                  <span style={{ color: 'var(--accent-bright)', fontSize: 11, flexShrink: 0, fontWeight: 700 }}>✓</span>
+                  <span
+                    style={{
+                      color: 'var(--accent-bright)',
+                      fontSize: 11,
+                      flexShrink: 0,
+                      fontWeight: 700,
+                    }}
+                  >
+                    ✓
+                  </span>
                 )}
               </div>
               {i < stages.length - 1 && (
-                <div style={{
-                  marginLeft: 5,
-                  width: 2,
-                  height: 12,
-                  background: stage.active ? 'var(--accent-bright)' : 'var(--border)',
-                  opacity: stage.active ? 0.6 : 1,
-                  transition: 'background 0.3s',
-                  borderRadius: 1,
-                }} />
+                <div
+                  style={{
+                    marginLeft: 5,
+                    width: 2,
+                    height: 12,
+                    background: stage.active ? 'var(--accent-bright)' : 'var(--border)',
+                    opacity: stage.active ? 0.6 : 1,
+                    transition: 'background 0.3s',
+                    borderRadius: 1,
+                  }}
+                />
               )}
             </div>
           ))}
@@ -271,7 +299,9 @@ export function TransactionLifecycle({
                 <div className="lifecycle-sub">{stage.sub}</div>
               </div>
               {i < stages.length - 1 && (
-                <div className={`lifecycle-connector ${stage.active ? 'lifecycle-connector--active' : ''}`} />
+                <div
+                  className={`lifecycle-connector ${stage.active ? 'lifecycle-connector--active' : ''}`}
+                />
               )}
             </div>
           ))}
@@ -279,18 +309,23 @@ export function TransactionLifecycle({
       )}
 
       {/* Status bar: idle waiting / confirmed */}
-      <div style={{
-        padding: '7px 16px',
-        borderTop: '1px solid var(--border)',
-        fontSize: 11,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 6,
-        color: effectiveTracked?.confirmed ? '#22c55e'
-          : effectiveTracked ? '#f59e0b'
-          : idleUnavailable ? '#6b7280'
-          : '#4b5563',
-      }}>
+      <div
+        style={{
+          padding: '7px 16px',
+          borderTop: '1px solid var(--border)',
+          fontSize: 11,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+          color: effectiveTracked?.confirmed
+            ? '#22c55e'
+            : effectiveTracked
+              ? '#f59e0b'
+              : idleUnavailable
+                ? '#6b7280'
+                : '#4b5563',
+        }}
+      >
         {effectiveTracked?.confirmed ? (
           <>
             <span>●</span>

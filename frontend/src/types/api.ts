@@ -238,7 +238,13 @@ export interface HistoryListResponse<T> {
 
 // --- Guided Demo types ---
 
-export type StepStatus = 'pending' | 'running' | 'success' | 'error' | 'unavailable' | 'experimental'
+export type StepStatus =
+  | 'pending'
+  | 'running'
+  | 'success'
+  | 'error'
+  | 'unavailable'
+  | 'experimental'
 
 export interface DemoStep {
   id: string

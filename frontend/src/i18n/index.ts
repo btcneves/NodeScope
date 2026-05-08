@@ -13,14 +13,18 @@ export function getStoredLang(): Lang {
   try {
     const v = localStorage.getItem(STORAGE_KEY)
     if (v === 'pt-BR' || v === 'en-US') return v
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return 'en-US'
 }
 
 export function setStoredLang(lang: Lang): void {
   try {
     localStorage.setItem(STORAGE_KEY, lang)
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
 
 export function getTranslations(lang: Lang): Translations {

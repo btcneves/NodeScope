@@ -35,8 +35,10 @@ export function useSSE(url: string) {
         if (!active) return
         try {
           const payload = JSON.parse(e.data as string)
-          setEvents(prev => [{ type: 'nodescope_event', payload }, ...prev].slice(0, 50))
-        } catch { /* ignore malformed */ }
+          setEvents((prev) => [{ type: 'nodescope_event', payload }, ...prev].slice(0, 50))
+        } catch {
+          /* ignore malformed */
+        }
       })
 
       es.onerror = () => {

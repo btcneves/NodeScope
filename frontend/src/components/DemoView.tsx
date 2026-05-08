@@ -26,15 +26,7 @@ interface Props {
   onClose: () => void
 }
 
-function StatusRow({
-  label,
-  value,
-  ok,
-}: {
-  label: string
-  value: string
-  ok: boolean
-}) {
+function StatusRow({ label, value, ok }: { label: string; value: string; ok: boolean }) {
   return (
     <div className="pres-status-row">
       <span className={`pres-status-dot ${ok ? 'pres-dot-ok' : 'pres-dot-err'}`} />
@@ -46,7 +38,11 @@ function StatusRow({
 
 function ScoreRing({ score, label }: { score: number; label: string }) {
   const color =
-    label === 'healthy' ? 'var(--accent-bright)' : label === 'degraded' ? 'var(--warn)' : 'var(--error)'
+    label === 'healthy'
+      ? 'var(--accent-bright)'
+      : label === 'degraded'
+        ? 'var(--warn)'
+        : 'var(--error)'
   return (
     <div className="pres-score-ring" style={{ borderColor: color }}>
       <span className="pres-score-value" style={{ color }}>
@@ -117,11 +113,7 @@ export function DemoView({
           <ScoreRing score={healthScore} label={healthLabel} />
         </div>
 
-        <TransactionLifecycle
-          rpcOk={rpcOk}
-          zmqConnected={sseConnected}
-          sseEvents={sseEvents}
-        />
+        <TransactionLifecycle rpcOk={rpcOk} zmqConnected={sseConnected} sseEvents={sseEvents} />
 
         <div className="grid-3">
           <MempoolPanel mempool={mempool} />

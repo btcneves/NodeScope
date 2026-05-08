@@ -35,9 +35,7 @@ export function ReplayEnginePanel({ summary }: Props) {
     )
   }
 
-  const source = summary.source
-    ? summary.source.split('/').pop() ?? summary.source
-    : '—'
+  const source = summary.source ? (summary.source.split('/').pop() ?? summary.source) : '—'
 
   return (
     <div className="panel">
