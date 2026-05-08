@@ -49,8 +49,17 @@ def get_proof_reports(
     offset: int = 0,
     source: str | None = None,
     success: bool | None = None,
+    sort_by: str = "id",
+    sort_dir: str = "desc",
 ) -> list[dict[str, Any]]:
-    rows = storage.list_proof_reports(limit=limit, offset=offset, source=source, success=success)
+    rows = storage.list_proof_reports(
+        limit=limit,
+        offset=offset,
+        source=source,
+        success=success,
+        sort_by=sort_by,
+        sort_dir=sort_dir,
+    )
     return [_format_proof_report(r) for r in rows]
 
 

@@ -4,12 +4,31 @@ export interface Translations {
   // Navigation
   nav: {
     dashboard: string
+    charts: string
     guidedDemo: string
     txInspector: string
     zmqTape: string
     policyArena: string
     reorgLab: string
     clusterMempool: string
+  }
+
+  charts: {
+    title: string
+    navLabel: string
+    mempoolSize: string
+    mempoolBytes: string
+    feeRate: string
+    noData: string
+    waitingSnapshot: string
+    range1h: string
+    range6h: string
+    range24h: string
+  }
+
+  sort: {
+    asc: string
+    desc: string
   }
 
   // Actions
@@ -53,6 +72,13 @@ export interface Translations {
     apiStatus: string
     rpcStatus: string
     sseStatus: string
+  }
+
+  network: {
+    readOnlyBanner: string
+    modeLabel: string
+    readOnlyReason: string
+    readOnlyActionBlocked: string
   }
 
   // Demo

@@ -242,12 +242,8 @@ export function FeeEstimationPlayground() {
                 cursor: 'pointer',
               }}
             >
-              <option value="CONSERVATIVE">
-                {t.fees.conservative} (<Term term="conservative mode">CONSERVATIVE</Term>)
-              </option>
-              <option value="ECONOMICAL">
-                {t.fees.economical} (<Term term="economical mode">ECONOMICAL</Term>)
-              </option>
+              <option value="CONSERVATIVE">{t.fees.conservative} (CONSERVATIVE)</option>
+              <option value="ECONOMICAL">{t.fees.economical} (ECONOMICAL)</option>
             </select>
           </div>
 

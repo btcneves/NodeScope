@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useCallback, useState, useEffect } from 'react'
 import { api } from './api/client'
 import { useInterval } from './hooks/useInterval'
 import { useSSE } from './hooks/useSSE'
@@ -12,6 +12,7 @@ import type {
   TxData,
   IntelligenceData,
   DemoStep,
+  NetworkModeData,
 } from './types/api'
 import { Header, type ActiveView } from './components/Header'
 import { KpiRow } from './components/KpiRow'
@@ -32,9 +33,12 @@ import { ZmqEventTape } from './components/ZmqEventTape'
 import { MempoolPolicyArena } from './components/MempoolPolicyArena'
 import { ReorgLab } from './components/ReorgLab'
 import { SimulationPanel } from './components/SimulationPanel'
+import { ReadOnlyBanner } from './components/ReadOnlyBanner'
 import AlertingPanel from './components/AlertingPanel'
 import HistoricalDashboard from './components/HistoricalDashboard'
 import { FeeEstimationPlayground } from './components/FeeEstimationPlayground'
+import { HistoricalChartsPanel } from './components/HistoricalChartsPanel'
+import { ClusterMempoolPanel } from './components/ClusterMempoolPanel'
 import { Footer } from './components/Footer'
 import { ExplainBox } from './components/ui/ExplainBox'
 import {
@@ -55,9 +59,18 @@ export default function App() {
   const [latestBlock, setLatestBlock] = useState<BlockData | null>(null)
   const [latestTx, setLatestTx] = useState<TxData | null>(null)
   const [intelligence, setIntelligence] = useState<IntelligenceData | null>(null)
+  const [networkMode, setNetworkMode] = useState<NetworkModeData | null>(null)
   const [activeView, setActiveView] = useState<ActiveView>('dashboard')
   const [inspectorTxid, setInspectorTxid] = useState('')
   const [guidedDemoSteps, setGuidedDemoSteps] = useState<DemoStep[]>([])
+  const [eventSort, setEventSort] = useState<{ by: string; dir: 'asc' | 'desc' }>({
+    by: 'ts',
+    dir: 'desc',
+  })
+  const [classificationSort, setClassificationSort] = useState<{
+    by: string
+    dir: 'asc' | 'desc'
+  }>({ by: 'ts', dir: 'desc' })
   const {
     events: sseEvents,
     connected: sseConnected,
@@ -75,19 +88,21 @@ export default function App() {
 
   const i18nValue: I18nContextValue = { lang, t, setLang }
 
-  const fetchAll = async () => {
+  const fetchAll = useCallback(async () => {
     try {
-      const [h, m, s, e, c, b, tx, intel] = await Promise.allSettled([
+      const [h, mode, m, s, e, c, b, tx, intel] = await Promise.allSettled([
         api.health(),
+        api.networkMode(),
         api.mempool(),
         api.summary(),
-        api.recentEvents(20),
-        api.classifications(20),
+        api.recentEvents(20, eventSort.by, eventSort.dir),
+        api.classifications(20, classificationSort.by, classificationSort.dir),
         api.latestBlock(),
         api.latestTx(),
         api.intelligenceSummary(),
       ])
       if (h.status === 'fulfilled') setHealth(h.value)
+      if (mode.status === 'fulfilled') setNetworkMode(mode.value)
       if (m.status === 'fulfilled') setMempool(m.value)
       if (s.status === 'fulfilled') setSummary(s.value)
       if (e.status === 'fulfilled') setEvents(e.value.items)
@@ -98,16 +113,17 @@ export default function App() {
     } catch {
       /* ignore */
     }
-  }
+  }, [eventSort, classificationSort])
 
   useEffect(() => {
     void fetchAll()
-  }, [])
+  }, [fetchAll])
   useInterval(fetchAll, 5000)
 
   const network = health?.chain ?? health?.network ?? 'regtest'
   const rpcOk = health?.rpc_ok ?? false
   const apiOk = health !== null
+  const isReadOnly = networkMode?.read_only ?? false
 
   const handleInspect = (txid: string) => {
     setInspectorTxid(txid)
@@ -115,6 +131,10 @@ export default function App() {
   }
 
   const handleNewSession = async () => {
+    if (isReadOnly) {
+      window.alert(t.network.readOnlyActionBlocked)
+      return
+    }
     if (!window.confirm(t.header.newSessionConfirm)) return
     try {
       await api.sessionReset()
@@ -130,6 +150,7 @@ export default function App() {
     setHealth(null)
     setMempool(null)
     setIntelligence(null)
+    setNetworkMode(null)
     void fetchAll()
   }
 
@@ -149,12 +170,14 @@ export default function App() {
       }}
     />
   )
+  const readOnlyBanner = <ReadOnlyBanner mode={networkMode} />
 
   return (
     <I18nContext.Provider value={i18nValue}>
       {activeView === 'guided-demo' ? (
         <div className="app" style={{ height: '100vh', overflow: 'hidden' }}>
           {header}
+          {readOnlyBanner}
           <div
             style={{
               display: 'flex',
@@ -169,7 +192,7 @@ export default function App() {
           >
             {/* Left: scrollable steps list */}
             <div style={{ flex: 1, overflowY: 'auto', minWidth: 0, paddingRight: 4 }}>
-              <GuidedDemo onStepsChange={setGuidedDemoSteps} />
+              <GuidedDemo onStepsChange={setGuidedDemoSteps} readOnly={isReadOnly} />
             </div>
             {/* Right: fixed sidebar — lifecycle + explain */}
             <div
@@ -196,6 +219,7 @@ export default function App() {
       ) : activeView === 'inspector' ? (
         <div className="app">
           {header}
+          {readOnlyBanner}
           <main className="main" style={{ maxWidth: '860px', margin: '0 auto' }}>
             <ExplainBox text={t.explain.inspector} />
             <TransactionInspector initialTxid={inspectorTxid} />
@@ -205,6 +229,7 @@ export default function App() {
       ) : activeView === 'zmq-tape' ? (
         <div className="app">
           {header}
+          {readOnlyBanner}
           <main className="main" style={{ maxWidth: '960px', margin: '0 auto' }}>
             <ExplainBox text={t.explain.zmqTape} />
             <ZmqEventTape onInspectTxid={handleInspect} />
@@ -214,20 +239,26 @@ export default function App() {
       ) : activeView === 'policy-arena' ? (
         <div className="app">
           {header}
+          {readOnlyBanner}
           <main className="main" style={{ maxWidth: '1100px', margin: '0 auto' }}>
             <ExplainBox text={t.explain.policyArena} />
-            <MempoolPolicyArena onGoToDashboard={() => setActiveView('dashboard')} />
+            <MempoolPolicyArena
+              onGoToDashboard={() => setActiveView('dashboard')}
+              readOnly={isReadOnly}
+            />
           </main>
           <Footer />
         </div>
       ) : activeView === 'reorg-lab' ? (
         <div className="app">
           {header}
+          {readOnlyBanner}
           <main className="main" style={{ maxWidth: '900px', margin: '0 auto' }}>
             <ExplainBox text={t.explain.reorgLab} />
             <ReorgLab
               onInspect={handleInspect}
               onGoToDashboard={() => setActiveView('dashboard')}
+              readOnly={isReadOnly}
             />
           </main>
           <Footer />
@@ -235,14 +266,34 @@ export default function App() {
       ) : activeView === 'history' ? (
         <div className="app">
           {header}
+          {readOnlyBanner}
           <main className="main" style={{ maxWidth: '1200px', margin: '0 auto' }}>
             <HistoricalDashboard />
+          </main>
+          <Footer />
+        </div>
+      ) : activeView === 'charts' ? (
+        <div className="app">
+          {header}
+          {readOnlyBanner}
+          <main className="main" style={{ maxWidth: '960px', margin: '0 auto' }}>
+            <HistoricalChartsPanel />
+          </main>
+          <Footer />
+        </div>
+      ) : activeView === 'cluster' ? (
+        <div className="app">
+          {header}
+          {readOnlyBanner}
+          <main className="main" style={{ maxWidth: '960px', margin: '0 auto' }}>
+            <ClusterMempoolPanel />
           </main>
           <Footer />
         </div>
       ) : activeView === 'fee-estimation' ? (
         <div className="app">
           {header}
+          {readOnlyBanner}
           <main className="main" style={{ maxWidth: '960px', margin: '0 auto' }}>
             <ExplainBox text={t.fees.explainBox} />
             <FeeEstimationPlayground />
@@ -253,9 +304,10 @@ export default function App() {
         // Default: dashboard
         <div className="app">
           {header}
+          {readOnlyBanner}
           <main className="main">
             <ExplainBox text={t.explain.dashboard} />
-            <AlertingPanel />
+            <AlertingPanel readOnly={isReadOnly} />
             <KpiRow summary={summary} mempool={mempool} health={health} />
             <div className="grid-2">
               <NodeHealthScore
@@ -267,7 +319,7 @@ export default function App() {
               />
               <IntelligenceSummaryPanel data={intelligence} />
             </div>
-            <SimulationPanel />
+            <SimulationPanel readOnly={isReadOnly} />
             <TransactionLifecycle rpcOk={rpcOk} zmqConnected={sseConnected} sseEvents={sseEvents} />
             <div className="grid-3">
               <MempoolPanel mempool={mempool} />
@@ -276,13 +328,33 @@ export default function App() {
             </div>
             <div className="grid-2">
               <LiveFeed sseEvents={sseEvents} connected={sseConnected} />
-              <EventsTable events={events} />
+              <EventsTable
+                events={events}
+                sortBy={eventSort.by}
+                sortDir={eventSort.dir}
+                onSort={(by) =>
+                  setEventSort((prev) => ({
+                    by,
+                    dir: prev.by === by && prev.dir === 'desc' ? 'asc' : 'desc',
+                  }))
+                }
+              />
             </div>
             <div className="grid-2">
               <ReplayEnginePanel summary={summary} />
               <RpcZmqSyncPanel health={health} summary={summary} latestBlock={latestBlock} />
             </div>
-            <ClassificationsTable classifications={classifications} />
+            <ClassificationsTable
+              classifications={classifications}
+              sortBy={classificationSort.by}
+              sortDir={classificationSort.dir}
+              onSort={(by) =>
+                setClassificationSort((prev) => ({
+                  by,
+                  dir: prev.by === by && prev.dir === 'desc' ? 'asc' : 'desc',
+                }))
+              }
+            />
           </main>
           <Footer />
         </div>

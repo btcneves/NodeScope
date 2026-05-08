@@ -20,6 +20,7 @@ function EventRow({ ev, onInspect }: { ev: TapeEvent; onInspect: (txid: string) 
       style={{
         display: 'flex',
         alignItems: 'center',
+        flexWrap: 'wrap',
         gap: '10px',
         padding: '8px 12px',
         background: '#0f172a',
@@ -33,6 +34,7 @@ function EventRow({ ev, onInspect }: { ev: TapeEvent; onInspect: (txid: string) 
       <span
         style={{
           minWidth: '68px',
+          flexShrink: 0,
           padding: '2px 6px',
           borderRadius: '3px',
           background: topicColor + '22',
@@ -46,11 +48,11 @@ function EventRow({ ev, onInspect }: { ev: TapeEvent; onInspect: (txid: string) 
         {topicLabel}
       </span>
 
-      <span style={{ color: '#4b5563', minWidth: '190px' }}>
+      <span style={{ color: '#4b5563', flex: '1 1 170px', minWidth: 0 }}>
         {ev.ts ? ev.ts.replace('T', ' ').slice(0, 23) : '—'}
       </span>
 
-      <span style={{ color: '#d1d5db', flex: 1 }}>
+      <span style={{ color: '#d1d5db', flex: '1 1 130px', minWidth: 0 }}>
         {isRawtx ? (
           ev.txid ? (
             <span
@@ -78,7 +80,9 @@ function EventRow({ ev, onInspect }: { ev: TapeEvent; onInspect: (txid: string) 
       )}
       {isRawtx && ev.has_op_return && <span style={{ color: '#f59e0b' }}>OP_RETURN</span>}
       {isRawtx && ev.script_types.length > 0 && (
-        <span style={{ color: '#4b5563' }}>{ev.script_types.slice(0, 2).join(', ')}</span>
+        <span style={{ color: '#4b5563', overflowWrap: 'anywhere' }}>
+          {ev.script_types.slice(0, 2).join(', ')}
+        </span>
       )}
 
       {isRawtx && ev.txid && (
@@ -236,6 +240,7 @@ export function ZmqEventTape({ onInspectTxid }: Props) {
         <div
           style={{
             display: 'flex',
+            flexWrap: 'wrap',
             gap: '10px',
             padding: '4px 12px',
             fontSize: '10px',

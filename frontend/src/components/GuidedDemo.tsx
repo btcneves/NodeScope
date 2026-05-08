@@ -49,15 +49,17 @@ function StepRow({
   index,
   onRunStep,
   running,
+  readOnly,
 }: {
   step: DemoStep
   index: number
   onRunStep: (id: string) => void
   running: boolean
+  readOnly?: boolean
 }) {
   const { t } = useI18n()
   const [expanded, setExpanded] = useState(false)
-  const canRun = !running && step.status !== 'running'
+  const canRun = !readOnly && !running && step.status !== 'running'
   const desc = (t.demo.stepDesc as Record<string, string>)[step.id]
 
   return (
@@ -372,7 +374,13 @@ function btnStyle(bg: string): React.CSSProperties {
 
 const POLL_INTERVAL_MS = 1500
 
-export function GuidedDemo({ onStepsChange }: { onStepsChange?: (steps: DemoStep[]) => void }) {
+export function GuidedDemo({
+  onStepsChange,
+  readOnly = false,
+}: {
+  onStepsChange?: (steps: DemoStep[]) => void
+  readOnly?: boolean
+}) {
   const { t } = useI18n()
   const [demoState, setDemoState] = useState<DemoStatusData | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -468,8 +476,8 @@ export function GuidedDemo({ onStepsChange }: { onStepsChange?: (steps: DemoStep
           onClick={() => {
             void handleRunFull()
           }}
-          disabled={running}
-          style={btnStyle(running ? '#374151' : '#16a34a')}
+          disabled={readOnly || running}
+          style={btnStyle(readOnly || running ? '#374151' : '#16a34a')}
         >
           {running ? t.status.running : t.actions.runFull}
         </button>
@@ -477,8 +485,8 @@ export function GuidedDemo({ onStepsChange }: { onStepsChange?: (steps: DemoStep
           onClick={() => {
             void handleReset()
           }}
-          disabled={running}
-          style={btnStyle('#7f1d1d')}
+          disabled={readOnly || running}
+          style={btnStyle(readOnly || running ? '#374151' : '#7f1d1d')}
         >
           {t.actions.reset}
         </button>
@@ -511,6 +519,22 @@ export function GuidedDemo({ onStepsChange }: { onStepsChange?: (steps: DemoStep
         </div>
       )}
 
+      {readOnly && (
+        <div
+          style={{
+            fontSize: '12px',
+            color: '#fdba74',
+            marginBottom: '12px',
+            padding: '8px',
+            background: '#451a03',
+            border: '1px solid #92400e',
+            borderRadius: '4px',
+          }}
+        >
+          {t.network.readOnlyActionBlocked}
+        </div>
+      )}
+
       {/* Steps */}
       {steps.length === 0 ? (
         <div style={{ fontSize: '12px', color: '#6b7280' }}>{t.demo.loadingState}</div>
@@ -524,6 +548,7 @@ export function GuidedDemo({ onStepsChange }: { onStepsChange?: (steps: DemoStep
               void handleRunStep(id)
             }}
             running={running}
+            readOnly={readOnly}
           />
         ))
       )}

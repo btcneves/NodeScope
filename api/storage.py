@@ -44,6 +44,8 @@ class _MemStore:
     demo_runs: list[dict[str, Any]] = field(default_factory=list)
     policy_runs: list[dict[str, Any]] = field(default_factory=list)
     reorg_runs: list[dict[str, Any]] = field(default_factory=list)
+    time_series: list[dict[str, Any]] = field(default_factory=list)
+    alert_configs: list[dict[str, Any]] = field(default_factory=list)
     _next_id: int = 1
 
     def next_id(self) -> int:
@@ -102,6 +104,25 @@ CREATE TABLE IF NOT EXISTS reorg_runs (
     final_block_hash TEXT,
     proof_report_id INTEGER,
     created_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS time_series (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ts TEXT NOT NULL,
+    metric TEXT NOT NULL,
+    value REAL NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_time_series_metric_ts ON time_series(metric, ts);
+
+CREATE TABLE IF NOT EXISTS alert_config (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    metric TEXT NOT NULL,
+    operator TEXT NOT NULL,
+    threshold REAL NOT NULL,
+    severity TEXT NOT NULL DEFAULT 'warning',
+    enabled INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL
 );
 """
 
@@ -230,7 +251,12 @@ def list_proof_reports(
     offset: int = 0,
     source: str | None = None,
     success: bool | None = None,
+    sort_by: str = "id",
+    sort_dir: str = "desc",
 ) -> list[dict[str, Any]]:
+    allowed_sort = {"id", "created_at", "source", "status", "success", "txid"}
+    sort_col = sort_by if sort_by in allowed_sort else "id"
+    direction = "ASC" if sort_dir.lower() == "asc" else "DESC"
     with _lock:
         if _backend == "sqlite" and _conn:
             try:
@@ -245,7 +271,7 @@ def list_proof_reports(
                 where = ("WHERE " + " AND ".join(conditions)) if conditions else ""
                 params += [limit, offset]
                 rows = _conn.execute(
-                    f"SELECT * FROM proof_reports {where} ORDER BY id DESC LIMIT ? OFFSET ?",
+                    f"SELECT * FROM proof_reports {where} ORDER BY {sort_col} {direction} LIMIT ? OFFSET ?",  # noqa: S608
                     params,
                 ).fetchall()
                 return [dict(r) for r in rows]
@@ -257,7 +283,8 @@ def list_proof_reports(
                 rows = [r for r in rows if r.get("source") == source]
             if success is not None:
                 rows = [r for r in rows if bool(r.get("success")) == success]
-            rows = list(reversed(rows))
+            reverse = direction == "DESC"
+            rows = sorted(rows, key=lambda r: r.get(sort_col) or 0, reverse=reverse)
             return rows[offset : offset + limit]
 
 
@@ -519,3 +546,159 @@ def summary_counts() -> dict[str, Any]:
             "storage_up": storage_up(),
             "init_error": _init_error,
         }
+
+
+# ---------------------------------------------------------------------------
+# time_series
+# ---------------------------------------------------------------------------
+
+
+def insert_time_series(metric: str, value: float, ts: str | None = None) -> int | None:
+    created_at = ts or _now()
+    with _lock:
+        if _backend == "sqlite" and _conn:
+            try:
+                cur = _conn.execute(
+                    "INSERT INTO time_series (ts, metric, value) VALUES (?,?,?)",
+                    (created_at, metric, float(value)),
+                )
+                _conn.commit()
+                return cur.lastrowid
+            except Exception:
+                return None
+        row = {"id": _mem.next_id(), "ts": created_at, "metric": metric, "value": float(value)}
+        _mem.time_series.append(row)
+        return row["id"]
+
+
+def query_time_series(metric: str, since_ts: str) -> list[dict[str, Any]]:
+    with _lock:
+        if _backend == "sqlite" and _conn:
+            try:
+                rows = _conn.execute(
+                    "SELECT * FROM time_series WHERE metric = ? AND ts >= ? ORDER BY ts ASC",
+                    (metric, since_ts),
+                ).fetchall()
+                return [dict(r) for r in rows]
+            except Exception:
+                return []
+        return [
+            r
+            for r in sorted(_mem.time_series, key=lambda row: row.get("ts") or "")
+            if r.get("metric") == metric and str(r.get("ts") or "") >= since_ts
+        ]
+
+
+# ---------------------------------------------------------------------------
+# alert_config
+# ---------------------------------------------------------------------------
+
+
+def seed_default_alerts() -> None:
+    if list_alert_configs():
+        return
+    insert_alert_config("mempool_size", "gt", 500, severity="warning", enabled=True)
+    insert_alert_config("minfee", "gt", 50, severity="warning", enabled=True)
+    insert_alert_config("rpc_offline", "eq", 1, severity="critical", enabled=True)
+
+
+def insert_alert_config(
+    metric: str,
+    operator: str,
+    threshold: float,
+    *,
+    severity: str = "warning",
+    enabled: bool = True,
+) -> int | None:
+    created_at = _now()
+    with _lock:
+        if _backend == "sqlite" and _conn:
+            try:
+                cur = _conn.execute(
+                    """INSERT INTO alert_config
+                       (metric, operator, threshold, severity, enabled, created_at)
+                       VALUES (?,?,?,?,?,?)""",
+                    (metric, operator, float(threshold), severity, int(enabled), created_at),
+                )
+                _conn.commit()
+                return cur.lastrowid
+            except Exception:
+                return None
+        row = {
+            "id": _mem.next_id(),
+            "metric": metric,
+            "operator": operator,
+            "threshold": float(threshold),
+            "severity": severity,
+            "enabled": int(enabled),
+            "created_at": created_at,
+        }
+        _mem.alert_configs.append(row)
+        return row["id"]
+
+
+def list_alert_configs() -> list[dict[str, Any]]:
+    with _lock:
+        if _backend == "sqlite" and _conn:
+            try:
+                rows = _conn.execute("SELECT * FROM alert_config ORDER BY id ASC").fetchall()
+                return [dict(r) for r in rows]
+            except Exception:
+                return []
+        return list(_mem.alert_configs)
+
+
+def get_alert_config(config_id: int) -> dict[str, Any] | None:
+    with _lock:
+        if _backend == "sqlite" and _conn:
+            try:
+                row = _conn.execute(
+                    "SELECT * FROM alert_config WHERE id = ?", (config_id,)
+                ).fetchone()
+                return dict(row) if row else None
+            except Exception:
+                return None
+        return next((r for r in _mem.alert_configs if r.get("id") == config_id), None)
+
+
+def update_alert_config(config_id: int, values: dict[str, Any]) -> dict[str, Any] | None:
+    allowed = {"metric", "operator", "threshold", "severity", "enabled"}
+    updates = {k: v for k, v in values.items() if k in allowed and v is not None}
+    if not updates:
+        return get_alert_config(config_id)
+    if "threshold" in updates:
+        updates["threshold"] = float(updates["threshold"])
+    if "enabled" in updates:
+        updates["enabled"] = int(bool(updates["enabled"]))
+    with _lock:
+        if _backend == "sqlite" and _conn:
+            try:
+                assignments = ", ".join(f"{key} = ?" for key in updates)
+                params = [*updates.values(), config_id]
+                _conn.execute(
+                    f"UPDATE alert_config SET {assignments} WHERE id = ?",  # noqa: S608
+                    params,
+                )
+                _conn.commit()
+            except Exception:
+                return None
+        else:
+            row = next((r for r in _mem.alert_configs if r.get("id") == config_id), None)
+            if row is None:
+                return None
+            row.update(updates)
+    return get_alert_config(config_id)
+
+
+def delete_alert_config(config_id: int) -> bool:
+    with _lock:
+        if _backend == "sqlite" and _conn:
+            try:
+                cur = _conn.execute("DELETE FROM alert_config WHERE id = ?", (config_id,))
+                _conn.commit()
+                return cur.rowcount > 0
+            except Exception:
+                return False
+        before = len(_mem.alert_configs)
+        _mem.alert_configs = [r for r in _mem.alert_configs if r.get("id") != config_id]
+        return len(_mem.alert_configs) < before

@@ -41,6 +41,11 @@ if _PROMETHEUS_AVAILABLE:
         "Total HTTP 4xx/5xx responses",
         ["method", "endpoint", "status"],
     )
+    RATE_LIMITED_TOTAL = Counter(
+        "nodescope_rate_limited_total",
+        "Total requests rejected by NodeScope rate limiting",
+        ["method"],
+    )
 
     # Bitcoin Core RPC
     RPC_REQUESTS_TOTAL = Counter(
@@ -184,6 +189,12 @@ def record_http_request(method: str, endpoint: str, status: int, duration: float
     HTTP_REQUEST_DURATION.labels(method=method, endpoint=endpoint).observe(duration)
     if status >= 400:
         HTTP_ERRORS_TOTAL.labels(**labels).inc()
+
+
+def record_rate_limited(method: str) -> None:
+    if not _PROMETHEUS_AVAILABLE:
+        return
+    RATE_LIMITED_TOTAL.labels(method=method).inc()
 
 
 def record_rpc_call(method: str, *, error: bool = False, duration: float = 0.0) -> None:

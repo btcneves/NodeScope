@@ -9,8 +9,11 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/health': { target: apiTarget, changeOrigin: true },
+      '/network': { target: apiTarget, changeOrigin: true },
       '/summary': { target: apiTarget, changeOrigin: true },
       '/mempool': { target: apiTarget, changeOrigin: true },
+      '/charts': { target: apiTarget, changeOrigin: true },
+      '/alerts': { target: apiTarget, changeOrigin: true },
       '/events': { target: apiTarget, changeOrigin: true },
       '/blocks': { target: apiTarget, changeOrigin: true },
       '/tx': { target: apiTarget, changeOrigin: true },

@@ -281,7 +281,7 @@ O NodeScope verifica automaticamente se o nó Bitcoin Core conectado suporta RPC
 Se suportados, são usados e os resultados são exibidos. Se indisponíveis (Bitcoin Core 26 e anteriores),
 o NodeScope retorna um status `unavailable` honesto com explicação clara — nunca um falso positivo.
 
-Disponível via `GET /mempool/cluster/compatibility` e na aba **Policy Arena**.
+Disponível via `GET /mempool/cluster/compatibility`, `GET /mempool/clusters` e na aba **Cluster Mempool**.
 
 > RPCs de cluster mempool são esperados no Bitcoin Core 28+. Esta build usa Bitcoin Core 26.
 
@@ -519,11 +519,15 @@ Saída: tabela de latência (min/média/mediana/p95/max) por endpoint. Os result
 | Funcionalidade | Status |
 |---|---|
 | Suporte a signet/testnet | Planejado |
-| Visualização de cluster mempool (Bitcoin Core 28+) | Planejado |
+| Modo read-only para redes públicas | Pronto (proteção bloqueia mutações de laboratório fora de regtest) |
+| Visualização de cluster mempool | Pronto (grupos visuais via fallback; RPCs BC28+ detectados quando disponíveis) |
 | Cenário de expulsão da mempool | Planejado |
 | Topologia multi-nó | Planejado |
 | Postgres / TimescaleDB para persistência de eventos | Planejado |
 | Dashboards históricos | Pronto (SQLite) |
+| Gráficos históricos | Pronto |
+| Limiares de alerta configuráveis | Pronto |
+| Rate limiting da API | Pronto |
 | API keys para endpoints mutantes (opcional) | Pronto |
 | OpenTelemetry traces | Planejado |
 | Kubernetes manifests / Helm chart | Planejado |

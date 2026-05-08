@@ -4,10 +4,11 @@
 
 Status: Hackathon-ready
 Release: v1.1.0
+Local v1.2 implementation: validated
 Docker quickstart: validated
 Smoke test: passing (PASS=15 FAIL=0 WARN=0)
 Frontend build: passing (TypeScript + Vite)
-Python tests: passing (80 unit tests — see CI for current breakdown)
+Python tests: passing (85 unit tests — see CI for current breakdown)
 CI: passing (GitHub Actions — backend, frontend Node 18/20/24, public-clean check)
 
 ## Official Evaluator Flow
@@ -57,6 +58,11 @@ http://localhost:5173
 | Live Simulation Engine | Ready | Auto-mines blocks and sends transactions in regtest at configurable intervals. |
 | Prometheus /metrics | Ready | Prometheus-compatible metrics endpoint at GET /metrics. |
 | Operational Alerting | Ready | Dashboard AlertingPanel shows RPC status, simulation errors, and environment notes. |
+| Configurable Alert Rules | Ready | Alert thresholds can be listed, created, updated, deleted and evaluated through the API. |
+| Historical Charts | Ready | Mempool size and minimum fee time-series endpoints feed the dashboard charts. |
+| Network Read-only Guard | Ready | Non-regtest networks are detected and mutating lab endpoints are blocked unless explicitly allowed. |
+| API Rate Limiting | Ready | Sliding-window middleware limits burst traffic while exempting long-lived streams and lab polling endpoints. |
+| Visual Mempool Clusters | Ready | Shows package relationships when cluster RPCs are available and honest fallback groups when unavailable. |
 | Reproducible Benchmark | Ready | `scripts/benchmark_nodescope.py` measures API latency for all key endpoints. |
 | Optional API Key Auth | Ready | State-changing endpoints protected via `X-NodeScope-API-Key` header when `NODESCOPE_REQUIRE_API_KEY=true`. Read-only endpoints remain open. |
 | Load Smoke Test | Ready | `scripts/load_smoke.py` runs concurrent requests against all read-only endpoints, reporting per-endpoint and aggregate latency and success rate. |
@@ -72,6 +78,7 @@ The `/metrics` endpoint exposes Prometheus-compatible metrics when `prometheus-c
 - `nodescope_http_requests_total` — HTTP requests by method/endpoint/status
 - `nodescope_http_request_duration_seconds` — request latency histogram
 - `nodescope_http_errors_total` — 4xx/5xx responses
+- `nodescope_rate_limited_total` — requests rejected by API rate limiting
 - `nodescope_rpc_requests_total` — RPC calls to Bitcoin Core
 - `nodescope_rpc_errors_total` — RPC errors
 - `nodescope_rpc_latency_seconds` — RPC call latency
@@ -135,6 +142,20 @@ NODESCOPE_SQLITE_PATH=.nodescope/history.db
 
 If SQLite initialisation fails, the API transparently falls back to an in-memory store and records the error in `/history/summary`. All history endpoints remain functional in either backend.
 
+## v1.2 Operational Endpoints
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/network/mode` | Detects current Bitcoin network and read-only state |
+| GET | `/charts/mempool` | Mempool size time-series for historical charts |
+| GET | `/charts/fees` | Minimum mempool fee time-series for historical charts |
+| GET | `/alerts/config` | Lists alert rules and current threshold configuration |
+| POST | `/alerts/config` | Creates a custom alert rule |
+| PUT | `/alerts/config/{id}` | Updates an alert rule |
+| DELETE | `/alerts/config/{id}` | Deletes an alert rule |
+| GET | `/alerts/active` | Evaluates current active operational alerts |
+| GET | `/mempool/clusters` | Detects cluster mempool support and returns package visualization data |
+
 ## Known Limitations
 
 - The official demo uses Bitcoin Core regtest only; signet/mainnet operation is intentionally out of scope.
@@ -174,5 +195,5 @@ If SQLite initialisation fails, the API transparently falls back to an in-memory
 | OpenTelemetry traces (RPC, ZMQ, API) | Planned |
 | Multi-node support | Planned |
 | Kubernetes manifests / Helm chart | Planned |
-| signet / mainnet read-only mode | Planned |
-| Cluster mempool visualization (Bitcoin Core 28+) | Planned |
+| signet / mainnet read-only guard | Ready (mutating lab endpoints blocked outside regtest) |
+| Cluster mempool visualization | Ready (fallback visual groups; BC28+ RPCs detected when available) |

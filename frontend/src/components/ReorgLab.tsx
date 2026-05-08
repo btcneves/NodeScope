@@ -33,9 +33,10 @@ const REORG_WARNING_KEYS: Record<string, 'warningExperimental' | 'warningRestore
 interface Props {
   onInspect?: (txid: string) => void
   onGoToDashboard?: () => void
+  readOnly?: boolean
 }
 
-export function ReorgLab({ onInspect, onGoToDashboard }: Props) {
+export function ReorgLab({ onInspect, onGoToDashboard, readOnly = false }: Props) {
   const { t } = useI18n()
   const [data, setData] = useState<ReorgStatusData | null>(null)
   const [loading, setLoading] = useState(false)
@@ -154,16 +155,16 @@ export function ReorgLab({ onInspect, onGoToDashboard }: Props) {
             onClick={() => {
               void handleRun()
             }}
-            disabled={loading || data?.running}
+            disabled={readOnly || loading || data?.running}
             style={{
               padding: '6px 16px',
               fontSize: '12px',
               borderRadius: '4px',
               cursor: 'pointer',
-              background: data?.running ? '#374151' : '#1d4ed8',
+              background: readOnly || data?.running ? '#374151' : '#1d4ed8',
               color: '#fff',
               border: '1px solid #3b82f6',
-              opacity: loading || data?.running ? 0.6 : 1,
+              opacity: readOnly || loading || data?.running ? 0.6 : 1,
             }}
           >
             {data?.running ? `⏳ ${t.reorg.running}` : t.reorg.runReorg}
@@ -172,7 +173,7 @@ export function ReorgLab({ onInspect, onGoToDashboard }: Props) {
             onClick={() => {
               void handleReset()
             }}
-            disabled={data?.running}
+            disabled={readOnly || data?.running}
             style={{
               padding: '6px 14px',
               fontSize: '12px',
@@ -204,6 +205,22 @@ export function ReorgLab({ onInspect, onGoToDashboard }: Props) {
           )}
         </div>
       </div>
+
+      {readOnly && (
+        <div
+          style={{
+            padding: '10px',
+            background: '#451a03',
+            border: '1px solid #92400e',
+            borderRadius: '6px',
+            fontSize: '12px',
+            color: '#fdba74',
+            marginBottom: '16px',
+          }}
+        >
+          {t.network.readOnlyActionBlocked}
+        </div>
+      )}
 
       {/* Status bar */}
       <div
@@ -377,13 +394,15 @@ function StepRow({
   const stepTxid = (step.data?.txid ?? txid) as string | undefined
 
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+    <div style={{ display: 'flex', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px' }}>
       <span style={{ color, fontWeight: 'bold', minWidth: '16px', textAlign: 'center' }}>
         {icon}
       </span>
-      <div style={{ flex: 1 }}>
+      <div style={{ flex: '1 1 220px', minWidth: 0 }}>
         <div style={{ fontSize: '11px', color: '#9ca3af' }}>{label}</div>
-        <div style={{ fontSize: '12px', color: '#d1d5db' }}>{step.message}</div>
+        <div style={{ fontSize: '12px', color: '#d1d5db', overflowWrap: 'anywhere' }}>
+          {step.message}
+        </div>
         {step.status === 'error' && !!step.technical && (
           <div style={{ fontSize: '10px', color: '#ef4444', marginTop: '2px' }}>
             {JSON.stringify(step.technical).slice(0, 120)}

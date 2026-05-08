@@ -3,12 +3,31 @@ import type { Translations } from './types'
 export const enUS: Translations = {
   nav: {
     dashboard: 'Dashboard',
+    charts: 'Charts',
     guidedDemo: 'Guided Demo',
     txInspector: 'Tx Inspector',
     zmqTape: 'ZMQ Tape',
     policyArena: 'Policy Arena',
     reorgLab: 'Reorg Lab',
     clusterMempool: 'Cluster Mempool',
+  },
+
+  charts: {
+    title: 'Historical Charts',
+    navLabel: 'Charts',
+    mempoolSize: 'Mempool size',
+    mempoolBytes: 'Mempool bytes',
+    feeRate: 'Min fee sat/vB',
+    noData: 'No chart data yet.',
+    waitingSnapshot: 'Waiting for the next snapshot.',
+    range1h: '1h',
+    range6h: '6h',
+    range24h: '24h',
+  },
+
+  sort: {
+    asc: 'Ascending',
+    desc: 'Descending',
   },
 
   actions: {
@@ -49,6 +68,13 @@ export const enUS: Translations = {
     apiStatus: 'API',
     rpcStatus: 'RPC',
     sseStatus: 'SSE',
+  },
+
+  network: {
+    readOnlyBanner: 'Read-only mode enabled.',
+    modeLabel: 'Network',
+    readOnlyReason: 'Reason',
+    readOnlyActionBlocked: 'State-changing actions are disabled outside regtest.',
   },
 
   demo: {
