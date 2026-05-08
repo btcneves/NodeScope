@@ -1,5 +1,6 @@
 # NodeScope
 
+[![Release](https://img.shields.io/badge/release-v1.1.0-brightgreen)](https://github.com/btcneves/NodeScope/releases/tag/v1.1.0)
 [![CI](https://github.com/btcneves/NodeScope/actions/workflows/ci.yml/badge.svg)](https://github.com/btcneves/NodeScope/actions/workflows/ci.yml)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-3776ab?logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-ready-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -54,6 +55,61 @@ open http://localhost:5173
 ```
 
 Click **Guided Demo** → **Run Full Demo** and watch 14 steps execute live, ending with a Proof Report.
+
+---
+
+## Evaluator Path
+
+Full evaluation takes 10–15 minutes from a cold clone. **Prerequisites:** Docker and Docker Compose.
+
+```bash
+git clone https://github.com/btcneves/NodeScope
+cd NodeScope
+docker compose up -d --build
+```
+
+Wait ~30 seconds for Bitcoin Core to initialise, then open **http://localhost:5173**.
+
+**1. Guided Demo** — Navigate to **Guided Demo** → **Run Full Demo**.
+All 14 steps execute live. At the end, copy or download the **Proof Report** (JSON).
+Verify: every step shows ✓; Proof Report contains real TXIDs, fees, vsizes, block hashes, ZMQ signals.
+
+**2. Transaction Inspector** — Click any TXID in the Proof Report, or navigate to **Inspector** and paste a TXID.
+Verify: txid, wtxid, vsize, weight, fee in sat/vB, script types, confirmation status, block height.
+
+**3. Policy Arena** — Navigate to **Policy Arena** and run all four scenarios in order.
+Verify: RBF shows two TXIDs (original + replacement with higher fee rate); CPFP shows parent + child with computed package rate; each scenario generates its own Proof Report.
+
+**4. Fee Estimation** — Navigate to **Fee Estimation**.
+Verify: estimates for 1/3/6/12-block targets; status is honestly `unavailable` or `limited` in regtest — no invented values.
+
+**5. Reorg Lab** — Navigate to **Reorg Lab** → **Run Reorg**.
+Verify: 10 steps — tx confirmed → `invalidateblock` → mempool return → recovery mine → re-confirm → Proof Report with full timeline.
+
+**6. ZMQ Event Tape** — Navigate to **ZMQ Tape**.
+Verify: live rawtx/rawblock events stream; click any TXID to open it in the Inspector.
+
+**7. Historical Dashboard** — Navigate to **History**.
+Verify: all runs from steps 1–5 appear with scenario name, status, duration, and copy-proof button.
+
+**8. Prometheus Metrics** — From a terminal:
+```bash
+curl http://localhost:8000/metrics | grep nodescope_
+```
+Verify: `nodescope_demo_runs_total`, `nodescope_proof_reports_total`, `nodescope_chain_height`, `nodescope_rpc_up 1`.
+
+**9. Smoke test** — From the project root:
+```bash
+make smoke
+```
+Expected output: `PASS=15 FAIL=0 WARN=0`.
+
+**10. Language toggle** — Click the language selector (top-right header). Switch between EN-US and PT-BR.
+Verify: all labels, buttons, and descriptions update without page reload.
+
+**11. Evaluator materials** — For a full reproducibility checklist and FAQ:
+- [`docs/presentation/evaluator-checklist.md`](docs/presentation/evaluator-checklist.md)
+- [`docs/presentation/faq.md`](docs/presentation/faq.md)
 
 ---
 
@@ -469,11 +525,11 @@ Output: latency table (min/mean/median/p95/max) per endpoint. Results vary by ho
 | Multi-node topology | Planned |
 | Postgres / TimescaleDB for event persistence | Planned |
 | Historical dashboards | Ready (SQLite-backed) |
-| API keys / JWT for hosted deployments | Planned |
+| API keys for mutating endpoints (optional) | Ready |
 | OpenTelemetry traces | Planned |
 | Kubernetes manifests / Helm chart | Planned |
 | Grafana integration | Planned |
-| Fee estimation analysis (`estimatesmartfee`) | Planned |
+| Fee Estimation Playground (`estimatesmartfee`) | Ready |
 
 ---
 

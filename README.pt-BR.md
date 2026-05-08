@@ -1,9 +1,6 @@
 # NodeScope
 
-**Bitcoin Core Intelligence Dashboard**
-
-Observabilidade em tempo real para nós Bitcoin Core via RPC, ZMQ, monitoramento de mempool e demos em regtest.
-
+[![Release](https://img.shields.io/badge/release-v1.1.0-brightgreen)](https://github.com/btcneves/NodeScope/releases/tag/v1.1.0)
 [![CI](https://github.com/btcneves/NodeScope/actions/workflows/ci.yml/badge.svg)](https://github.com/btcneves/NodeScope/actions/workflows/ci.yml)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-3776ab?logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-ready-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -18,204 +15,434 @@ Observabilidade em tempo real para nós Bitcoin Core via RPC, ZMQ, monitoramento
 
 [Read in English](README.md)
 
+**Laboratório Profissional Bitcoin Core** — Um laboratório visual, guiado e auditável para entender
+os internos do Bitcoin Core em tempo real usando RPC, ZMQ, análise de mempool e cenários de teste controlados.
+
 ---
 
-## O Problema
+## O que é o NodeScope?
 
-O Bitcoin Core expõe dados operacionais poderosos — mas distribuídos em três fontes separadas: chamadas RPC, streams binários ZMQ e o estado da mempool. Desenvolvedores e operadores de nós precisam de uma forma clara de visualizar o estado atual e os eventos ao vivo, sem costurar manualmente essas fontes.
+O NodeScope conecta diretamente a um nó Bitcoin Core via JSON-RPC e ZMQ, expondo cada camada do
+ciclo de vida das transações em um dashboard no browser. É projetado como uma ferramenta de observabilidade
+educacional e profissional — não é uma carteira, não é um processador de pagamentos.
 
-## A Solução
+Propriedades principais:
+- **Bitcoin Core real** — sem simulação, sem mocks. Cada dado vem de RPC ou ZMQ.
+- **Ambiente regtest** — seguro, controlado, reproduzível. Sem fundos reais, sem risco na mainnet.
+- **Auditável** — cada cenário gera um Relatório de Prova (JSON) copiável com toda a saída técnica.
+- **Autossuficiente** — um `docker compose up` inicia o Bitcoin Core, a API, o monitor ZMQ e o frontend.
 
-O NodeScope une essas três fontes em uma única interface:
+---
 
-- **Snapshots RPC** — estado da chain, do nó e da mempool.
-- **Eventos ZMQ** — `rawtx` e `rawblock` em tempo real.
-- **Logs NDJSON append-only** — armazenamento reprocessável de eventos.
-- **Engine de classificação** — blocos, pagamentos, coinbase, OP_RETURN e transações complexas.
-- **FastAPI + SSE** — JSON estruturado e streaming ao vivo.
-- **Dashboard React** — visualização completa em tempo real.
+## Por que o NodeScope é Diferente
 
-> **RPC gives the snapshot. ZMQ gives real time. NodeScope gives interpretation.**
+A maioria das ferramentas de desenvolvimento Bitcoin foca em gerenciamento de carteiras ou fluxos de
+pagamento. O NodeScope foca na **camada de protocolo**: o que acontece dentro do Bitcoin Core quando
+uma transação é transmitida, como ela entra na mempool, como é confirmada, quais políticas de taxa a
+aceitam ou rejeitam, e o que ocorre durante uma reorganização de cadeia.
+
+O NodeScope é construído para desenvolvedores e operadores que querem entender o Bitcoin Core por dentro.
+
+---
+
+## Avalie em 1 Minuto
+
+```bash
+git clone https://github.com/btcneves/NodeScope
+cd NodeScope
+docker compose up -d --build
+open http://localhost:5173
+```
+
+Clique em **Guided Demo** → **Run Full Demo** e assista 14 etapas executando ao vivo, terminando com um Relatório de Prova.
+
+---
+
+## Caminho do Avaliador
+
+A avaliação completa leva 10–15 minutos a partir de um clone limpo. **Pré-requisitos:** Docker e Docker Compose.
+
+```bash
+git clone https://github.com/btcneves/NodeScope
+cd NodeScope
+docker compose up -d --build
+```
+
+Aguarde ~30 segundos para o Bitcoin Core inicializar, depois abra **http://localhost:5173**.
+
+**1. Guided Demo** — Navegue até **Guided Demo** → **Run Full Demo**.
+As 14 etapas executam ao vivo. Ao final, copie ou baixe o **Relatório de Prova** (JSON).
+Verifique: cada etapa mostra ✓; o Relatório de Prova contém TXIDs reais, taxas, vsizes, block hashes, sinais ZMQ.
+
+**2. Transaction Inspector** — Clique em qualquer TXID do Relatório de Prova, ou navegue até **Inspector** e cole um TXID.
+Verifique: txid, wtxid, vsize, weight, taxa em sat/vB, tipos de script, status de confirmação, altura do bloco.
+
+**3. Policy Arena** — Navegue até **Policy Arena** e execute os quatro cenários em sequência.
+Verifique: RBF mostra dois TXIDs (original + substituição com taxa mais alta); CPFP mostra parent + child com taxa de pacote calculada; cada cenário gera seu próprio Relatório de Prova.
+
+**4. Fee Estimation** — Navegue até **Fee Estimation**.
+Verifique: estimativas para alvos de 1/3/6/12 blocos; status honestamente `unavailable` ou `limited` em regtest — nenhum valor inventado.
+
+**5. Reorg Lab** — Navegue até **Reorg Lab** → **Run Reorg**.
+Verifique: 10 etapas — tx confirmada → `invalidateblock` → retorno para mempool → mineração de recuperação → re-confirmação → Relatório de Prova com timeline completa.
+
+**6. ZMQ Event Tape** — Navegue até **ZMQ Tape**.
+Verifique: stream de eventos rawtx/rawblock ao vivo; clique em qualquer TXID para abri-lo no Inspector.
+
+**7. Dashboard Histórico** — Navegue até **History**.
+Verifique: todas as execuções dos passos 1–5 aparecem com nome do cenário, status, duração e botão de cópia de prova.
+
+**8. Métricas Prometheus** — Em um terminal:
+```bash
+curl http://localhost:8000/metrics | grep nodescope_
+```
+Verifique: `nodescope_demo_runs_total`, `nodescope_proof_reports_total`, `nodescope_chain_height`, `nodescope_rpc_up 1`.
+
+**9. Smoke test** — Na raiz do projeto:
+```bash
+make smoke
+```
+Saída esperada: `PASS=15 FAIL=0 WARN=0`.
+
+**10. Alternância de idioma** — Clique no seletor de idioma (canto superior direito). Alterne entre EN-US e PT-BR.
+Verifique: todos os rótulos, botões e descrições atualizam sem recarregar a página.
+
+**11. Materiais do avaliador** — Para checklist completa de reprodutibilidade e FAQ:
+- [`docs/presentation/evaluator-checklist.md`](docs/presentation/evaluator-checklist.md)
+- [`docs/presentation/faq.md`](docs/presentation/faq.md)
+
+---
 
 ## Arquitetura
 
-```mermaid
-flowchart LR
-    BC["Bitcoin Core regtest"]
-    ZMQ["ZMQ rawtx/rawblock"]
-    MON["monitor.py"]
-    LOG["NDJSON event store"]
-    ENG["engine snapshot/classify"]
-    API["FastAPI REST + SSE"]
-    FE["React/Vite dashboard"]
-
-    BC -->|RPC snapshot| API
-    BC -->|RPC enrichment| MON
-    BC -->|ZMQ push| ZMQ
-    ZMQ --> MON
-    MON --> LOG
-    LOG --> ENG
-    ENG --> API
-    API --> FE
+```
+Bitcoin Core (regtest)
+  ├── JSON-RPC :18443   ──► FastAPI (api/)        ──► React (frontend/)
+  └── ZMQ :28332/:28333 ──► monitor.py (logs/)    ──► SSE stream → browser
 ```
 
-## Funcionalidades
+- **api/** — Python 3.12 + FastAPI. Todas as chamadas RPC, orquestração de cenários, montagem de provas.
+- **frontend/** — React 18 + TypeScript + Vite. UI no browser, sem etapa de build necessária para Docker.
+- **monitor.py** — Subscreve ao ZMQ rawtx + rawblock, enriquece via RPC, escreve NDJSON em logs/.
+- **docker-compose.yml** — Quatro serviços: `bitcoind`, `api`, `monitor`, `frontend`.
 
-| Funcionalidade | Status |
-|---|---|
-| Health e mempool via Bitcoin Core RPC | Pronto |
-| Monitor ZMQ para `rawtx` e `rawblock` | Pronto |
-| Armazenamento NDJSON append-only | Pronto |
-| Reconstrução de snapshot a partir dos logs | Pronto |
-| Classificação de transações e blocos | Pronto |
-| API REST e Server-Sent Events | Pronto |
-| Dashboard React/Vite/TypeScript | Pronto |
-| Script de demo regtest | Pronto |
-| Stack Docker Compose | Pronto |
-| CI com testes, build e public-clean | Pronto |
-| Node Health Score visual | Pronto |
-| Transaction Lifecycle animado | Pronto |
-| Persistência SQLite com fallback em memória | Pronto |
-| Dashboard Histórico (Demo, Policy, Reorg, Provas) | Pronto |
+---
 
-## Início Rápido com Docker
+## RPC + ZMQ
 
-```bash
-git clone https://github.com/btcneves/NodeScope.git
-cd NodeScope
-cp .env.example .env
-docker compose up -d
-make docker-demo
-make smoke
-```
+O NodeScope usa os seguintes RPCs do Bitcoin Core:
 
-Serviços disponíveis após a inicialização:
+| Categoria    | RPCs Usados |
+|-------------|-------------|
+| Chain        | `getblockchaininfo`, `getblockcount`, `getblockhash`, `getblock` |
+| Network      | `getnetworkinfo`, `getzmqnotifications` |
+| Mempool      | `getmempoolinfo`, `getrawmempool`, `getmempoolentry` |
+| Transactions | `sendtoaddress`, `gettransaction`, `getrawtransaction`, `decoderawtransaction` |
+| Raw Tx       | `createrawtransaction`, `fundrawtransaction`, `signrawtransactionwithwallet`, `sendrawtransaction` |
+| Wallet       | `createwallet`, `loadwallet`, `listwallets`, `getnewaddress`, `getwalletinfo`, `listunspent` |
+| Mining       | `generatetoaddress` |
+| RBF          | `bumpfee` |
+| Reorg        | `invalidateblock`, `reconsiderblock` |
 
-| Serviço | URL / Porta |
-|---|---|
-| Dashboard | http://localhost:5173 |
-| API | http://localhost:8000 |
-| Bitcoin Core RPC | `127.0.0.1:18443` |
-| ZMQ rawblock | `127.0.0.1:28332` |
-| ZMQ rawtx | `127.0.0.1:28333` |
+Tópicos ZMQ subscritos: `rawtx`, `rawblock`.
 
-## Início Rápido Sem Docker
+---
 
-```bash
-git clone https://github.com/btcneves/NodeScope.git
-cd NodeScope
-make setup-local
-```
+## Guided Demo
 
-Em terminais separados:
+Um guia passo a passo de 14 etapas do ciclo de vida completo de uma transação Bitcoin:
 
-```bash
-make backend    # API FastAPI na porta 8000
-make monitor    # ZMQ subscriber (requer Bitcoin Core ativo)
-make frontend   # Dashboard Vite na porta 5173
-```
+1. Verificar conectividade RPC do Bitcoin Core
+2. Verificar subscrições ZMQ rawtx/rawblock
+3. Criar ou carregar a carteira de demo
+4. Gerar um endereço de mineração
+5. Minerar blocos iniciais (garantir saldo maduro)
+6. Criar um endereço de destino
+7. Enviar uma transação de demo
+8. Detectar entrada na mempool (`getmempoolentry`)
+9. Detectar evento ZMQ rawtx
+10. Decodificar a transação bruta (versão, inputs, outputs, tipos de script)
+11. Minerar um bloco de confirmação
+12. Detectar evento ZMQ rawblock
+13. Confirmar a transação (`gettransaction`)
+14. Gerar um Relatório de Prova (JSON com todos os dados técnicos)
 
-Abrir no browser:
-- Dashboard: http://localhost:5173
-- Docs da API: http://127.0.0.1:8000/docs
+Cada etapa produz: status, timestamp, mensagem amigável, saída técnica e um payload de dados
+incluído no Relatório de Prova final.
 
-## Configuração do Bitcoin Core
+---
 
-Copie [bitcoin.conf.example](bitcoin.conf.example) para o diretório de dados do Bitcoin Core:
+## Transaction Inspector
 
-```bash
-mkdir -p ~/.bitcoin
-cp bitcoin.conf.example ~/.bitcoin/bitcoin.conf
-bitcoind -daemon
-bitcoin-cli -regtest getblockchaininfo
-bitcoin-cli -regtest getzmqnotifications
-```
+Análise premium de transações a partir do TXID:
 
-Credenciais de exemplo: `nodescope` / `nodescope`. Substitua antes de qualquer uso não-local.
+- `txid` e `wtxid`
+- `size`, `vsize`, `weight` (em unidades de peso)
+- Taxa em BTC e taxa em sat/vbyte
+- Contagem de inputs, contagem de outputs, tipos de script
+- Status de confirmação, block hash, altura do bloco
+- Status de validação RPC
+- Eventos ZMQ relacionados vistos para este TXID
+- Links para inspecionar qualquer TXID da ZMQ Tape ou da Policy Arena
 
-## Demo Regtest
+---
 
-Com API, monitor e frontend ativos:
+## ZMQ Event Tape
 
-```bash
-make demo
-```
+Stream em tempo real de eventos ZMQ com enriquecimento:
 
-O script cria ou carrega a wallet `nodescope_demo`, minera blocos iniciais quando necessário, transmite uma transação, minera um bloco de confirmação e exibe o resultado. Observe o dashboard atualizar via polling RPC e eventos SSE/ZMQ.
+- Cada evento `rawtx` mostra: txid (curto), vsize, tipos de script, presença de OP\_RETURN
+- Cada evento `rawblock` mostra: block hash (curto), altura
+- Filtrar por tópico (rawtx / rawblock) ou por TXID específico
+- Clique em qualquer txid para inspecioná-lo no Transaction Inspector
+- Eventos são enriquecidos via RPC no momento da captura pelo `monitor.py`
 
-## Endpoints da API
+---
+
+## Mempool Policy Arena
+
+Quatro cenários interativos para explorar as políticas de mempool do Bitcoin Core:
+
+### Transação Normal
+`sendtoaddress` padrão → entrada na mempool → mineração do bloco → confirmação.
+Captura: taxa, vsize, taxa (sat/vb), block hash.
+
+### Transação com Taxa Baixa
+Enviar com `fee_rate=1 sat/vbyte` → comparar taxa real com padrão → minar → confirmar.
+Demonstra o parâmetro `fee_rate` do Bitcoin Core 26+ em `sendtoaddress`.
+
+### Substituição RBF (BIP125)
+Enviar transação substituível → verificar `bip125-replaceable=true` na mempool →
+chamar `bumpfee` para substituir com versão de taxa mais alta → verificar novo TXID → minar → confirmar.
+
+### Pacote CPFP
+Enviar parent com taxa baixa → construir child que gasta output não confirmado do parent →
+submeter child com taxa alta → calcular taxa do pacote → minar → confirmar ambos.
+Usa o pipeline de transação bruta: `createrawtransaction` → `fundrawtransaction` →
+`signrawtransactionwithwallet` → `sendrawtransaction`.
+
+Cada cenário gera um Relatório de Prova copiável.
+
+---
+
+## RBF Playground
+
+Disponível dentro da Mempool Policy Arena (cenário RBF Replacement).
+
+- Envia uma transação substituível BIP125 (`replaceable=true` em `sendtoaddress`)
+- Chama `bumpfee` para substituí-la antes da confirmação
+- Verifica o novo TXID na mempool com taxa mais alta
+- Minera um bloco e confirma a substituição
+
+---
+
+## CPFP Playground
+
+Disponível dentro da Mempool Policy Arena (cenário CPFP Package).
+
+- Envia uma transação parent com taxa baixa
+- Localiza o output não confirmado do parent via `listunspent(minconf=0)`
+- Constrói uma transação child gastando esse output com taxa alta
+- Calcula a taxa do pacote: (taxa\_parent + taxa\_child) / (vsize\_parent + vsize\_child)
+- Minera um bloco e confirma ambas as transações
+
+---
+
+## Reorg Lab
+
+**Experimental** — reorganização controlada da cadeia em regtest.
+
+Sequência:
+1. Verificar que a rede é regtest
+2. Garantir carteira e saldo maduro
+3. Transmitir uma transação
+4. Minerar um bloco (tx confirmada)
+5. Chamar `invalidateblock` nesse bloco — tx retorna para a mempool
+6. Verificar status da tx na mempool após invalidação (`getmempoolentry`)
+7. Minerar um bloco de recuperação — tx re-confirmada
+8. Verificar re-confirmação (`gettransaction`)
+9. Chamar `reconsiderblock` — cadeia de recuperação permanece ativa (é mais longa)
+10. Montar Relatório de Prova com timeline completa
+
+A cadeia é sempre deixada em estado limpo. Se a recuperação falhar, a API retorna um erro explícito
+com aviso — não mascara falhas.
+
+> O Reorg Lab só funciona em regtest. Em qualquer outra rede, retorna `unavailable`.
+
+---
+
+## Compatibilidade com Cluster Mempool
+
+O NodeScope verifica automaticamente se o nó Bitcoin Core conectado suporta RPCs de cluster mempool:
+
+- `getmempoolcluster`
+- `getmempoolfeeratediagram`
+
+Se suportados, são usados e os resultados são exibidos. Se indisponíveis (Bitcoin Core 26 e anteriores),
+o NodeScope retorna um status `unavailable` honesto com explicação clara — nunca um falso positivo.
+
+Disponível via `GET /mempool/cluster/compatibility` e na aba **Policy Arena**.
+
+> RPCs de cluster mempool são esperados no Bitcoin Core 28+. Esta build usa Bitcoin Core 26.
+
+---
+
+## Playground de Estimativa de Taxa
+
+O **Playground de Estimativa de Taxa** chama o RPC `estimatesmartfee` do Bitcoin Core para múltiplos alvos de confirmação e exibe os resultados lado a lado.
+
+**O que mostra:**
+
+| Alvo | Taxa (BTC/kvB) | Taxa (sat/vB) | Status |
+|---|---|---|---|
+| 1 bloco | dados RPC ao vivo | convertido | success / limited / unavailable |
+| 3 blocos | dados RPC ao vivo | convertido | success / limited / unavailable |
+| 6 blocos | dados RPC ao vivo | convertido | success / limited / unavailable |
+| 12 blocos | dados RPC ao vivo | convertido | success / limited / unavailable |
+
+**Conversão:** `sat/vB = BTC/kvB × 100.000`
+
+**Modos de estimativa:** Conservador (taxa mais alta, confirmação mais segura) e Econômico (taxa mais baixa, potencialmente mais lento).
+
+**Comparação:** Quando um cenário da Guided Demo ou da Policy Arena foi executado, o playground exibe opcionalmente essas taxas ao lado das estimativas.
+
+**Limitações do regtest:** Em regtest não há mercado real de taxas. O `estimatesmartfee` pode retornar `insufficient data`. Os resultados são marcados como `success`, `limited` ou `unavailable` — nenhum valor é inventado. Isso está documentado honestamente na UI.
+
+**Endpoints da API:**
 
 | Método | Caminho | Descrição |
 |---|---|---|
-| `GET` | `/health` | Status da API, storage e RPC do Bitcoin Core |
-| `GET` | `/summary` | Resumo de eventos e classificações |
-| `GET` | `/mempool/summary` | Stats da mempool via RPC com fallback offline |
-| `GET` | `/events/recent` | Eventos brutos recentes |
-| `GET` | `/events/classifications` | Eventos classificados |
-| `GET` | `/events/stream` | Stream Server-Sent Events |
-| `GET` | `/blocks/latest` | Último bloco capturado |
-| `GET` | `/tx/latest` | Última transação capturada |
+| GET | `/fees/estimate` | Estimativas para 4 alvos de confirmação |
+| GET | `/fees/estimate?mode=ECONOMICAL` | Estimativas no modo econômico |
+| GET | `/fees/compare` | Estimativas + comparação com taxas reais dos cenários |
 
-Referência completa: [docs/api.md](docs/api.md).
+---
 
-## Testes e Validações
+## Persistência e Dashboard Histórico
 
-```bash
-make test          # testes Python dentro do container da API
-make build         # TypeScript strict + Vite build dentro do container Node
-make public-clean  # Verifica artefatos locais e segredos
-make smoke         # valida API/RPC, frontend build e testes em Docker
-```
+O NodeScope persiste automaticamente metadados de execução em um banco SQLite local (`.nodescope/history.db`).
+Cada execução da Guided Demo, cenário da Policy Arena e Reorg Lab armazena:
 
-Para desenvolvimento local sem Docker após `make setup-local`:
+- JSON do relatório de prova (nome do cenário, fonte, status, TXIDs, dados do bloco)
+- Registro de execução (status, duração, ID do relatório de prova vinculado)
 
-```bash
-make test-local
-make build-local
-make smoke-local
-```
+A aba **Dashboard Histórico** na UI exibe uma visão paginada de todas as execuções passadas com:
 
-## Variáveis de Ambiente
+- Cards de resumo: contagem de linhas por tabela e saúde do storage (SQLite ou memória)
+- Tabela de Relatórios de Prova: cenário, fonte, badge sucesso/falha, TXID, altura do bloco, timestamp
+- Tabelas de Demo Runs, Policy Runs, Reorg Runs com metadados completos
+- Botão de cópia do JSON de prova para qualquer relatório
 
-| Variável | Padrão | Descrição |
+**Endpoints da API:**
+
+| Método | Caminho | Descrição |
 |---|---|---|
-| `BITCOIN_RPC_URL` | `http://127.0.0.1:18443` | Endpoint RPC do Bitcoin Core |
-| `BITCOIN_RPC_USER` | `nodescope` | Usuário RPC |
-| `BITCOIN_RPC_PASSWORD` | `nodescope` | Senha RPC |
-| `ZMQ_RAWBLOCK_URL` | `tcp://127.0.0.1:28332` | Socket ZMQ rawblock |
-| `ZMQ_RAWTX_URL` | `tcp://127.0.0.1:28333` | Socket ZMQ rawtx |
-| `NODESCOPE_LOG_DIR` | `logs/` | Diretório de logs NDJSON |
+| GET | `/history/summary` | Saúde do storage e contagens |
+| GET | `/history/proofs` | Relatórios de prova paginados |
+| GET | `/history/proofs/{id}` | Relatório de prova por ID |
+| GET | `/history/demo-runs` | Histórico de execuções da demo |
+| GET | `/history/policy-runs` | Histórico de execuções da policy |
+| GET | `/history/reorg-runs` | Histórico de execuções do reorg |
 
-Consulte [.env.example](.env.example) para todas as variáveis disponíveis.
+O backend de storage é configurável via `NODESCOPE_STORAGE_BACKEND=sqlite|memory`. Se o SQLite falhar,
+a API usa um armazenamento em memória de forma transparente — sem interrupção de serviço.
 
-## Estrutura do Repositório
+---
 
-```text
-NodeScope/
-├── api/                     Aplicação FastAPI
-├── engine/                  Reader, parser, classificador e snapshot engine
-├── frontend/                Dashboard React/Vite/TypeScript
-├── scripts/                 quickstart, demo, smoke e public-clean
-├── docs/                    Arquitetura, API, Docker, demo e troubleshooting
-├── tests/                   Testes unitários Python e fixtures
-├── monitor.py               ZMQ subscriber e writer de eventos
-├── Dockerfile               Imagem da API/monitor
-├── docker-compose.yml       Stack de demo regtest
-├── Makefile                 Comandos locais e Docker
-├── .env.example             Template de variáveis de ambiente
-└── bitcoin.conf.example     Config do Bitcoin Core para regtest local
+## Relatórios de Prova
+
+Cada cenário principal gera um Relatório de Prova — um documento JSON contendo:
+
+- Nome da rede e versão do Bitcoin Core
+- Todos os TXIDs envolvidos
+- Taxas, vsizes, weights
+- Block hashes e alturas
+- Contagens de confirmação
+- Timestamps
+- Saídas técnicas passo a passo
+- Avisos e recursos indisponíveis (contabilização honesta)
+
+Os Relatórios de Prova são:
+- Copiáveis para área de transferência na UI
+- Baixáveis como JSON (Guided Demo)
+- Auditáveis — todos os valores vêm de respostas RPC ao vivo, não de dados simulados
+
+---
+
+## Início Rápido
+
+**Requisitos:** Docker, Docker Compose.
+
+```bash
+# Clonar
+git clone https://github.com/btcneves/NodeScope
+cd NodeScope
+
+# Iniciar tudo
+docker compose up -d --build
+
+# Verificar
+curl http://localhost:8000/health
+curl http://localhost:8000/mempool/cluster/compatibility
+
+# Abrir UI
+open http://localhost:5173
 ```
 
-## Troubleshooting
+**Ambiente:** copie `.env.example` para `.env` se precisar personalizar as credenciais RPC.
 
-| Sintoma | Solução |
-|---|---|
-| `/health` retorna `rpc_ok: false` | Inicie `bitcoind` em regtest e confirme as credenciais RPC no `.env` |
-| Nenhum evento ao vivo | Confirme que `getzmqnotifications` lista rawblock e rawtx, depois inicie `make monitor` |
-| Dashboard vazio | Gere atividade com `make demo` ou inspecione `/events/recent` |
-| Frontend sem dados | Use `make frontend` ou Docker Compose para alinhar as portas do proxy Vite |
+**Smoke test:**
+```bash
+make smoke
+```
 
-Detalhes: [docs/troubleshooting.md](docs/troubleshooting.md).
+---
+
+## Segurança
+
+- Este projeto usa **regtest** — uma rede Bitcoin totalmente local e isolada.
+- Nenhum fundo real é usado. Nenhuma transação na mainnet é feita na demo.
+- As credenciais RPC são locais e configuráveis via `.env` (nunca commitadas).
+- Nenhuma chave privada, seed ou dado de carteira é exposto via API.
+- Os dados ZMQ são enriquecidos localmente e servidos apenas em localhost por padrão.
+- O cenário do Reorg Lab só opera em regtest e inclui recuperação da cadeia.
+
+---
+
+## Internacionalização (PT-BR / EN-US)
+
+O NodeScope inclui uma camada de internacionalização integrada com suporte a **Português (PT-BR)** e **Inglês (EN-US)**.
+
+- Seletor de idioma visível no canto superior direito do header
+- Persistido entre recarregamentos de página via `localStorage`
+- Cobre todos os rótulos de navegação, botões de ação, indicadores de status, títulos de páginas, descrições e mensagens de erro
+- Fallback para EN-US para qualquer chave ausente
+
+Mude de idioma a qualquer momento sem recarregar a página.
+
+---
+
+## Camada de Explicabilidade
+
+Cada página e visão inclui um painel de explicação contextual que responde:
+
+1. **O que esta tela mostra?**
+2. **Por que isso importa no Bitcoin?**
+3. **O que você deve observar durante a demo?**
+
+Esta camada foi projetada para avaliadores técnicos que querem entender o sistema rapidamente sem ler o código-fonte.
+
+---
+
+## Tooltips e Aprendizado Contextual
+
+Termos técnicos em toda a interface incluem tooltips interativos. Passe o mouse (ou foque) em qualquer ícone **ⓘ** para ver uma definição clara. Termos com tooltips incluem:
+
+`RPC` · `ZMQ` · `Mempool` · `TXID` · `WTXID` · `Fee` · `Fee rate` · `vbytes` · `Weight` · `Block hash` · `Block height` · `Confirmation` · `rawtx` · `rawblock` · `RBF` · `CPFP` · `Reorg` · `Cluster mempool` · `Proof Report` · `Wallet` · `Input` · `Output` · `replaceable`
+
+Seções **Learn More** estão disponíveis na Policy Arena, ZMQ Tape, Reorg Lab, Transaction Inspector, Cluster Mempool e Proof Report — cada uma com uma explicação mais aprofundada do conceito Bitcoin demonstrado.
+
+---
 
 ## Observabilidade
 
@@ -232,19 +459,23 @@ Métricas principais:
 | Métrica | Tipo | Descrição |
 |---|---|---|
 | `nodescope_http_requests_total` | Counter | Requisições HTTP por método/endpoint/status |
-| `nodescope_rpc_up` | Gauge | 1 se o Bitcoin Core RPC está acessível |
+| `nodescope_http_request_duration_seconds` | Histogram | Latência das requisições |
+| `nodescope_rpc_up` | Gauge | 1 se o RPC do Bitcoin Core está acessível |
+| `nodescope_rpc_requests_total` | Counter | Chamadas RPC ao Bitcoin Core |
 | `nodescope_zmq_rawtx_events_total` | Counter | Eventos rawtx ZMQ capturados |
 | `nodescope_zmq_rawblock_events_total` | Counter | Eventos rawblock ZMQ capturados |
 | `nodescope_mempool_tx_count` | Gauge | Transações na mempool |
 | `nodescope_chain_height` | Gauge | Altura atual da cadeia |
 | `nodescope_demo_runs_total` | Counter | Execuções completas da Guided Demo |
+| `nodescope_policy_scenarios_total` | Counter | Execuções da Policy Arena por cenário |
+| `nodescope_reorg_runs_total` | Counter | Execuções do Reorg Lab |
 | `nodescope_proof_reports_total` | Counter | Relatórios de prova gerados |
-| `nodescope_history_proof_reports_total` | Gauge | Provas persistidas no armazenamento |
+| `nodescope_history_proof_reports_total` | Gauge | Relatórios de prova persistidos no storage |
 | `nodescope_history_demo_runs_total` | Gauge | Registros de demo persistidos |
-| `nodescope_history_policy_runs_total` | Gauge | Registros de policy runs persistidos |
-| `nodescope_history_reorg_runs_total` | Gauge | Registros de reorg runs persistidos |
-| `nodescope_storage_up` | Gauge | 1 se o backend de armazenamento está saudável |
-| `nodescope_storage_backend_info` | Info | Backend ativo (`sqlite` ou `memory`) |
+| `nodescope_history_policy_runs_total` | Gauge | Registros de policy persistidos |
+| `nodescope_history_reorg_runs_total` | Gauge | Registros de reorg persistidos |
+| `nodescope_storage_up` | Gauge | 1 se o backend de storage está saudável |
+| `nodescope_storage_backend_info` | Info | Backend de storage ativo (`sqlite` ou `memory`) |
 
 ### Alertas Operacionais
 
@@ -255,9 +486,11 @@ O dashboard inclui um painel de **Alertas Operacionais** que verifica o estado d
 - RPCs de cluster mempool indisponíveis (info — esperado no BC26)
 - Nota experimental do Reorg Lab (info)
 
-Os alertas são exibidos em PT-BR ou EN-US conforme o idioma selecionado.
+Os alertas são exibidos em PT-BR ou EN-US conforme o idioma ativo.
 
-### Benchmark Reproduzível
+### Benchmark
+
+Meça a latência da API contra uma stack em execução:
 
 ```bash
 python3 scripts/benchmark_nodescope.py
@@ -265,30 +498,19 @@ python3 scripts/benchmark_nodescope.py
 make benchmark
 ```
 
-Saída: tabela de latência (min/média/mediana/p95/max) por endpoint. Resultados variam conforme o ambiente.
+Saída: tabela de latência (min/média/mediana/p95/max) por endpoint. Os resultados variam por ambiente.
 
 ---
 
-## Playground de Estimativa de Taxa
+## Limitações
 
-O **Playground de Estimativa de Taxa** chama o RPC `estimatesmartfee` do Bitcoin Core para múltiplos alvos de confirmação e exibe os resultados lado a lado.
-
-**O que mostra:**
-- Taxa estimada em BTC/kvB e sat/vB para alvos de 1, 3, 6 e 12 blocos
-- Modo conservador (taxa mais alta, confirmação mais segura) e econômico (taxa mais baixa)
-- Comparação opcional com taxas reais usadas nos cenários da Policy Arena e Guided Demo
-
-**Conversão:** `sat/vB = BTC/kvB × 100.000`
-
-**Limitações do regtest:** Em regtest não há mercado real de taxas. O `estimatesmartfee` pode retornar dados insuficientes. Os resultados são marcados honestamente como `success`, `limited` ou `unavailable` — nenhum valor é inventado.
-
-**Endpoints:**
-
-| Método | Caminho | Descrição |
-|---|---|---|
-| GET | `/fees/estimate` | Estimativas para 4 alvos de confirmação |
-| GET | `/fees/estimate?mode=ECONOMICAL` | Modo econômico |
-| GET | `/fees/compare` | Estimativas + comparação com taxas reais dos cenários |
+- **Apenas regtest** para cenários de demo. Observabilidade em mainnet/signet/testnet é possível com mudanças de configuração, mas não validada nesta versão.
+- **RPCs de cluster mempool** (`getmempoolcluster`, `getmempoolfeeratediagram`) exigem Bitcoin Core 28+. Esta build usa Bitcoin Core 26 — esses RPCs retornam `unavailable` com explicação honesta.
+- **Reorg Lab** é marcado como **experimental**: o cenário é reproduzível em regtest, mas pode ter comportamento diferente dependendo do estado da carteira.
+- **Construção do child CPFP** requer que o output do parent esteja rastreado na carteira (`listunspent minconf=0`). Se não encontrado, um caminho alternativo é usado e a prova o registra.
+- **Eventos ZMQ** são armazenados como NDJSON em `logs/`. Não há persistência entre reinicializações de container.
+- **Histórico SQLite** (`.nodescope/history.db`) é local ao volume do container. O histórico não sobrevive ao `docker compose down -v` a menos que o volume seja preservado.
+- **Métricas Prometheus** exigem `prometheus-client` (incluído em `requirements.txt`). Se não instalado, `/metrics` retorna um aviso de indisponibilidade em texto simples.
 
 ---
 
@@ -296,37 +518,19 @@ O **Playground de Estimativa de Taxa** chama o RPC `estimatesmartfee` do Bitcoin
 
 | Funcionalidade | Status |
 |---|---|
-| Playground de Estimativa de Taxa | Pronto (PR #8) |
 | Suporte a signet/testnet | Planejado |
-| Visualização de cluster mempool (BC28+) | Planejado |
-| Postgres / TimescaleDB para persistência | Planejado |
+| Visualização de cluster mempool (Bitcoin Core 28+) | Planejado |
+| Cenário de expulsão da mempool | Planejado |
+| Topologia multi-nó | Planejado |
+| Postgres / TimescaleDB para persistência de eventos | Planejado |
 | Dashboards históricos | Pronto (SQLite) |
-| API keys / JWT para deploys remotos | Planejado |
+| API keys para endpoints mutantes (opcional) | Pronto |
 | OpenTelemetry traces | Planejado |
-| Kubernetes / Helm | Planejado |
+| Kubernetes manifests / Helm chart | Planejado |
 | Integração com Grafana | Planejado |
-| Suporte multi-nó | Planejado |
+| Playground de Estimativa de Taxa (`estimatesmartfee`) | Pronto |
 
-Ver [ROADMAP.md](ROADMAP.md) para o planejamento detalhado.
-
-## Documentação
-
-- [docs/README.md](docs/README.md) — índice da documentação
-- [docs/architecture.md](docs/architecture.md) — arquitetura técnica
-- [docs/api.md](docs/api.md) — referência completa da API
-- [docs/bitcoin-core-setup.md](docs/bitcoin-core-setup.md) — configuração do Bitcoin Core
-- [docs/docker.md](docs/docker.md) — uso com Docker Compose
-- [docs/demo.md](docs/demo.md) — guia de demo
-- [docs/demo-checklist.md](docs/demo-checklist.md) — checklist pré-demo
-- [docs/troubleshooting.md](docs/troubleshooting.md) — problemas comuns
-
-## Contribuindo
-
-Veja [CONTRIBUTING.md](CONTRIBUTING.md).
-
-## Segurança
-
-Veja [SECURITY.md](SECURITY.md).
+---
 
 ## Apresentação e Avaliação
 
@@ -347,4 +551,9 @@ Materiais completos para juízes e avaliadores de hackathon:
 
 ## Licença
 
-MIT. Veja [LICENSE](LICENSE).
+MIT — veja [LICENSE](LICENSE).
+
+---
+
+*NodeScope é uma ferramenta de observabilidade para desenvolvedores. Não fornece aconselhamento financeiro,
+serviços de custódia ou execução de transações na mainnet. Os cenários de demo usam apenas regtest.*

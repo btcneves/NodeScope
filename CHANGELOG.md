@@ -5,27 +5,154 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
-## [Unreleased] — Post-release polish
+## [1.1.0] — 2026-05-07
 
-### Added
-- `GET /intelligence/summary` — composite intelligence endpoint: node health score (0–100), RPC/ZMQ/SSE status, mempool pressure (low/medium/high), latest signal, event store info, classification summary, latest block and latest tx
-- `api/schemas.py` — `IntelligenceSummaryResponse` and `EventStoreInfo` Pydantic models
-- `api/service.py` — `get_intelligence_summary()` with mempool pressure computation
-- `frontend/src/components/IntelligenceSummaryPanel.tsx` — intelligence summary card with score, status dots, pressure badge and classification breakdown
-- `frontend/src/components/DemoView.tsx` — full-screen demo overlay (title, tagline, health ring, status rows, lifecycle, panels)
-- `frontend/src/types/api.ts` — `IntelligenceData` interface
-- `frontend/src/api/client.ts` — `api.intelligenceSummary()` method
-- `frontend/src/components/Header.tsx` — "Demo View" button
-- `docs/demo-transcript.md` — validated demo output (37 tests, smoke PASS=7 FAIL=0, replay summary, intelligence endpoint, Docker demo)
-- `make replay-demo` — Makefile target that runs `replay_monitor_log.py` offline (no Bitcoin Core required)
-- README: "Evaluate in 1 Minute" and "Why NodeScope Is Different" sections
-- README: Release v1.0.0, Docker Compose and Bitcoin Core badges
+**Professional Lab release.** Major expansion from the v1.0.x observability dashboard into a
+full interactive Bitcoin Core laboratory with guided scenarios, persistence, observability
+instrumentation, and a complete bilingual interface.
+
+### Added — Interactive Labs
+
+- **Guided Demo** (14 steps) — `api/demo_service.py`, `frontend/src/components/GuidedDemo.tsx`
+  - Full Bitcoin transaction lifecycle: wallet create → mine → send → mempool detect → ZMQ rawtx → decode → mine confirm → ZMQ rawblock → confirm → Proof Report
+  - Each step returns status, timestamp, friendly message, technical output, and data payload
+  - Proof Report: downloadable JSON with all TXIDs, fees, vsizes, block hashes, ZMQ signals
+
+- **Transaction Inspector** — `GET /tx/inspect/{txid}`, `TransactionInspector.tsx`
+  - Premium RPC analysis: txid, wtxid, size, vsize, weight, fee BTC, fee rate sat/vB, input/output count, script types, confirmations, block hash, block height, ZMQ events seen
+
+- **ZMQ Event Tape** — `GET /events/tape`, `GET /events/tape/{txid}`, `ZmqEventTape.tsx`
+  - Compact real-time stream with topic filters (rawtx/rawblock) and TXID linking to Inspector
+
+- **Mempool Policy Arena** — `api/policy_service.py`, `MempoolPolicyArena.tsx`
+  - Normal Transaction: standard sendtoaddress → mempool → confirm
+  - Low-Fee Transaction: fee_rate=1 sat/vB, compares with standard rate
+  - RBF Replacement (BIP125): replaceable tx → bumpfee → verify new TXID → confirm
+  - CPFP Package: low-fee parent → raw child via createrawtransaction pipeline → package rate → confirm
+  - Each scenario generates a copyable Proof Report
+
+- **Reorg Lab** (experimental) — `api/reorg_service.py`, `ReorgLab.tsx`
+  - 10-step controlled chain reorganization: send tx → mine → invalidateblock → mempool return → recovery mine → re-confirm → reconsiderblock → Proof Report
+  - Only available in regtest; returns `unavailable` on other networks
+
+- **Fee Estimation Playground** — `api/fee_service.py`, `GET /fees/estimate`, `GET /fees/compare`, `FeeEstimationPlayground.tsx`
+  - Live `estimatesmartfee` for 1/3/6/12-block targets in CONSERVATIVE and ECONOMICAL modes
+  - BTC/kvB and sat/vB displayed; honest `success`/`limited`/`unavailable` status (no invented values)
+  - `/fees/compare` shows estimates alongside fee rates from most recent demo/policy runs
+
+- **Cluster Mempool Detector** — `GET /mempool/cluster/compatibility`, `ClusterMempoolPanel.tsx`
+  - Probes `getmempoolcluster` and `getmempoolfeeratediagram`; reports `unavailable` on BC26 without false positives
+
+### Added — Live Simulation
+
+- **Live Simulation Engine** — `api/simulation_service.py`, `SimulationPanel.tsx`
+  - Auto-mines blocks and sends transactions at configurable intervals
+  - `GET /simulation/status`, `POST /simulation/start`, `POST /simulation/stop`, `PUT /simulation/config`
+  - Auto-starts on API boot; interval configurable without restart
+
+### Added — Observability
+
+- **Prometheus metrics** — `api/metrics.py`, `GET /metrics`
+  - 24+ metrics: HTTP counters/histograms, RPC up/latency, ZMQ event counts, mempool/chain gauges, demo/policy/reorg run counters, proof report counter, simulation block/tx counters, storage health gauges
+  - Middleware records per-request latency automatically
+
+- **Operational Alerting Panel** — `AlertingPanel.tsx`
+  - Polls API every 15 s; surfaces RPC offline (critical), simulation errors (warning), cluster mempool unavailable (info), Reorg Lab experimental note (info)
+
+- **Intelligence Summary** — `GET /intelligence/summary`, `IntelligenceSummaryPanel.tsx`
+  - Composite node health score (0–100), RPC/ZMQ/SSE status, mempool pressure (low/medium/high), event store info, classification summary
+
+- **Reproducible Benchmark** — `scripts/benchmark_nodescope.py`
+  - Latency table (min/mean/median/p95/max) per endpoint against a live stack; `make benchmark`
+
+- **Load Smoke Test** — `scripts/load_smoke.py`
+  - Concurrent requests against all read-only endpoints; per-endpoint and aggregate latency and success rate
+
+### Added — Persistence
+
+- **SQLite storage** — `api/storage.py`
+  - Stores proof reports, demo runs, policy runs, and reorg runs in `.nodescope/history.db`
+  - Transparent in-memory fallback if SQLite initialisation fails; `/history/summary` records backend type
+
+- **History API** — `api/history_service.py`
+  - `GET /history/summary` — storage health and row counts
+  - `GET /history/proofs` — paginated proof reports with `source` and `success` filters
+  - `GET /history/proofs/{id}` — single proof report by ID
+  - `GET /history/demo-runs` — paginated demo run history
+  - `GET /history/policy-runs` — paginated policy run history with `scenario` filter
+  - `GET /history/reorg-runs` — paginated reorg run history
+
+- **Historical Dashboard** — `HistoricalDashboard.tsx`
+  - Browser tab showing all past runs: summary cards, proof reports table, demo/policy/reorg tables with copy-proof button
+
+### Added — Security
+
+- **Optional API key auth** — `api/app.py` (`_verify_api_key`, `_PROTECTED`)
+  - All mutating endpoints (`POST`, `PUT`) protected via `X-NodeScope-API-Key` header when `NODESCOPE_REQUIRE_API_KEY=true`
+  - Read-only endpoints always open
+
+- **Session reset** — `POST /session/reset`
+  - Truncates today's NDJSON log and resets simulation counters; requires API key when protection is enabled
+
+### Added — Internationalization and Explainability
+
+- **Full bilingual i18n** — `frontend/src/i18n/enUS.ts`, `ptBR.ts`
+  - EN-US / PT-BR toggle in header; persisted via localStorage
+  - Covers all navigation labels, action buttons, status indicators, page titles, descriptions, error messages
+
+- **Bitcoin Glossary** — `frontend/src/i18n/glossary.ts`
+  - 27 terms with EN-US and PT-BR definitions
+
+- **Tooltips** — `frontend/src/components/ui/InfoTooltip.tsx`
+  - Hover/focus tooltips on 22+ technical terms (RPC, ZMQ, Mempool, TXID, WTXID, Fee, Fee rate, vbytes, Weight, RBF, CPFP, Reorg, Cluster mempool, Proof Report, etc.)
+
+- **ExplainBox** — `frontend/src/components/ui/ExplainBox.tsx`
+  - Contextual explanation banners on every page: what the screen shows, why it matters in Bitcoin, what to observe
+
+- **LearnMore** — `frontend/src/components/ui/LearnMore.tsx`
+  - Expandable deep-dive sections on Policy Arena, ZMQ Tape, Reorg Lab, Transaction Inspector, Cluster Mempool, Proof Report
+
+### Added — Presentation Pack
+
+- `docs/presentation/pitch-1min.md` — 1-minute pitch (EN-US / PT-BR)
+- `docs/presentation/pitch-3min.md` — 3-minute technical pitch (EN-US / PT-BR)
+- `docs/presentation/technical-walkthrough.md` — step-by-step technical walkthrough
+- `docs/presentation/evaluator-checklist.md` — reproducible evaluation checklist
+- `docs/presentation/demo-script.md` — 1-minute and 5-minute demo scripts (EN-US / PT-BR)
+- `docs/presentation/submission-text.md` — ready-to-paste submission text (EN-US / PT-BR)
+- `docs/presentation/screenshots-checklist.md` — dashboard screenshot validation
+- `docs/presentation/video-script.md` — scene-by-scene video script (EN-US / PT-BR)
+- `docs/presentation/faq.md` — evaluator FAQ with honest answers (EN-US / PT-BR)
+- `docs/presentation/README.md` — presentation pack index
+
+### Added — Other
+
+- **Browser favicon** — NodeScope icon in browser tab and apple-touch-icon
+- `frontend/src/components/DemoView.tsx` — full-screen demo overlay (health ring, status rows, lifecycle, panels)
+- `GET /intelligence/summary` extended with `IntelligenceSummaryResponse` and `EventStoreInfo` Pydantic models
+- `frontend/src/components/TransactionLifecycle.tsx` expanded to 7 stages: Created → Broadcast → Mempool → ZMQ rawtx → Block Mined → ZMQ rawblock → Confirmed
+- `make replay-demo` — offline NDJSON replay target (no Bitcoin Core required)
+- CI: `public-clean` check updated to allow presentation pack patterns
 
 ### Changed
-- `frontend/src/components/TransactionLifecycle.tsx` — expanded to 7 stages: Created → Broadcast → Mempool → ZMQ rawtx → Block Mined → ZMQ rawblock → Confirmed
-- `frontend/src/App.tsx` — intelligence summary panel added alongside NodeHealthScore; demo view toggle wired to Header
-- `frontend/src/index.css` — CSS for IntelligenceSummaryPanel, DemoView overlay, demo button and mempool pressure badges
-- README: `GET /intelligence/summary` added to endpoints table
+
+- `api/app.py` — version bumped to `1.1.0`; `lifespan` hook auto-starts simulation on boot; Prometheus middleware added
+- `api/schemas.py` — 15+ new Pydantic response models (demo, policy, reorg, simulation, history, fee, cluster, inspector, tape)
+- `pyproject.toml` — version bumped to `1.1.0`
+- README.md, README.pt-BR.md — full rewrite to Professional Lab level; parity between EN-US and PT-BR; v1.1.0 release badge
+- README.en-US.md — replaced with redirect to README.md
+- ROADMAP.md — restructured as Implemented / In Progress / Planned / Deferred
+- docs/api.md — complete rewrite documenting all 43 endpoints, authentication, and Prometheus metrics
+- PROJECT_STATUS.md — capabilities table and roadmap updated to reflect v1.1.0 delivery
+- Tests: 54 unit tests (38 prior + 16 storage tests for `api/storage.py`)
+
+---
+
+## [1.0.1] — 2026-05-07
+
+### Fixed
+
+- CI `public-clean` check: allow presentation pack patterns in the allowlist
 
 ---
 
@@ -129,7 +256,3 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `requirements.txt` — `pyzmq`, `fastapi`, `uvicorn`, `httpx`
 - `LICENSE` — MIT
 - `.gitignore`
-
----
-
-*Total: 37 automated tests passing.*

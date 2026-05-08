@@ -139,7 +139,7 @@ async def metrics_middleware(request: Request, call_next):  # type: ignore[no-un
 
 app = FastAPI(
     title="NodeScope API",
-    version="0.2.0",
+    version="1.1.0",
     description="Bitcoin Core observability API — ZMQ events, classifications, mempool, chain stats, and guided demo.",
     lifespan=lifespan,
 )
