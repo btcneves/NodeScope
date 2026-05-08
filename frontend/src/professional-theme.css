@@ -1,0 +1,374 @@
+:root {
+  --bg: #070604;
+  --surface: #11100c;
+  --surface-2: #18140e;
+  --border: rgba(247, 147, 26, 0.24);
+  --border-strong: rgba(247, 147, 26, 0.46);
+  --text: #fff7e8;
+  --muted: #b9a88f;
+  --accent: #f7931a;
+  --accent-bright: #ffb347;
+  --warn: #ffd166;
+  --error: #ff5c5c;
+  --blue: #f7931a;
+  --terminal-green: #7cffb2;
+  --shadow-orange: 0 20px 80px rgba(247, 147, 26, 0.12);
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
+
+html {
+  background: var(--bg);
+}
+
+body {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(247, 147, 26, 0.16), transparent 30rem),
+    radial-gradient(circle at 86% 14%, rgba(255, 179, 71, 0.1), transparent 28rem),
+    linear-gradient(180deg, #0a0805 0%, #070604 45%, #0f0b06 100%);
+  color: var(--text);
+  font-family: var(--font-sans);
+  letter-spacing: -0.01em;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(247, 147, 26, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(247, 147, 26, 0.055) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.85), transparent 78%);
+  z-index: 0;
+}
+
+.app {
+  position: relative;
+  z-index: 1;
+}
+
+.header {
+  min-height: 68px;
+  padding: 12px 22px !important;
+  background: rgba(10, 8, 5, 0.84) !important;
+  border-bottom: 1px solid var(--border-strong) !important;
+  backdrop-filter: blur(18px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.28);
+}
+
+.header-brand {
+  gap: 14px;
+}
+
+.header-brand::before {
+  content: '₿';
+  width: 34px;
+  height: 34px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: radial-gradient(circle at 35% 25%, #ffd18a, var(--accent) 55%, #8d4b06 100%);
+  color: #120b02;
+  font-weight: 900;
+  box-shadow: 0 0 28px rgba(247, 147, 26, 0.32);
+}
+
+.header-title {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  letter-spacing: -0.04em;
+  text-transform: lowercase;
+}
+
+.header-title::before {
+  content: 'btcneves ~ ';
+  color: var(--accent);
+}
+
+.header-title::after {
+  content: '|';
+  margin-left: 2px;
+  color: var(--accent-bright);
+  animation: cursor-blink 1.1s steps(2, start) infinite;
+}
+
+@keyframes cursor-blink {
+  0%, 44% { opacity: 1; }
+  45%, 100% { opacity: 0; }
+}
+
+.header-nav {
+  gap: 7px !important;
+}
+
+.header-nav button,
+.status-dots button,
+.refresh-btn,
+.pres-btn {
+  border-radius: 999px !important;
+  border: 1px solid var(--border) !important;
+  background: rgba(247, 147, 26, 0.055) !important;
+  color: var(--muted) !important;
+  font-family: var(--font-mono) !important;
+  letter-spacing: -0.02em;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease !important;
+}
+
+.header-nav button:hover,
+.status-dots button:hover,
+.refresh-btn:hover,
+.pres-btn:hover {
+  color: var(--text) !important;
+  border-color: var(--accent) !important;
+  background: rgba(247, 147, 26, 0.14) !important;
+  transform: translateY(-1px);
+}
+
+.header-nav button[style*='rgb(29, 78, 216)'],
+.header-nav button[style*='#1d4ed8'],
+.status-dots button[style*='rgb(29, 78, 216)'],
+.status-dots button[style*='#1d4ed8'] {
+  background: linear-gradient(135deg, var(--accent), var(--accent-bright)) !important;
+  border-color: rgba(255, 209, 138, 0.85) !important;
+  color: #160d02 !important;
+  box-shadow: 0 0 22px rgba(247, 147, 26, 0.18) !important;
+}
+
+.main {
+  max-width: 1280px;
+  padding-top: 34px;
+}
+
+.main::before {
+  content: 'btcneves@nodescope:~$ inspect bitcoin-core\AProfessional Bitcoin Core observability lab for RPC, ZMQ, mempool policy and proof reports.';
+  display: block;
+  white-space: pre-line;
+  margin: 0 0 22px;
+  padding: 28px;
+  border: 1px solid var(--border-strong);
+  border-radius: 28px;
+  background:
+    linear-gradient(135deg, rgba(247, 147, 26, 0.16), rgba(247, 147, 26, 0.025) 58%),
+    rgba(12, 10, 7, 0.72);
+  box-shadow: var(--shadow-orange);
+  color: var(--text);
+  font-size: clamp(26px, 4vw, 48px);
+  line-height: 1.05;
+  font-weight: 850;
+  letter-spacing: -0.07em;
+}
+
+.main::first-line {
+  color: var(--accent-bright);
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.panel,
+.kpi-card,
+.pres-top-row,
+.explain-box,
+.alerting-panel,
+.lifecycle-panel {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
+    rgba(17, 16, 12, 0.88) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 22px !important;
+  box-shadow: 0 18px 54px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(10px);
+}
+
+.panel {
+  overflow: hidden;
+}
+
+.panel-header,
+.panel-title {
+  border-bottom: 1px solid var(--border) !important;
+  background: rgba(247, 147, 26, 0.035);
+}
+
+.panel-title,
+.kpi-label,
+.mempool-label,
+.panel-key,
+.event-time,
+.status-dot,
+.intelligence-key,
+.sync-label {
+  color: var(--muted) !important;
+}
+
+.panel-title,
+.kpi-label,
+.mempool-label {
+  font-family: var(--font-mono);
+  text-transform: lowercase;
+  letter-spacing: -0.02em;
+}
+
+.panel-title::before,
+.kpi-label::before,
+.mempool-label::before {
+  content: '~ ';
+  color: var(--accent);
+}
+
+.kpi-row,
+.grid-2,
+.grid-3 {
+  gap: 18px;
+}
+
+.kpi-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-card::after {
+  content: '';
+  position: absolute;
+  inset: auto 18px 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0.38;
+}
+
+.kpi-value,
+.mempool-value,
+.panel-val,
+.sync-rpc,
+.sync-zmq,
+.event-hash,
+.mono,
+.intelligence-mono {
+  font-family: var(--font-mono) !important;
+}
+
+.kpi-value,
+.mempool-value,
+.intelligence-score-value,
+.pres-title {
+  color: var(--accent-bright) !important;
+  text-shadow: 0 0 24px rgba(247, 147, 26, 0.18);
+}
+
+.badge {
+  border: 1px solid currentColor;
+  background: rgba(247, 147, 26, 0.12) !important;
+  color: var(--accent-bright) !important;
+  font-family: var(--font-mono);
+}
+
+.badge-regtest,
+.badge-mainnet,
+.badge-signet,
+.badge-testnet,
+.badge-rawtx,
+.badge-rawblock,
+.badge-block,
+.badge-payment,
+.badge-coinbase,
+.badge-health-healthy {
+  background: rgba(247, 147, 26, 0.12) !important;
+  color: var(--accent-bright) !important;
+}
+
+.dot-ok,
+.live-dot,
+.lifecycle-step--active .lifecycle-dot,
+.lifecycle-step--active-vert.lifecycle-step--active .lifecycle-dot {
+  background: var(--accent-bright) !important;
+  border-color: var(--accent-bright) !important;
+  box-shadow: 0 0 14px rgba(247, 147, 26, 0.9) !important;
+}
+
+.event-row,
+.panel-row,
+.intelligence-row,
+.sync-row,
+.mempool-item {
+  border-color: rgba(247, 147, 26, 0.14) !important;
+}
+
+.event-row:hover,
+.panel-row:hover,
+.intelligence-row:hover {
+  background: rgba(247, 147, 26, 0.055) !important;
+}
+
+input,
+select,
+textarea {
+  background: rgba(7, 6, 4, 0.78) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 12px !important;
+  font-family: var(--font-mono) !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus-visible {
+  outline: 2px solid rgba(247, 147, 26, 0.42) !important;
+  outline-offset: 2px;
+}
+
+button:not(.header-nav button):not(.refresh-btn):not(.status-dots button) {
+  border-radius: 999px;
+}
+
+.copy-feedback,
+.live-indicator,
+.sync-ok,
+.intelligence-pressure--low {
+  color: var(--accent-bright) !important;
+}
+
+.footer,
+footer {
+  color: var(--muted) !important;
+  border-top-color: var(--border) !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(247, 147, 26, 0.42);
+}
+
+* {
+  scrollbar-color: rgba(247, 147, 26, 0.42) transparent;
+}
+
+@media (max-width: 700px) {
+  .header {
+    min-height: auto;
+    padding: 10px 14px !important;
+  }
+
+  .main {
+    padding: 18px 14px;
+  }
+
+  .main::before {
+    padding: 22px;
+    border-radius: 22px;
+    font-size: 30px;
+  }
+
+  .header-brand::before {
+    width: 30px;
+    height: 30px;
+  }
+}
