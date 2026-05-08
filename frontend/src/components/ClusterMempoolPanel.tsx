@@ -173,7 +173,7 @@ export function ClusterMempoolPanel() {
             </div>
           )}
 
-          <div
+          {data.supported && <div
             style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px' }}
           >
             {data.rpcs.map((r) => (
@@ -220,7 +220,7 @@ export function ClusterMempoolPanel() {
                 </span>
               </div>
             ))}
-          </div>
+          </div>}
 
           <div
             style={{
