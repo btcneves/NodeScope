@@ -58,6 +58,8 @@ http://localhost:5173
 | Prometheus /metrics | Ready | Prometheus-compatible metrics endpoint at GET /metrics. |
 | Operational Alerting | Ready | Dashboard AlertingPanel shows RPC status, simulation errors, and environment notes. |
 | Reproducible Benchmark | Ready | `scripts/benchmark_nodescope.py` measures API latency for all key endpoints. |
+| Optional API Key Auth | Ready | State-changing endpoints protected via `X-NodeScope-API-Key` header when `NODESCOPE_REQUIRE_API_KEY=true`. Read-only endpoints remain open. |
+| Load Smoke Test | Ready | `scripts/load_smoke.py` runs concurrent requests against all read-only endpoints, reporting per-endpoint and aggregate latency and success rate. |
 | CI/CD | Ready | GitHub Actions: Python 3.12 lint/test/audit, Node 18/20/24 build, public-clean check. |
 | Browser favicon | Ready | Custom NodeScope icon in tab and apple-touch-icon. |
 | README EN-US | Ready | Professional documentation with architecture, quick start, endpoints and roadmap. |
@@ -163,7 +165,7 @@ If SQLite initialisation fails, the API transparently falls back to an in-memory
 |---|---|
 | Presentation Pack | Ready (PR #9) |
 | Postgres / TimescaleDB for event persistence | Planned |
-| API keys / JWT for hosted deployments | Planned |
+| API keys for mutating endpoints (optional) | Ready (PR #8) |
 | OpenTelemetry traces (RPC, ZMQ, API) | Planned |
 | Multi-node support | Planned |
 | Kubernetes manifests / Helm chart | Planned |

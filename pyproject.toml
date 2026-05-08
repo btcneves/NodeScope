@@ -1,6 +1,6 @@
 [project]
 name = "nodescope"
-version = "0.1.0"
+version = "1.1.0"
 description = "Bitcoin Core intelligence dashboard for real-time node observability."
 readme = "README.md"
 requires-python = ">=3.12"

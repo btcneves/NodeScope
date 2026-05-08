@@ -1,82 +1,88 @@
 # Roadmap
 
-NodeScope is structured in phases, each expanding the scope while preserving the core design principles: read-only observability, no custodial operations, and zero external database dependency in Phase 1.
+NodeScope is an educational and professional Bitcoin Core observability platform built for regtest.
 
 ---
 
-## Phase 1 — Regtest Intelligence Dashboard (Current)
+## Implemented
 
-**Status:** Complete
+Everything below is shipped and functional in the current release.
 
-Goals:
-- Unified observability across RPC, ZMQ, and mempool
-- Append-only NDJSON event storage with replay capability
-- Transaction classification with confidence signals
-- React dashboard with real-time SSE updates
-- Node Health Score and Transaction Lifecycle visualization
-- Docker Compose demo stack for reproducible setup
-- 35+ unit tests and CI pipeline
-
----
-
-## Phase 2 — Signet Observer Mode
-
-**Target:** Read-only monitoring of Bitcoin signet network
-
-Goals:
-- `BITCOIN_NETWORK=signet` flag to switch from regtest
-- Signet-specific configuration examples (`.env.signet.example`, `bitcoin.signet.conf.example`)
-- Observer mode: ZMQ + RPC without any wallet or regtest-only operations
-- Dashboard adapted for signet (no "mine block" demo controls)
-- Persistent log storage with rotation and archival
-- Deployment guides for VPS and Cloudflare Tunnel
-
-No wallet, no transaction signing, no key management in this phase.
-
----
-
-## Phase 3 — Mainnet Read-Only Mode
-
-**Target:** Read-only monitoring of Bitcoin mainnet
-
-Goals:
-- `BITCOIN_NETWORK=mainnet` flag
-- Explicit network safeguards: no regtest/signet operations allowed when mainnet is active
-- Authentication layer for the NodeScope API (API key or HTTP Basic Auth via proxy)
-- Rate limiting on `/events/stream`
-- Persistent storage option (migration path from NDJSON to a time-series store)
-- Prometheus metrics export endpoint
-- Public demo deployment documentation
-
-No transaction signing or wallet operations. NodeScope remains an observability tool.
+| Feature | Notes |
+|---|---|
+| RPC snapshot (chain, mempool, network) | FastAPI reads Bitcoin Core via JSON-RPC |
+| ZMQ rawtx/rawblock monitoring | `monitor.py` subscribes and enriches events |
+| NDJSON append-only event storage | Replayable source of truth under `logs/` |
+| Transaction classification engine | coinbase\_like, simple\_payment\_like, block\_event, unknown |
+| React 18 + TypeScript dashboard | Vite, SSE live feed, real-time updates |
+| Node Health Score | Visual indicator derived from RPC + ZMQ signals |
+| Transaction Lifecycle panel | Animated flow: broadcast → mempool → confirmation |
+| Docker Compose stack | Four services: bitcoind, api, monitor, frontend |
+| Guided Demo (14 steps) | Full lifecycle walkthrough with Proof Report |
+| Transaction Inspector | Fee, vsize, weight, wtxid, inputs/outputs via RPC |
+| ZMQ Event Tape | Live rawtx/rawblock stream with topic filters and tx linking |
+| Mempool Policy Arena | 4 scenarios: Normal, Low-fee, RBF (BIP125), CPFP |
+| Reorg Lab | 10-step controlled chain reorganization (experimental) |
+| Cluster Mempool Detector | Probes getmempoolcluster/getmempoolfeeratediagram; honest unavailable on BC26 |
+| Proof Reports | JSON audit trail per demo/scenario/reorg run; copyable and downloadable |
+| Live Simulation Engine | Auto-mines blocks and sends transactions at configurable intervals |
+| Prometheus metrics (`/metrics`) | 24+ metrics covering HTTP, RPC, ZMQ, mempool, chain, simulation, storage |
+| Operational Alerting Panel | Polls API every 15 s; surfaces RPC offline, simulation errors, env notes |
+| Optional API key auth | Mutating endpoints protected via `X-NodeScope-API-Key` when `NODESCOPE_REQUIRE_API_KEY=true` |
+| SQLite persistence | Proof reports, demo/policy/reorg run history; in-memory fallback if SQLite unavailable |
+| Historical Dashboard | Paginated view of all past runs across all scenario types |
+| Fee Estimation Playground | Live `estimatesmartfee` for 1/3/6/12-block targets; honest unavailable in regtest |
+| Bilingual i18n (EN-US / PT-BR) | Full toggle with localStorage persistence |
+| Tooltips and ExplainBox | Hover tooltips on 22+ terms; contextual explanation banners per page |
+| LearnMore sections | Expandable deep-dive explanations on key Bitcoin concepts |
+| Bitcoin Glossary | 27 terms with EN-US and PT-BR definitions |
+| Reproducible Benchmark | `scripts/benchmark_nodescope.py` — latency table per endpoint |
+| Load Smoke Test | `scripts/load_smoke.py` — concurrent load against all read-only endpoints |
+| 54 unit tests + CI | Python 3.12 lint/test/audit; Node 18/20/24 build; public-clean check |
+| Presentation Pack | 10 documents: pitches, demo scripts, evaluator checklist, FAQ, submission text |
 
 ---
 
-## Phase 4 — Intelligence Layer Expansion
+## In Progress
 
-**Target:** Richer analysis and dashboard capabilities
-
-Goals:
-- Advanced classification heuristics (UTXO consolidation, batch payments, RBF detection, Taproot script patterns)
-- Mempool pressure scoring (fee rate percentiles, congestion signals)
-- Dashboard filters: event type, classification kind, confidence, script type
-- Block statistics panel (tx count, total fees, size distribution)
-- Historical trend charts (event rate, mempool depth, fee rate over time)
-- Alert system: configurable thresholds for mempool size, fee rate, block interval
+Nothing is currently in active development.
 
 ---
 
-## Design Principles (All Phases)
+## Planned
 
-- **Read-only by default.** NodeScope never signs transactions or manages keys.
-- **No custodial operations.** No wallet keys, no signing authority, no wallet custody.
-- **Observable internals.** Every classification includes confidence score and signals.
+| Feature | Notes |
+|---|---|
+| Signet/testnet observer mode | `BITCOIN_NETWORK=signet` flag; ZMQ + RPC without wallet or regtest operations |
+| Dashboard adapted for signet | Remove "mine block" controls; read-only mode indicators |
+| Mainnet read-only mode | `BITCOIN_NETWORK=mainnet` with explicit network safeguards |
+| Rate limiting on `/events/stream` | Relevant for public deployments |
+| Cluster mempool visualization | Requires Bitcoin Core 28+; gated on getmempoolcluster availability |
+| Mempool eviction scenario | Demonstrate fee-based eviction from the mempool |
+| Advanced classification heuristics | UTXO consolidation, batch payments, Taproot script patterns |
+| Historical trend charts | Event rate, mempool depth, fee rate over time |
+| Configurable alert thresholds | Mempool size, fee rate, block interval alerts |
+| Grafana integration | Pre-built dashboard consuming `/metrics` |
+| OpenTelemetry traces | RPC, ZMQ, and API request traces |
+| Multi-node support | Monitor multiple Bitcoin Core instances simultaneously |
+
+---
+
+## Deferred
+
+| Feature | Reason |
+|---|---|
+| Postgres / TimescaleDB for event persistence | SQLite covers the demo and evaluation use case; Postgres adds operational overhead with no benefit in regtest |
+| Kubernetes manifests / Helm chart | Out of scope until multi-node or hosted deployment is needed |
+| JWT authentication | Optional API key covers the security surface for single-operator deployments; JWT adds complexity without a current multi-user requirement |
+| VPS / Cloudflare Tunnel deployment guides | Deferred until signet observer mode is implemented |
+
+---
+
+## Design Principles
+
+- **Observable internals.** Every classification includes confidence signals. Every scenario generates a Proof Report.
+- **Honest accounting.** Unavailable features (cluster mempool on BC26, fee estimation in regtest) are reported as `unavailable` — never hidden or faked.
 - **Replayable data.** NDJSON logs are the durable source of truth; the engine can reprocess from scratch.
-- **Minimal dependencies.** Each phase adds only what is necessary.
-- **Explicit network scoping.** regtest, signet, and mainnet are explicitly configured and guarded.
-
----
-
-## Contributing to the Roadmap
-
-Open an issue to discuss a feature before starting work. See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow.
+- **No custodial operations.** NodeScope never signs transactions or manages private keys in production mode.
+- **Explicit network scoping.** regtest, signet, and mainnet will be explicitly configured and guarded.

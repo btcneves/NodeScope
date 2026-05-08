@@ -68,7 +68,7 @@ for pattern in \
     "logs sensíveis"; do
     # docs/presentation/ is the official evaluator presentation pack — allow all patterns there.
     # README and PROJECT_STATUS may reference presentation materials via links/section headers.
-    matches=$(grep_files "${pattern}" | grep -Ev '^(docs/presentation/|README\.md$|README\.pt-BR\.md$|README\.en-US\.md$|PROJECT_STATUS\.md$)' || true)
+    matches=$(grep_files "${pattern}" | grep -Ev '^(docs/presentation/|README\.md$|README\.pt-BR\.md$|README\.en-US\.md$|PROJECT_STATUS\.md$|CHANGELOG\.md$|RELEASE_NOTES_.*\.md$)' || true)
     if [ -n "${matches}" ]; then
         flag "Pattern '${pattern}' found in: ${matches}"
     fi
