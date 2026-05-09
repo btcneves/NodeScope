@@ -26,10 +26,65 @@ class CaptureTarget:
     filename: str
     url: str
     wait_selector: str | None = None
+    nav_label: str | None = None
 
 
 CAPTURE_TARGETS = [
     CaptureTarget("nodescope-dashboard.png", f"{DASHBOARD_URL}/", ".intelligence-score-value"),
+    CaptureTarget(
+        "nodescope-charts.png",
+        f"{DASHBOARD_URL}/",
+        "text=Historical Charts",
+        "Charts",
+    ),
+    CaptureTarget(
+        "nodescope-guided-demo.png",
+        f"{DASHBOARD_URL}/",
+        "text=Guided Demo",
+        "Guided Demo",
+    ),
+    CaptureTarget(
+        "nodescope-tx-inspector.png",
+        f"{DASHBOARD_URL}/",
+        "text=Transaction Inspector",
+        "Tx Inspector",
+    ),
+    CaptureTarget(
+        "nodescope-zmq-tape.png",
+        f"{DASHBOARD_URL}/",
+        "text=ZMQ Event Tape",
+        "ZMQ Tape",
+    ),
+    CaptureTarget(
+        "nodescope-policy-arena.png",
+        f"{DASHBOARD_URL}/",
+        "text=Mempool Policy Arena",
+        "Policy Arena",
+    ),
+    CaptureTarget(
+        "nodescope-reorg-lab.png",
+        f"{DASHBOARD_URL}/",
+        "text=Reorg Lab",
+        "Reorg Lab",
+    ),
+    CaptureTarget(
+        "nodescope-history.png",
+        f"{DASHBOARD_URL}/",
+        "text=Historical",
+        "Historical Dashboard",
+    ),
+    CaptureTarget(
+        "nodescope-fee-estimation.png",
+        f"{DASHBOARD_URL}/",
+        "text=Fee Estimation",
+        "Fee Estimation",
+    ),
+    CaptureTarget(
+        "nodescope-cluster-mempool.png",
+        f"{DASHBOARD_URL}/",
+        "text=Cluster Mempool",
+        "Cluster Mempool",
+    ),
     CaptureTarget("nodescope-command-center.png", f"{DASHBOARD_URL}/", ".intelligence-score-value"),
     CaptureTarget(
         "nodescope-transaction-lifecycle.png",
@@ -66,6 +121,8 @@ def _capture(page: Page, target: CaptureTarget) -> None:
             file=sys.stderr,
         )
         page.goto(target.url, wait_until="domcontentloaded", timeout=TIMEOUT_MS)
+    if target.nav_label is not None:
+        page.get_by_role("button", name=target.nav_label, exact=True).click()
     if target.wait_selector is not None:
         page.wait_for_selector(target.wait_selector, timeout=TIMEOUT_MS)
     page.wait_for_timeout(2_500)
