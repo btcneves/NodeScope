@@ -93,9 +93,7 @@ export function ClusterMempoolPanel() {
                 marginBottom: '12px',
               }}
             >
-              <div style={{ fontWeight: 700, marginBottom: '2px' }}>
-                {t.cluster.notSupported}
-              </div>
+              <div style={{ fontWeight: 700, marginBottom: '2px' }}>{t.cluster.notSupported}</div>
               <div>{data.note ?? data.message}</div>
             </div>
           )}
