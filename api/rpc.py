@@ -78,6 +78,9 @@ class RPCClient:
     def getwalletinfo(self) -> dict[str, Any]:
         return self.call("getwalletinfo")  # type: ignore[return-value]
 
+    def getbalances(self) -> dict[str, Any]:
+        return self.call("getbalances")  # type: ignore[return-value]
+
     def listwallets(self) -> list[str]:
         return self.call("listwallets")  # type: ignore[return-value]
 
