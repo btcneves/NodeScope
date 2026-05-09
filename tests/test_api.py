@@ -26,7 +26,7 @@ from api.app import (
     tx_by_id,
 )
 from api.rpc import RPCError
-from api.service import iter_live_events_sse
+from api.service import get_cluster_compatibility, iter_live_events_sse
 from engine.snapshot import load_snapshot
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -103,6 +103,36 @@ class ApiTests(unittest.TestCase):
         self.assertTrue(data["rpc_ok"])
         self.assertEqual(data["size"], 5)
         self.assertIsNone(data["error"])
+
+    def test_cluster_compatibility_rejects_pre_31_core(self) -> None:
+        with patch("api.service.get_client") as mock_get:
+            client = mock_get.return_value
+            client.getnetworkinfo.return_value = {
+                "subversion": "/Satoshi:28.4.0/",
+                "version": 280400,
+            }
+            data = get_cluster_compatibility()
+
+        self.assertFalse(data["supported"])
+        self.assertEqual(data["bitcoin_core_version"], "/Satoshi:28.4.0/")
+        self.assertIn("31.0", data["note"])
+        self.assertTrue(all(not item["supported"] for item in data["rpcs"]))
+        client.call.assert_not_called()
+
+    def test_cluster_compatibility_uses_help_probe_on_31_core(self) -> None:
+        with patch("api.service.get_client") as mock_get:
+            client = mock_get.return_value
+            client.getnetworkinfo.return_value = {
+                "subversion": "/Satoshi:31.0.0/",
+                "version": 310000,
+            }
+            client.call.return_value = "help text"
+            data = get_cluster_compatibility()
+
+        self.assertTrue(data["supported"])
+        self.assertIsNone(data["note"])
+        client.call.assert_any_call("help", ["getmempoolcluster"])
+        client.call.assert_any_call("help", ["getmempoolfeeratediagram"])
 
     def test_summary_endpoint(self) -> None:
         data = summary(file=str(FIXTURE_FILE))

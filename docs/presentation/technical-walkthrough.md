@@ -170,7 +170,7 @@ Key views:
 | Reorg Lab | Controlled reorg scenario (experimental) |
 | Fee Estimation Playground | `estimatesmartfee` for 1/3/6/12 block targets |
 | Historical Dashboard | Paginated list of all past runs and proof reports |
-| Cluster Mempool Detector | Compatibility check for BC28+ RPCs |
+| Cluster Mempool Detector | Compatibility check for BC31+ RPCs |
 
 i18n: PT-BR / EN-US toggle persisted via `localStorage`. All views are bilingual.
 
@@ -192,7 +192,7 @@ Explainability: Each view has an ExplainBox banner, Tooltip components on techni
 ## Limitations
 
 - Regtest only for all demo scenarios. Mainnet/signet operation is possible with configuration but not validated in this release.
-- Cluster mempool RPCs (`getmempoolcluster`, `getmempoolfeeratediagram`) require Bitcoin Core 28+. BC26 returns `unavailable`.
+- Cluster mempool RPCs (`getmempoolcluster`, `getmempoolfeeratediagram`) require Bitcoin Core 31+. BC26 returns `unavailable`.
 - Reorg Lab is experimental.
 - CPFP child construction requires the parent output to be in `listunspent minconf=0`. A fallback path exists if not found.
 - `estimatesmartfee` in regtest returns limited data due to insufficient fee history. Limitations are documented inline in the Fee Estimation view.
@@ -225,7 +225,7 @@ python3 scripts/load_smoke.py --concurrency 5 --requests 50
 
 | Feature | Status |
 |---|---|
-| Cluster mempool visualization (BC28+) | Planned |
+| Cluster mempool visualization (BC31+) | Planned |
 | Mempool eviction scenario | Planned |
 | OpenTelemetry traces (RPC, ZMQ, API) | Planned |
 | Postgres / TimescaleDB for event persistence | Planned |

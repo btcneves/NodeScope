@@ -11,7 +11,7 @@
 | 3 | Alertas configuráveis (CRUD dinâmico) | Pendente |
 | 4 | Ordenação avançada em tabelas | Pendente |
 | 5 | Rate limiting (sliding window) | **Arquivo criado** ✓ |
-| 6 | Cluster mempool visual real (Bitcoin Core 28+) | Pendente |
+| 6 | Cluster mempool visual real (Bitcoin Core 31+) | Pendente |
 
 ## Estado Atual (2026-05-08)
 

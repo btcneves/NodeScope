@@ -133,7 +133,7 @@ Complete this checklist to fully assess NodeScope in under 10 minutes.
 - [ ] Policy Arena proof records the real RPC call results
 - [ ] `/metrics` shows `nodescope_rpc_up 1.0`
 - [ ] No secrets, tokens, or private keys visible in the browser or logs
-- [ ] Cluster Mempool Detector shows `unavailable` for BC28+ RPCs (expected on BC26)
+- [ ] Cluster Mempool Detector shows `unavailable` for BC31+ RPCs (expected on BC26)
 - [ ] Reorg Lab is marked experimental
 - [ ] Fee Estimation shows regtest limitations honestly
 

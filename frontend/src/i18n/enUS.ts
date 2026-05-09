@@ -413,7 +413,7 @@ export const enUS: Translations = {
     reorgLab:
       'Simulates a controlled chain reorganization in regtest: mines blocks on one chain, then mines a longer competing chain to trigger a reorg. Observe how confirmed transactions return to the mempool.',
     clusterMempool:
-      'Detects whether the connected Bitcoin Core node supports cluster mempool RPCs (introduced in v28+). Falls back to standard mempool data with honest disclosure when unavailable.',
+      'Detects whether the connected Bitcoin Core node supports cluster mempool RPCs (introduced in v31+). Falls back to standard mempool data with honest disclosure when unavailable.',
     proofReport:
       'Cryptographically-auditable summary of the demo execution: RPC calls, ZMQ events, TXID, block height, confirmations. Can be exported as JSON for independent verification.',
   },
@@ -428,7 +428,7 @@ export const enUS: Translations = {
     reorg:
       'A chain reorganization occurs when a competing chain with more cumulative proof-of-work becomes the canonical chain. Bitcoin Core switches to the longer chain, reverting any blocks that are no longer in the main chain. Transactions from reverted blocks return to the mempool and await re-confirmation.',
     cluster:
-      'Cluster mempool (Bitcoin Core v28+) groups related transactions into clusters and evaluates their combined fee rate for eviction and mining decisions. This improves the accuracy of fee estimation and mempool management. Earlier versions use per-transaction ancestor/descendant limits instead.',
+      'Cluster mempool (Bitcoin Core v31+) groups related transactions into clusters and evaluates their combined fee rate for eviction and mining decisions. This improves the accuracy of fee estimation and mempool management. Earlier versions use per-transaction ancestor/descendant limits instead.',
     zmq: 'Bitcoin Core publishes internal events over ZMQ (ZeroMQ) push sockets. NodeScope subscribes to rawtx (new transactions entering the mempool) and rawblock (new blocks connected to the chain). Each event is cross-validated with RPC to confirm on-chain data.',
     proof:
       'The Proof Report captures all verifiable data points from a demo run: RPC responses, ZMQ event timestamps, TXID, block hash, fee details, and confirmation count. It can be exported as JSON and verified independently against a Bitcoin Core node.',
@@ -450,7 +450,7 @@ export const enUS: Translations = {
     simulationErrorDesc: 'The auto-mining simulation encountered errors. Check logs for details.',
     clusterUnavailable: 'Cluster mempool RPCs unavailable',
     clusterUnavailableDesc:
-      'Bitcoin Core v28+ is required for cluster mempool RPCs. Current environment uses an earlier version.',
+      'Bitcoin Core v31+ is required for cluster mempool RPCs. Current environment uses an earlier version.',
     reorgExperimental: 'Reorg Lab is experimental',
     reorgExperimentalDesc:
       'Reorg Lab runs only on regtest. Results may vary. Not suitable for production use.',

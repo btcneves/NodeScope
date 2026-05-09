@@ -32,7 +32,7 @@ Everything below is shipped and functional in the current release.
 | Historical trend charts | Mempool size and minimum fee time-series charts |
 | Read-only network guard | Blocks mutating lab operations outside regtest unless explicitly allowed |
 | API rate limiting | Sliding-window protection with demo-friendly defaults |
-| Visual cluster mempool view | Uses BC28+ cluster RPCs when available; otherwise displays honest fallback groups |
+| Visual cluster mempool view | Uses BC31+ cluster RPCs when available; otherwise displays honest fallback groups |
 | Optional API key auth | Mutating endpoints protected via `X-NodeScope-API-Key` when `NODESCOPE_REQUIRE_API_KEY=true` |
 | SQLite persistence | Proof reports, demo/policy/reorg run history; in-memory fallback if SQLite unavailable |
 | Historical Dashboard | Paginated view of all past runs across all scenario types |
@@ -65,7 +65,7 @@ Nothing is currently in active development.
 | Dashboard adapted for signet | Remove "mine block" controls; read-only mode indicators |
 | Mainnet read-only mode | `BITCOIN_NETWORK=mainnet` with explicit network safeguards |
 | Hosted deployment tuning | Public rate-limit profiles, reverse proxy examples, and SSE sizing |
-| Enhanced Bitcoin Core 28+ cluster views | More detailed diagrams when getmempoolcluster/getmempoolfeeratediagram are available |
+| Enhanced Bitcoin Core 31+ cluster views | More detailed diagrams when getmempoolcluster/getmempoolfeeratediagram are available |
 | Mempool eviction scenario | Demonstrate fee-based eviction from the mempool |
 | Advanced classification heuristics | UTXO consolidation, batch payments, Taproot script patterns |
 | OpenTelemetry traces | RPC, ZMQ, and API request traces |

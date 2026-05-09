@@ -567,7 +567,7 @@ Probes whether the connected Bitcoin Core node supports cluster mempool RPCs.
 {
   "getmempoolcluster": "unavailable",
   "getmempoolfeeratediagram": "unavailable",
-  "note": "Cluster mempool RPCs require Bitcoin Core 28+. This node runs 26.x."
+  "note": "Cluster mempool RPCs require Bitcoin Core 31+. This node runs 26.x."
 }
 ```
 

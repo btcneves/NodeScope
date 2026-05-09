@@ -418,7 +418,7 @@ export const ptBR: Translations = {
     reorgLab:
       'Simula uma reorganização controlada em regtest: minera blocos em uma cadeia e depois minera uma cadeia concorrente mais longa para disparar a reorg. Observe como transações confirmadas retornam à mempool.',
     clusterMempool:
-      'Detecta se o nó Bitcoin Core conectado suporta RPCs de cluster mempool (introduzidos na v28+). Usa dados padrão da mempool com divulgação honesta quando indisponível.',
+      'Detecta se o nó Bitcoin Core conectado suporta RPCs de cluster mempool (introduzidos na v31+). Usa dados padrão da mempool com divulgação honesta quando indisponível.',
     proofReport:
       'Resumo auditável da execução da demo: chamadas RPC, eventos ZMQ, TXID, altura do bloco, confirmações. Pode ser exportado como JSON para verificação independente.',
   },
@@ -433,7 +433,7 @@ export const ptBR: Translations = {
     reorg:
       'Uma reorganização de cadeia ocorre quando uma cadeia concorrente com mais prova de trabalho acumulada passa a ser a cadeia canônica. O Bitcoin Core muda para a cadeia mais longa, revertendo quaisquer blocos que não estão mais na cadeia principal. Transações de blocos revertidos retornam à mempool e aguardam reconfirmação.',
     cluster:
-      'Cluster mempool (Bitcoin Core v28+) agrupa transações relacionadas em clusters e avalia sua taxa combinada para decisões de evicção e mineração. Isso melhora a precisão da estimativa de taxa e o gerenciamento da mempool. Versões anteriores usam limites por transação de ancestrais/descendentes.',
+      'Cluster mempool (Bitcoin Core v31+) agrupa transações relacionadas em clusters e avalia sua taxa combinada para decisões de evicção e mineração. Isso melhora a precisão da estimativa de taxa e o gerenciamento da mempool. Versões anteriores usam limites por transação de ancestrais/descendentes.',
     zmq: 'O Bitcoin Core publica eventos internos via ZMQ (ZeroMQ) em sockets push. O NodeScope assina rawtx (novas transações entrando na mempool) e rawblock (novos blocos conectados à cadeia). Cada evento é validado cruzado com RPC para confirmar dados on-chain.',
     proof:
       'O Relatório de Prova captura todos os dados verificáveis de uma execução da demo: respostas RPC, timestamps de eventos ZMQ, TXID, hash do bloco, detalhes de taxa e contagem de confirmações. Pode ser exportado como JSON e verificado de forma independente contra um nó Bitcoin Core.',
@@ -457,7 +457,7 @@ export const ptBR: Translations = {
       'A simulação de mineração automática encontrou erros. Verifique os logs para detalhes.',
     clusterUnavailable: 'RPCs de cluster mempool indisponíveis',
     clusterUnavailableDesc:
-      'Bitcoin Core v28+ é necessário para RPCs de cluster mempool. O ambiente atual usa uma versão anterior.',
+      'Bitcoin Core v31+ é necessário para RPCs de cluster mempool. O ambiente atual usa uma versão anterior.',
     reorgExperimental: 'Reorg Lab é experimental',
     reorgExperimentalDesc:
       'O Reorg Lab funciona apenas em regtest. Os resultados podem variar. Não adequado para uso em produção.',

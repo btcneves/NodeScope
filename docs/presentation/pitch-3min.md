@@ -135,7 +135,7 @@ SQLite-backed persistence stores proof reports, demo runs, policy runs, and reor
 ### 12. Security and Limitations (15s)
 
 - Demo uses Bitcoin Core regtest only. No mainnet. No real money.
-- Cluster mempool RPCs (`getmempoolcluster`, `getmempoolfeeratediagram`) require Bitcoin Core 28+. BC26 returns `unavailable` with an honest explanation.
+- Cluster mempool RPCs (`getmempoolcluster`, `getmempoolfeeratediagram`) require Bitcoin Core 31+. BC26 returns `unavailable` with an honest explanation.
 - Reorg Lab is experimental.
 - ZMQ is treated as a notification source; RPC is used for final validation.
 - No private keys, seeds, or wallet credentials in the repository.

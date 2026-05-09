@@ -172,9 +172,9 @@ export const glossary: GlossaryEntry[] = [
   {
     term: 'Cluster mempool',
     'pt-BR':
-      'Recurso do Bitcoin Core v28+ que agrupa transações relacionadas para melhorar decisões de fee.',
+      'Recurso do Bitcoin Core v31+ que agrupa transações relacionadas para melhorar decisões de fee.',
     'en-US':
-      'Bitcoin Core v28+ feature that groups related transactions to improve fee-based decisions.',
+      'Bitcoin Core v31+ feature that groups related transactions to improve fee-based decisions.',
   },
   {
     term: 'Proof Report',

@@ -161,7 +161,7 @@ If SQLite initialisation fails, the API transparently falls back to an in-memory
 - The official demo uses Bitcoin Core regtest only; signet/mainnet operation is intentionally out of scope.
 - `logs/` is local runtime storage, not a production database.
 - Local non-Docker mode is available for development, but Docker is the validated judging path.
-- Cluster mempool RPCs (`getmempoolcluster`, `getmempoolfeeratediagram`) require Bitcoin Core v28+. BC26 returns `unavailable` (documented).
+- Cluster mempool RPCs (`getmempoolcluster`, `getmempoolfeeratediagram`) require Bitcoin Core v31+. BC26 returns `unavailable` (documented).
 - Reorg Lab is experimental and runs only in regtest. Not suitable for production.
 - `prometheus-client` must be installed for `/metrics` to return Prometheus data (included in `requirements.txt`).
 - SQLite history database is local to the container volume. History does not survive `docker compose down -v` unless the volume is preserved.
@@ -196,4 +196,4 @@ If SQLite initialisation fails, the API transparently falls back to an in-memory
 | Multi-node support | Planned |
 | Kubernetes manifests / Helm chart | Planned |
 | signet / mainnet read-only guard | Ready (mutating lab endpoints blocked outside regtest) |
-| Cluster mempool visualization | Ready (fallback visual groups; BC28+ RPCs detected when available) |
+| Cluster mempool visualization | Ready (fallback visual groups; BC31+ RPCs detected when available) |

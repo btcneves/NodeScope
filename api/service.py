@@ -754,6 +754,37 @@ def iter_live_events_sse(
 # Cluster Mempool Compatibility Detector
 # ---------------------------------------------------------------------------
 
+_CLUSTER_MEMPOOL_MIN_VERSION = (31, 0, 0)
+_CLUSTER_MEMPOOL_RPCS = ("getmempoolcluster", "getmempoolfeeratediagram")
+
+
+def _parse_core_version(value: Any) -> tuple[int, int, int] | None:
+    if isinstance(value, int):
+        return value // 10_000, (value // 100) % 100, value % 100
+    if not isinstance(value, str):
+        return None
+    cleaned = value.strip().strip("/")
+    if cleaned.startswith("Satoshi:"):
+        cleaned = cleaned.removeprefix("Satoshi:")
+    parts = []
+    for part in cleaned.split("."):
+        if not part.isdigit():
+            break
+        parts.append(int(part))
+    if not parts:
+        return None
+    padded = [*parts, 0, 0]
+    return padded[0], padded[1], padded[2]
+
+
+def _version_label(version_str: str | None, version_tuple: tuple[int, int, int] | None) -> str:
+    if version_str:
+        return version_str
+    if version_tuple:
+        major, minor, patch = version_tuple
+        return f"{major}.{minor}.{patch}"
+    return "this Bitcoin Core build"
+
 
 def get_cluster_compatibility() -> dict:
     """Probe whether cluster mempool RPCs exist in the current Bitcoin Core build."""
@@ -761,21 +792,55 @@ def get_cluster_compatibility() -> dict:
 
     # Retrieve version string for display
     version_str: str | None = None
+    version_tuple: tuple[int, int, int] | None = None
     try:
         net_info = rpc.getnetworkinfo()
         version_str = net_info.get("subversion") or str(net_info.get("version", ""))
+        version_tuple = _parse_core_version(net_info.get("version")) or _parse_core_version(
+            version_str
+        )
     except RPCError:
         pass
 
+    if version_tuple is not None and version_tuple < _CLUSTER_MEMPOOL_MIN_VERSION:
+        version_label = _version_label(version_str, version_tuple)
+        reason = (
+            "Cluster mempool RPCs require Bitcoin Core 31.0 or newer; "
+            f"connected node is {version_label}."
+        )
+        return {
+            "bitcoin_core_version": version_str,
+            "supported": False,
+            "rpcs": [
+                {
+                    "rpc": rpc_name,
+                    "supported": False,
+                    "reason": reason,
+                }
+                for rpc_name in _CLUSTER_MEMPOOL_RPCS
+            ],
+            "message": (
+                "Cluster mempool RPCs are not available in this Bitcoin Core version. "
+                "NodeScope detects support automatically and uses an honest fallback when "
+                "unavailable. These RPCs were added in Bitcoin Core 31.0."
+            ),
+            "note": reason,
+        }
+
     results = []
 
-    for rpc_name in ("getmempoolcluster", "getmempoolfeeratediagram"):
+    for rpc_name in _CLUSTER_MEMPOOL_RPCS:
         try:
-            rpc.call(rpc_name)
+            rpc.call("help", [rpc_name])
             results.append({"rpc": rpc_name, "supported": True, "reason": None})
         except RPCError as exc:
             err = str(exc)
-            if "Method not found" in err or "-32601" in err or "not found" in err.lower():
+            if (
+                "Method not found" in err
+                or "-32601" in err
+                or "not found" in err.lower()
+                or "unknown command" in err.lower()
+            ):
                 results.append(
                     {
                         "rpc": rpc_name,
@@ -792,25 +857,24 @@ def get_cluster_compatibility() -> dict:
                     }
                 )
 
-    any_supported = any(r["supported"] for r in results)
+    all_supported = all(r["supported"] for r in results)
     return {
         "bitcoin_core_version": version_str,
-        "supported": any_supported,
+        "supported": all_supported,
         "rpcs": results,
         "message": (
             "Cluster mempool RPCs detected and available."
-            if any_supported
+            if all_supported
             else "Cluster mempool RPCs are not available in this Bitcoin Core build. "
             "NodeScope detects support automatically and uses an honest fallback when unavailable. "
-            "These RPCs are not yet included in any official Bitcoin Core release."
+            "These RPCs were added in Bitcoin Core 31.0."
         ),
         "note": (
             None
-            if any_supported
+            if all_supported
             else (
-                f"{version_str} does not include getmempoolcluster or getmempoolfeeratediagram."
-                if version_str
-                else "This build does not include getmempoolcluster or getmempoolfeeratediagram."
+                f"{_version_label(version_str, version_tuple)} does not include "
+                "getmempoolcluster and getmempoolfeeratediagram."
             )
         ),
     }

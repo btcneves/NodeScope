@@ -300,7 +300,7 @@ o NodeScope retorna um status `unavailable` honesto com explicação clara — n
 
 Disponível via `GET /mempool/cluster/compatibility`, `GET /mempool/clusters` e na aba **Cluster Mempool**.
 
-> RPCs de cluster mempool são esperados no Bitcoin Core 28+. Esta build usa Bitcoin Core 26.
+> RPCs de cluster mempool são esperados no Bitcoin Core 31+. Esta build usa Bitcoin Core 26.
 
 ---
 
@@ -522,7 +522,7 @@ Saída: tabela de latência (min/média/mediana/p95/max) por endpoint. Os result
 ## Limitações
 
 - **Apenas regtest** para cenários de demo. Observabilidade em mainnet/signet/testnet é possível com mudanças de configuração, mas não validada nesta versão.
-- **RPCs de cluster mempool** (`getmempoolcluster`, `getmempoolfeeratediagram`) exigem Bitcoin Core 28+. Esta build usa Bitcoin Core 26 — esses RPCs retornam `unavailable` com explicação honesta.
+- **RPCs de cluster mempool** (`getmempoolcluster`, `getmempoolfeeratediagram`) exigem Bitcoin Core 31+. Esta build usa Bitcoin Core 26 — esses RPCs retornam `unavailable` com explicação honesta.
 - **Reorg Lab** é marcado como **experimental**: o cenário é reproduzível em regtest, mas pode ter comportamento diferente dependendo do estado da carteira.
 - **Construção do child CPFP** requer que o output do parent esteja rastreado na carteira (`listunspent minconf=0`). Se não encontrado, um caminho alternativo é usado e a prova o registra.
 - **Eventos ZMQ** são armazenados como NDJSON em `logs/`. Não há persistência entre reinicializações de container.
@@ -537,7 +537,7 @@ Saída: tabela de latência (min/média/mediana/p95/max) por endpoint. Os result
 |---|---|
 | Suporte a signet/testnet | Planejado |
 | Modo read-only para redes públicas | Pronto (proteção bloqueia mutações de laboratório fora de regtest) |
-| Visualização de cluster mempool | Pronto (grupos visuais via fallback; RPCs BC28+ detectados quando disponíveis) |
+| Visualização de cluster mempool | Pronto (grupos visuais via fallback; RPCs BC31+ detectados quando disponíveis) |
 | Cenário de expulsão da mempool | Planejado |
 | Topologia multi-nó | Planejado |
 | Postgres / TimescaleDB para persistência de eventos | Planejado |
