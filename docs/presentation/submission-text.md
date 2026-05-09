@@ -53,7 +53,7 @@ NodeScope provides that layer: a real-time dashboard backed by direct Bitcoin Co
 | Storage | SQLite (primary) + in-memory fallback |
 | Observability | prometheus-client |
 | Frontend | React 18.3.1 + TypeScript + Vite 6.0.5 |
-| Bitcoin node | Bitcoin Core 26 (regtest) |
+| Bitcoin node | Bitcoin Core 31 (regtest) |
 | Infrastructure | Docker Compose (4 services) |
 | i18n | PT-BR / EN-US (all views) |
 | CI | GitHub Actions (Python 3.12, Node 18/20/24, public-clean check) |
@@ -62,7 +62,7 @@ NodeScope provides that layer: a real-time dashboard backed by direct Bitcoin Co
 
 1. **Real Bitcoin Core, real RPC, real ZMQ** — not a simulator, not a mock.
 2. **Guided, visual, auditable** — evaluators see and reproduce results without terminal expertise.
-3. **Honest engineering** — all limitations are documented inline (cluster mempool requires BC28+, regtest fee estimation caveats, experimental reorg).
+3. **Honest engineering** — all limitations are documented inline (cluster mempool requires BC31+, regtest fee estimation caveats, experimental reorg).
 4. **Proof reports** — every demo and scenario generates a verifiable JSON artifact.
 5. **Professional observability** — Prometheus metrics, operational alerting, reproducible benchmark.
 6. **Bilingual** — PT-BR / EN-US throughout.
@@ -85,14 +85,14 @@ Full evaluator guide: [docs/presentation/evaluator-checklist.md](evaluator-check
 ### Limitations (Honest)
 
 - All demo scenarios use Bitcoin Core regtest. No mainnet, no real value.
-- Cluster mempool RPCs require Bitcoin Core 28+. BC26 (used here) returns `unavailable`.
+- Cluster mempool RPCs require Bitcoin Core 31+. pre-31 nodes return `unavailable`.
 - Reorg Lab is experimental — reproducible in regtest, behavior depends on wallet state.
 - `estimatesmartfee` in regtest has limited historical data; some targets may return null fees.
 - SQLite history is local to the container volume.
 
 ### Next Steps
 
-- Cluster mempool visualization (Bitcoin Core 28+ compatibility)
+- Cluster mempool visualization (Bitcoin Core 31+ compatibility)
 - Signet / testnet read-only observation mode
 - OpenTelemetry traces for RPC, ZMQ, and API calls
 - Postgres / TimescaleDB for scalable event persistence
@@ -160,14 +160,14 @@ Guia completo: [docs/presentation/evaluator-checklist.md](evaluator-checklist.md
 ### Limitações (Honestas)
 
 - Todos os cenários de demo usam Bitcoin Core regtest. Sem mainnet, sem valor real.
-- RPCs de cluster mempool exigem Bitcoin Core 28+. BC26 retorna `unavailable`.
+- RPCs de cluster mempool exigem Bitcoin Core 31+. nós pré-31 retornam `unavailable`.
 - Reorg Lab é experimental.
 - `estimatesmartfee` em regtest tem histórico limitado; alguns alvos podem retornar taxas nulas.
 - Histórico SQLite é local ao volume do container.
 
 ### Próximos Passos
 
-- Visualização de cluster mempool (compatibilidade com BC28+)
+- Visualização de cluster mempool (compatibilidade com BC31+)
 - Modo de observação signet/testnet read-only
 - Traces OpenTelemetry para RPC, ZMQ e API
 - Postgres/TimescaleDB para persistência escalável de eventos

@@ -262,6 +262,9 @@ export interface Translations {
     supported: string
     notSupported: string
     fallback: string
+    fallbackGroups: string
+    nativeClusters: string
+    connectedNode: string
     checking: string
     txCount: string
     totalFee: string

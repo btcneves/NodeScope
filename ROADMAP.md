@@ -23,7 +23,7 @@ Everything below is shipped and functional in the current release.
 | ZMQ Event Tape | Live rawtx/rawblock stream with topic filters and tx linking |
 | Mempool Policy Arena | 4 scenarios: Normal, Low-fee, RBF (BIP125), CPFP |
 | Reorg Lab | 10-step controlled chain reorganization (experimental) |
-| Cluster Mempool Detector | Probes getmempoolcluster/getmempoolfeeratediagram; honest unavailable on BC26 |
+| Cluster Mempool Detector | Probes getmempoolcluster/getmempoolfeeratediagram; honest available on BC31 |
 | Proof Reports | JSON audit trail per demo/scenario/reorg run; copyable and downloadable |
 | Live Simulation Engine | Auto-mines blocks and sends transactions at configurable intervals |
 | Prometheus metrics (`/metrics`) | 24+ metrics covering HTTP, RPC, ZMQ, mempool, chain, simulation, storage |
@@ -32,7 +32,7 @@ Everything below is shipped and functional in the current release.
 | Historical trend charts | Mempool size and minimum fee time-series charts |
 | Read-only network guard | Blocks mutating lab operations outside regtest unless explicitly allowed |
 | API rate limiting | Sliding-window protection with demo-friendly defaults |
-| Visual cluster mempool view | Uses BC28+ cluster RPCs when available; otherwise displays honest fallback groups |
+| Visual cluster mempool view | Uses BC31+ cluster RPCs when available; otherwise displays honest fallback groups |
 | Optional API key auth | Mutating endpoints protected via `X-NodeScope-API-Key` when `NODESCOPE_REQUIRE_API_KEY=true` |
 | SQLite persistence | Proof reports, demo/policy/reorg run history; in-memory fallback if SQLite unavailable |
 | Historical Dashboard | Paginated view of all past runs across all scenario types |
@@ -65,7 +65,7 @@ Nothing is currently in active development.
 | Dashboard adapted for signet | Remove "mine block" controls; read-only mode indicators |
 | Mainnet read-only mode | `BITCOIN_NETWORK=mainnet` with explicit network safeguards |
 | Hosted deployment tuning | Public rate-limit profiles, reverse proxy examples, and SSE sizing |
-| Enhanced Bitcoin Core 28+ cluster views | More detailed diagrams when getmempoolcluster/getmempoolfeeratediagram are available |
+| Enhanced Bitcoin Core 31+ cluster views | More detailed diagrams when getmempoolcluster/getmempoolfeeratediagram are available |
 | Mempool eviction scenario | Demonstrate fee-based eviction from the mempool |
 | Advanced classification heuristics | UTXO consolidation, batch payments, Taproot script patterns |
 | OpenTelemetry traces | RPC, ZMQ, and API request traces |
@@ -87,7 +87,7 @@ Nothing is currently in active development.
 ## Design Principles
 
 - **Observable internals.** Every classification includes confidence signals. Every scenario generates a Proof Report.
-- **Honest accounting.** Unavailable features (cluster mempool on BC26, fee estimation in regtest) are reported as `unavailable` — never hidden or faked.
+- **Honest accounting.** Unavailable features (cluster mempool on pre-31 nodes, fee estimation in regtest) are reported as `unavailable` — never hidden or faked.
 - **Replayable data.** NDJSON logs are the durable source of truth; the engine can reprocess from scratch.
 - **No custodial operations.** NodeScope never signs transactions or manages private keys in production mode.
 - **Explicit network scoping.** regtest, signet, and mainnet will be explicitly configured and guarded.

@@ -86,8 +86,8 @@ def _ensure_funded() -> None:
 
     miner = _wallet_rpc(_MINER_WALLET)
     try:
-        info = miner.getwalletinfo()
-        balance = float(info.get("balance", 0))
+        balances = miner.getbalances()
+        balance = float(balances.get("mine", {}).get("trusted", 0))
         if balance < 1.0:
             addr = miner.getnewaddress("sim_funding", "bech32")
             logger.info("simulation: mining 101 initial blocks to fund miner wallet")
@@ -118,8 +118,8 @@ def _mine_block() -> None:
 def _send_transaction() -> None:
     miner = _wallet_rpc(_MINER_WALLET)
     try:
-        info = miner.getwalletinfo()
-        balance = float(info.get("balance", 0))
+        balances = miner.getbalances()
+        balance = float(balances.get("mine", {}).get("trusted", 0))
         if balance <= 0.01:
             logger.info("simulation: miner balance low (%.6f BTC), mining 5 more blocks", balance)
             addr = miner.getnewaddress("sim_refund", "bech32")
@@ -155,61 +155,66 @@ def _send_transaction() -> None:
 def _run_loop() -> None:
     global _block_interval, _tx_interval
 
-    logger.info(
-        "simulation: loop started (block_interval=%ds, tx_interval=%ds)",
-        _block_interval,
-        _tx_interval,
-    )
-
     try:
-        _ensure_funded()
+        logger.info(
+            "simulation: loop started (block_interval=%ds, tx_interval=%ds)",
+            _block_interval,
+            _tx_interval,
+        )
+
+        try:
+            _ensure_funded()
+        except Exception as exc:
+            logger.error("simulation: initial _ensure_funded failed: %s", exc)
+
+        last_block_time = time.time() - _block_interval  # trigger immediately
+        last_tx_time = time.time() - _tx_interval  # trigger immediately
+
+        while not _stop_event.is_set():
+            now = time.time()
+
+            # Capture current intervals (may change via configure())
+            with _lock:
+                bi = _block_interval
+                ti = _tx_interval
+
+            # Update countdowns
+            nb = max(0, int(bi - (now - last_block_time)))
+            nt = max(0, int(ti - (now - last_tx_time)))
+            with _lock:
+                _state["next_block_in"] = nb
+                _state["next_tx_in"] = nt
+
+            # Mine a block?
+            if now - last_block_time >= bi:
+                try:
+                    _mine_block()
+                except Exception as exc:
+                    logger.error("simulation: _mine_block error: %s", exc)
+                    with _lock:
+                        _state["errors"] += 1
+                last_block_time = time.time()
+
+            # Send a transaction?
+            if now - last_tx_time >= ti:
+                try:
+                    _send_transaction()
+                except Exception as exc:
+                    logger.error("simulation: _send_transaction error: %s", exc)
+                    with _lock:
+                        _state["errors"] += 1
+                last_tx_time = time.time()
+
+            _stop_event.wait(1)
     except Exception as exc:
-        logger.error("simulation: initial _ensure_funded failed: %s", exc)
-
-    last_block_time = time.time() - _block_interval  # trigger immediately
-    last_tx_time = time.time() - _tx_interval  # trigger immediately
-
-    while not _stop_event.is_set():
-        now = time.time()
-
-        # Capture current intervals (may change via configure())
+        logger.exception("simulation: loop crashed: %s", exc)
         with _lock:
-            bi = _block_interval
-            ti = _tx_interval
-
-        # Update countdowns
-        nb = max(0, int(bi - (now - last_block_time)))
-        nt = max(0, int(ti - (now - last_tx_time)))
+            _state["errors"] += 1
+    finally:
         with _lock:
-            _state["next_block_in"] = nb
-            _state["next_tx_in"] = nt
-
-        # Mine a block?
-        if now - last_block_time >= bi:
-            try:
-                _mine_block()
-            except Exception as exc:
-                logger.error("simulation: _mine_block error: %s", exc)
-                with _lock:
-                    _state["errors"] += 1
-            last_block_time = time.time()
-
-        # Send a transaction?
-        if now - last_tx_time >= ti:
-            try:
-                _send_transaction()
-            except Exception as exc:
-                logger.error("simulation: _send_transaction error: %s", exc)
-                with _lock:
-                    _state["errors"] += 1
-            last_tx_time = time.time()
-
-        _stop_event.wait(1)
-
-    with _lock:
-        _state["running"] = False
-        _state["next_block_in"] = None
-        _state["next_tx_in"] = None
+            _state["running"] = False
+            _state["next_block_in"] = None
+            _state["next_tx_in"] = None
 
     logger.info("simulation: loop stopped")
 
@@ -224,7 +229,7 @@ def start() -> dict[str, Any]:
 
     with _lock:
         readonly = _readonly_flag
-        already_running = bool(_state["running"])
+        already_running = bool(_state["running"]) and _thread is not None and _thread.is_alive()
     if readonly or already_running:
         return get_status()
 
@@ -277,6 +282,10 @@ def configure(block_interval: int | None = None, tx_interval: int | None = None)
 
 def get_status() -> dict[str, Any]:
     with _lock:
+        if _state["running"] and (_thread is None or not _thread.is_alive()):
+            _state["running"] = False
+            _state["next_block_in"] = None
+            _state["next_tx_in"] = None
         return {
             **_state,
             "read_only": _readonly_flag,

@@ -296,12 +296,12 @@ cluster mempool RPCs:
 - `getmempoolcluster`
 - `getmempoolfeeratediagram`
 
-If supported, they are used and results are displayed. If unavailable (Bitcoin Core 26 and earlier),
+If supported, they are used and results are displayed. If unavailable (Bitcoin Core versions before 31),
 NodeScope returns an honest `unavailable` status with a clear explanation — never a false positive.
 
 Available via `GET /mempool/cluster/compatibility`, `GET /mempool/clusters`, and the **Cluster Mempool** tab.
 
-> Cluster mempool RPCs are expected in Bitcoin Core 28+. This build uses Bitcoin Core 26.
+> Cluster mempool RPCs are expected in Bitcoin Core 31+. This build uses Bitcoin Core 31.
 
 ---
 
@@ -501,7 +501,7 @@ The dashboard includes an **Operational Alerts** panel that polls the API every 
 
 - Bitcoin Core RPC offline (critical)
 - Live simulation errors (warning)
-- Cluster mempool RPCs unavailable (info — expected on BC26)
+- Cluster mempool RPCs unavailable (info — expected on pre-31 nodes)
 - Reorg Lab experimental note (info)
 
 Alerts are displayed in EN-US or PT-BR according to the active language toggle.
@@ -523,7 +523,7 @@ Output: latency table (min/mean/median/p95/max) per endpoint. Results vary by ho
 ## Limitations
 
 - **Regtest-only** for demo scenarios. Mainnet/signet/testnet observability is possible with configuration changes but not validated in this release.
-- **Cluster mempool RPCs** (`getmempoolcluster`, `getmempoolfeeratediagram`) require Bitcoin Core 28+. This build uses Bitcoin Core 26 — these RPCs return `unavailable` with an honest explanation.
+- **Cluster mempool RPCs** (`getmempoolcluster`, `getmempoolfeeratediagram`) require Bitcoin Core 31+. This build uses Bitcoin Core 31 — these RPCs are available when the node is running.
 - **Reorg Lab** is marked **experimental**: the scenario is reproducible in regtest but may behave differently depending on wallet state.
 - **CPFP child construction** requires the parent output to be tracked in the wallet (`listunspent minconf=0`). If not found, a fallback path is used and the proof records it.
 - **ZMQ events** are stored as NDJSON in `logs/`. There is no persistence across container restarts.
@@ -538,7 +538,7 @@ Output: latency table (min/mean/median/p95/max) per endpoint. Results vary by ho
 |---|---|
 | Signet/testnet support | Planned |
 | Public-network read-only mode | Ready (network guard blocks lab mutations outside regtest) |
-| Cluster mempool visualization | Ready (fallback visual groups; BC28+ RPCs detected when available) |
+| Cluster mempool visualization | Ready (fallback visual groups; BC31+ RPCs detected when available) |
 | Mempool eviction scenario | Planned |
 | Multi-node topology | Planned |
 | Postgres / TimescaleDB for event persistence | Planned |

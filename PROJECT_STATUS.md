@@ -32,7 +32,7 @@ http://localhost:5173
 
 | Area | Status | Notes |
 |---|---|---|
-| Bitcoin Core regtest | Ready | Compose starts Bitcoin Core 26 without mainnet, wallet keys, or external services. |
+| Bitcoin Core regtest | Ready | Compose starts Bitcoin Core 31 without mainnet, wallet keys, or external services. |
 | RPC snapshot | Ready | FastAPI reads chain and mempool state through Bitcoin Core RPC. |
 | ZMQ rawtx/rawblock | Ready | Monitor subscribes to real regtest ZMQ events. |
 | NDJSON event logs | Ready | Monitor writes append-only logs under `logs/`. |
@@ -45,7 +45,7 @@ http://localhost:5173
 | ZMQ Event Tape | Ready | Live rawtx/rawblock event stream with topic filters and tx linking. |
 | Mempool Policy Arena | Ready | 4 runnable scenarios: normal, low-fee, RBF (bumpfee), CPFP (raw tx pipeline). |
 | Reorg Lab | Ready (experimental) | 10-step controlled reorg via invalidateblock/reconsiderblock in regtest. |
-| Cluster Mempool Detector | Ready | Detects getmempoolcluster/getmempoolfeeratediagram availability; unavailable on BC26 (documented). |
+| Cluster Mempool Detector | Ready | Detects getmempoolcluster/getmempoolfeeratediagram availability; available on BC31, with fallback for older nodes. |
 | Proof Reports | Ready | JSON proof exported per demo/scenario/reorg run; copiável e downloadable. |
 | Persistence (SQLite) | Ready | Local SQLite storage of proof reports, demo/policy/reorg run history. Memory fallback if SQLite unavailable. |
 | Historical Dashboard | Ready | Browser dashboard listing all past runs across Proof Reports, Demo Runs, Policy Runs, and Reorg Runs with copy-proof support. |
@@ -161,7 +161,7 @@ If SQLite initialisation fails, the API transparently falls back to an in-memory
 - The official demo uses Bitcoin Core regtest only; signet/mainnet operation is intentionally out of scope.
 - `logs/` is local runtime storage, not a production database.
 - Local non-Docker mode is available for development, but Docker is the validated judging path.
-- Cluster mempool RPCs (`getmempoolcluster`, `getmempoolfeeratediagram`) require Bitcoin Core v28+. BC26 returns `unavailable` (documented).
+- Cluster mempool RPCs (`getmempoolcluster`, `getmempoolfeeratediagram`) require Bitcoin Core v31+. pre-31 nodes return `unavailable` (documented).
 - Reorg Lab is experimental and runs only in regtest. Not suitable for production.
 - `prometheus-client` must be installed for `/metrics` to return Prometheus data (included in `requirements.txt`).
 - SQLite history database is local to the container volume. History does not survive `docker compose down -v` unless the volume is preserved.
@@ -196,4 +196,4 @@ If SQLite initialisation fails, the API transparently falls back to an in-memory
 | Multi-node support | Planned |
 | Kubernetes manifests / Helm chart | Planned |
 | signet / mainnet read-only guard | Ready (mutating lab endpoints blocked outside regtest) |
-| Cluster mempool visualization | Ready (fallback visual groups; BC28+ RPCs detected when available) |
+| Cluster mempool visualization | Ready (fallback visual groups; BC31+ RPCs detected when available) |

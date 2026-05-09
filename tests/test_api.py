@@ -26,7 +26,7 @@ from api.app import (
     tx_by_id,
 )
 from api.rpc import RPCError
-from api.service import iter_live_events_sse
+from api.service import get_cluster_compatibility, get_cluster_mempool_visual, iter_live_events_sse
 from engine.snapshot import load_snapshot
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -103,6 +103,78 @@ class ApiTests(unittest.TestCase):
         self.assertTrue(data["rpc_ok"])
         self.assertEqual(data["size"], 5)
         self.assertIsNone(data["error"])
+
+    def test_cluster_compatibility_rejects_pre_31_core(self) -> None:
+        with patch("api.service.get_client") as mock_get:
+            client = mock_get.return_value
+            client.getnetworkinfo.return_value = {
+                "subversion": "/Satoshi:28.4.0/",
+                "version": 280400,
+            }
+            data = get_cluster_compatibility()
+
+        self.assertFalse(data["supported"])
+        self.assertEqual(data["bitcoin_core_version"], "/Satoshi:28.4.0/")
+        self.assertIn("31.0", data["note"])
+        self.assertTrue(all(not item["supported"] for item in data["rpcs"]))
+        client.call.assert_not_called()
+
+    def test_cluster_compatibility_uses_help_probe_on_31_core(self) -> None:
+        with patch("api.service.get_client") as mock_get:
+            client = mock_get.return_value
+            client.getnetworkinfo.return_value = {
+                "subversion": "/Satoshi:31.0.0/",
+                "version": 310000,
+            }
+            client.call.return_value = "help text"
+            data = get_cluster_compatibility()
+
+        self.assertTrue(data["supported"])
+        self.assertIsNone(data["note"])
+        client.call.assert_any_call("help", ["getmempoolcluster"])
+        client.call.assert_any_call("help", ["getmempoolfeeratediagram"])
+
+    def test_mempool_clusters_use_native_rpc_when_available(self) -> None:
+        with patch("api.service.get_client") as mock_get:
+            client = mock_get.return_value
+            client.getrawmempool.return_value = {
+                "parent": {
+                    "vsize": 100,
+                    "fees": {"base": 0.00001},
+                    "depends": [],
+                    "spentby": ["child"],
+                },
+                "child": {
+                    "vsize": 120,
+                    "fees": {"base": 0.00003},
+                    "depends": ["parent"],
+                    "spentby": [],
+                },
+            }
+            client.call.side_effect = [
+                "help text",
+                {
+                    "clusterweight": 880,
+                    "txcount": 2,
+                    "chunks": [{"chunkfee": 4000, "chunkweight": 880, "txs": ["parent", "child"]}],
+                },
+                {
+                    "clusterweight": 880,
+                    "txcount": 2,
+                    "chunks": [{"chunkfee": 4000, "chunkweight": 880, "txs": ["parent", "child"]}],
+                },
+            ]
+
+            data = get_cluster_mempool_visual()
+
+        self.assertTrue(data["rpc_ok"])
+        self.assertEqual(data["cluster_count"], 1)
+        self.assertEqual(data["clusters"][0]["id"], "native-cluster-1")
+        self.assertEqual([tx["txid"] for tx in data["clusters"][0]["txs"]], ["parent", "child"])
+        self.assertEqual(data["clusters"][0]["total_vsize"], 220)
+        client.call.assert_any_call("help", ["getmempoolcluster"])
+        client.call.assert_any_call("getmempoolcluster", ["parent"])
+        client.call.assert_any_call("getmempoolcluster", ["child"])
 
     def test_summary_endpoint(self) -> None:
         data = summary(file=str(FIXTURE_FILE))

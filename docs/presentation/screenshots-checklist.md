@@ -87,7 +87,7 @@ Existing screenshots are in `docs/assets/`. New captures should be added there.
 
 | Screenshot | Filename | Notes |
 |---|---|---|
-| [ ] Cluster Mempool — unavailable message | `cluster-mempool-unavailable.png` | Shows honest "unavailable on BC26" message |
+| [ ] Cluster Mempool — BC31 available message | `cluster-mempool-unavailable.png` | Shows native BC31 cluster RPC availability |
 
 ---
 

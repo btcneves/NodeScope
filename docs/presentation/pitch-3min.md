@@ -55,7 +55,7 @@ React + TypeScript + Vite ─── Dashboard (frontend/)
 SQLite ──────────────────── Persistent proof storage (.nodescope/)
 ```
 
-Stack: Python 3.12 + FastAPI · React 18.3.1 + TypeScript + Vite 6 · Bitcoin Core 26 · Docker Compose (4 services)
+Stack: Python 3.12 + FastAPI · React 18.3.1 + TypeScript + Vite 6 · Bitcoin Core 31 · Docker Compose (4 services)
 
 ---
 
@@ -135,7 +135,7 @@ SQLite-backed persistence stores proof reports, demo runs, policy runs, and reor
 ### 12. Security and Limitations (15s)
 
 - Demo uses Bitcoin Core regtest only. No mainnet. No real money.
-- Cluster mempool RPCs (`getmempoolcluster`, `getmempoolfeeratediagram`) require Bitcoin Core 28+. BC26 returns `unavailable` with an honest explanation.
+- Cluster mempool RPCs (`getmempoolcluster`, `getmempoolfeeratediagram`) require Bitcoin Core 31+. pre-31 nodes return `unavailable` with an honest explanation.
 - Reorg Lab is experimental.
 - ZMQ is treated as a notification source; RPC is used for final validation.
 - No private keys, seeds, or wallet credentials in the repository.
@@ -186,7 +186,7 @@ Tudo em uma stack Docker reproduzível, sem passos manuais de terminal para aval
 
 ### 4. Arquitetura (resumida)
 
-Stack: Python 3.12 + FastAPI · React 18.3.1 + TypeScript + Vite 6 · Bitcoin Core 26 · Docker Compose (4 serviços: bitcoind, api, monitor, frontend)
+Stack: Python 3.12 + FastAPI · React 18.3.1 + TypeScript + Vite 6 · Bitcoin Core 31 · Docker Compose (4 serviços: bitcoind, api, monitor, frontend)
 
 ---
 

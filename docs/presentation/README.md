@@ -49,7 +49,7 @@ Open `http://localhost:5173` → click "Run Full Demo" in Guided Demo.
 | Python unit tests | 80 |
 | Prometheus metrics | 28+ |
 | i18n | PT-BR / EN-US |
-| Cluster mempool (BC28+ RPCs) | Unavailable on BC26 (documented) |
+| Cluster mempool (BC31+ RPCs) | Available on BC31; fallback on pre-31 nodes (documented) |
 | Reorg Lab | Ready (experimental) |
 
 ---
@@ -69,7 +69,7 @@ Open `http://localhost:5173` → click "Run Full Demo" in Guided Demo.
 ## Honest Limitations
 
 - Regtest only for all demo scenarios.
-- Cluster mempool RPCs require Bitcoin Core 28+.
+- Cluster mempool RPCs require Bitcoin Core 31+.
 - Reorg Lab is experimental.
 - `estimatesmartfee` in regtest may return null for some targets.
 - SQLite history is local to the container volume.

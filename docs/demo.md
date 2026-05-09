@@ -29,7 +29,7 @@ make docker-full-demo
 
 `docker compose up -d --build` starts:
 
-- Bitcoin Core 26 in regtest mode
+- Bitcoin Core 31 in regtest mode
 - ZMQ publishers for `rawtx` and `rawblock`
 - NodeScope monitor writing append-only NDJSON logs
 - FastAPI backend with REST and SSE endpoints

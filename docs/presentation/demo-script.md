@@ -182,7 +182,7 @@ Show:
 - If the Reorg Lab step hangs: cancel and show the proof from a previous run via Historical Dashboard.
 - If ZMQ Event Tape shows empty: run `make docker-demo` again to generate events.
 - If Fee Estimation returns `null` fees: expected in regtest — document it, do not avoid it.
-- Cluster Mempool Detector will always show `unavailable` on BC26 — show it honestly as a documented limitation.
+- Cluster Mempool Detector will show `unavailable` on pre-31 nodes — show it honestly as a documented limitation.
 - All timeouts and errors are shown in the UI; do not hide failures during demo.
 
 ---
