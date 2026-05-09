@@ -347,14 +347,17 @@ body::after {
 }
 
 .lab-visual {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.88fr);
+  gap: 16px;
+  align-content: start;
   min-height: 380px;
 }
 
 .lab-window {
-  position: absolute;
-  top: 28px;
-  right: 18px;
-  width: min(560px, 100%);
+  position: relative;
+  grid-column: 1 / -1;
+  width: 100%;
   overflow: hidden;
   border: 1px solid rgba(84, 199, 236, 0.32);
   border-radius: 8px;
@@ -400,8 +403,8 @@ body::after {
 }
 
 .lab-code-card {
-  position: absolute;
-  width: 270px;
+  width: 100%;
+  min-width: 0;
   padding: 16px;
   border: 1px solid rgba(247, 147, 26, 0.34);
   border-radius: 8px;
@@ -419,20 +422,20 @@ body::after {
 }
 
 .lab-code-card code {
+  display: block;
   color: var(--accent-bright);
   font-family: var(--font-mono);
   font-size: 12px;
   line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .lab-code-card-a {
-  left: 10px;
-  top: 172px;
+  grid-column: 1;
 }
 
 .lab-code-card-b {
-  right: 0;
-  bottom: 18px;
+  grid-column: 2;
   border-color: rgba(84, 199, 236, 0.34);
 }
 

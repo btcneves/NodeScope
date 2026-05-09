@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+import json
+import os
 import threading
+import time
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 
 from . import storage
@@ -49,6 +53,9 @@ STEP_TITLES = {
 
 DEMO_WALLET = "nodescope_demo"
 DEMO_AMOUNT = 0.001  # BTC sent in the demo tx
+MEMPOOL_DETECT_TIMEOUT_SECONDS = 6.0
+ZMQ_EVENT_TIMEOUT_SECONDS = 8.0
+DETECT_POLL_INTERVAL_SECONDS = 0.25
 
 
 def _now() -> str:
@@ -129,6 +136,72 @@ def _set_step(
 def _get_step_data(step_id: str) -> dict[str, Any]:
     with _state_lock:
         return dict(_state["steps"][step_id]["data"])
+
+
+def _iter_event_store() -> list[dict[str, Any]]:
+    """Read current NDJSON monitor events from newest files first."""
+    log_dir = Path(os.environ.get("NODESCOPE_LOG_DIR", "logs"))
+    if not log_dir.is_dir():
+        return []
+
+    events: list[dict[str, Any]] = []
+    for f in sorted(log_dir.glob("*.ndjson"), reverse=True):
+        try:
+            for line in f.read_text(encoding="utf-8").splitlines():
+                try:
+                    ev = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if isinstance(ev, dict):
+                    events.append(ev)
+        except OSError:
+            continue
+    return events
+
+
+def _find_zmq_event(event_name: str, data_key: str, expected_value: str) -> dict[str, Any] | None:
+    for ev in _iter_event_store():
+        if ev.get("event") != event_name:
+            continue
+        data = ev.get("data") if isinstance(ev.get("data"), dict) else {}
+        if data.get(data_key) == expected_value:
+            return ev
+    return None
+
+
+def _wait_for_zmq_event(
+    event_name: str,
+    data_key: str,
+    expected_value: str,
+    *,
+    timeout: float = ZMQ_EVENT_TIMEOUT_SECONDS,
+) -> dict[str, Any] | None:
+    deadline = time.monotonic() + timeout
+    while True:
+        ev = _find_zmq_event(event_name, data_key, expected_value)
+        if ev is not None:
+            return ev
+        if time.monotonic() >= deadline:
+            return None
+        time.sleep(DETECT_POLL_INTERVAL_SECONDS)
+
+
+def _wait_for_mempool_entry(
+    rpc: RPCClient,
+    txid: str,
+    *,
+    timeout: float = MEMPOOL_DETECT_TIMEOUT_SECONDS,
+) -> dict[str, Any]:
+    deadline = time.monotonic() + timeout
+    last_error: RPCError | None = None
+    while True:
+        try:
+            return rpc.getmempoolentry(txid)
+        except RPCError as exc:
+            last_error = exc
+            if time.monotonic() >= deadline:
+                raise last_error from exc
+            time.sleep(DETECT_POLL_INTERVAL_SECONDS)
 
 
 def run_step(step_id: str) -> dict[str, Any]:
@@ -408,7 +481,7 @@ def _step_detect_mempool_entry() -> None:
         return
     try:
         rpc = _wallet_rpc()
-        entry = rpc.getmempoolentry(txid)
+        entry = _wait_for_mempool_entry(rpc, txid)
         fee = entry.get("fees", {}).get("base")
         vsize = entry.get("vsize")
         fee_rate = round(fee / vsize * 1e8, 2) if fee and vsize else None
@@ -428,7 +501,7 @@ def _step_detect_mempool_entry() -> None:
         _set_step(
             "detect_mempool_entry",
             "error",
-            "Transaction not found in mempool.",
+            "Transaction not found in mempool after waiting briefly.",
             error=str(exc),
         )
 
@@ -450,39 +523,19 @@ def _step_detect_zmq_rawtx() -> None:
         )
         return
     try:
-        import os
-        from pathlib import Path
+        ev = _wait_for_zmq_event("zmq_rawtx", "txid", txid)
 
-        log_dir = Path(os.environ.get("NODESCOPE_LOG_DIR", "logs"))
-        found = False
-        if log_dir.is_dir():
-            import json as _json
-
-            for f in sorted(log_dir.glob("*.ndjson"), reverse=True):
-                try:
-                    for line in f.read_text().splitlines():
-                        try:
-                            ev = _json.loads(line)
-                            if (
-                                ev.get("event") == "zmq_rawtx"
-                                and ev.get("data", {}).get("txid") == txid
-                            ):
-                                found = True
-                                break
-                        except _json.JSONDecodeError:
-                            continue
-                except OSError:
-                    continue
-                if found:
-                    break
-
-        if found:
+        if ev is not None:
             _set_step(
                 "detect_zmq_rawtx",
                 "success",
                 f"ZMQ rawtx event found for TXID {txid[:12]}…",
-                technical={"txid": txid, "source": "ndjson_event_store"},
-                data={"rawtx_seen": True},
+                technical={
+                    "txid": txid,
+                    "source": "ndjson_event_store",
+                    "event_timestamp": ev.get("ts"),
+                },
+                data={"rawtx_seen": True, "rawtx_event_ts": ev.get("ts")},
             )
         else:
             _set_step(
@@ -491,11 +544,11 @@ def _step_detect_zmq_rawtx() -> None:
                 "TX broadcast confirmed via RPC. ZMQ rawtx event may not yet be in store.",
                 technical={
                     "txid": txid,
-                    "note": "event store lookup returned no match yet — ZMQ monitor processes asynchronously",
+                    "note": f"event store lookup returned no match after {ZMQ_EVENT_TIMEOUT_SECONDS:.0f}s — ZMQ monitor processes asynchronously",
                 },
                 data={
                     "rawtx_seen": False,
-                    "zmq_note": "async — may appear in store after a short delay",
+                    "zmq_note": f"async — no matching event after {ZMQ_EVENT_TIMEOUT_SECONDS:.0f}s",
                 },
             )
     except Exception as exc:
@@ -584,38 +637,19 @@ def _step_detect_zmq_rawblock() -> None:
         )
         return
     try:
-        import json as _json
-        import os
-        from pathlib import Path
+        ev = _wait_for_zmq_event("zmq_rawblock", "hash", block_hash)
 
-        log_dir = Path(os.environ.get("NODESCOPE_LOG_DIR", "logs"))
-        found = False
-        if log_dir.is_dir():
-            for f in sorted(log_dir.glob("*.ndjson"), reverse=True):
-                try:
-                    for line in f.read_text().splitlines():
-                        try:
-                            ev = _json.loads(line)
-                            if (
-                                ev.get("event") == "zmq_rawblock"
-                                and ev.get("data", {}).get("hash") == block_hash
-                            ):
-                                found = True
-                                break
-                        except _json.JSONDecodeError:
-                            continue
-                except OSError:
-                    continue
-                if found:
-                    break
-
-        if found:
+        if ev is not None:
             _set_step(
                 "detect_zmq_rawblock",
                 "success",
                 f"ZMQ rawblock event found for block {block_hash[:12]}…",
-                technical={"block_hash": block_hash, "source": "ndjson_event_store"},
-                data={"rawblock_seen": True},
+                technical={
+                    "block_hash": block_hash,
+                    "source": "ndjson_event_store",
+                    "event_timestamp": ev.get("ts"),
+                },
+                data={"rawblock_seen": True, "rawblock_event_ts": ev.get("ts")},
             )
         else:
             _set_step(
@@ -624,11 +658,11 @@ def _step_detect_zmq_rawblock() -> None:
                 "Block confirmed via RPC. ZMQ rawblock event may not yet be in store.",
                 technical={
                     "block_hash": block_hash,
-                    "note": "ZMQ monitor processes asynchronously",
+                    "note": f"no matching rawblock event after {ZMQ_EVENT_TIMEOUT_SECONDS:.0f}s — ZMQ monitor processes asynchronously",
                 },
                 data={
                     "rawblock_seen": False,
-                    "zmq_note": "async — may appear in store after a short delay",
+                    "zmq_note": f"async — no matching event after {ZMQ_EVENT_TIMEOUT_SECONDS:.0f}s",
                 },
             )
     except Exception as exc:
