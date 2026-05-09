@@ -46,20 +46,9 @@ export function ClassificationsTable({
         </span>
       </div>
       <div className="panel-body">
-        <div style={{ display: 'flex', gap: 8, marginBottom: 8, fontSize: 11 }}>
+        <div className="event-sortbar">
           {['ts', 'kind', 'confidence', 'inputs', 'outputs', 'total_out'].map((field) => (
-            <button
-              key={field}
-              onClick={() => onSort?.(field)}
-              style={{
-                background: 'transparent',
-                border: '1px solid #374151',
-                borderRadius: 4,
-                color: '#9ca3af',
-                cursor: 'pointer',
-                fontFamily: 'monospace',
-              }}
-            >
+            <button key={field} onClick={() => onSort?.(field)}>
               {field} {sortLabel(field)}
             </button>
           ))}
@@ -110,7 +99,9 @@ export function ClassificationsTable({
                   <span className="copy-feedback">{t.dashboard.copied}</span>
                 )}
                 <span
-                  className={reason ? 'copyable-text' : undefined}
+                  className={
+                    reason ? 'classification-reason copyable-text' : 'classification-reason'
+                  }
                   title={reason ? `${t.dashboard.copyReason}: ${reason}` : undefined}
                   onClick={() => void copyValue(reasonKey, reason)}
                   role={reason ? 'button' : undefined}
@@ -120,15 +111,6 @@ export function ClassificationsTable({
                       event.preventDefault()
                       void copyValue(reasonKey, reason)
                     }
-                  }}
-                  style={{
-                    fontSize: '11px',
-                    color: 'var(--muted)',
-                    marginLeft: 'auto',
-                    maxWidth: '200px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
                   }}
                 >
                   {reason ?? ''}

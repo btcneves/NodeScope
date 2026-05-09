@@ -33,35 +33,10 @@ export function ClusterMempoolPanel() {
   }, [fetchData])
 
   return (
-    <div
-      style={{
-        background: '#111827',
-        border: '1px solid #1f2937',
-        borderRadius: '8px',
-        padding: '16px',
-        fontFamily: 'monospace',
-        color: '#e5e7eb',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '12px',
-        }}
-      >
+    <div className="cluster-panel panel">
+      <div className="cluster-header">
         <div>
-          <div
-            style={{
-              fontSize: '13px',
-              fontWeight: 'bold',
-              color: '#f9fafb',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-            }}
-          >
+          <div className="cluster-title">
             <Term term="Cluster mempool">{t.cluster.title}</Term>
           </div>
           <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '2px' }}>
@@ -73,15 +48,7 @@ export function ClusterMempoolPanel() {
             void fetchData()
           }}
           disabled={loading}
-          style={{
-            padding: '4px 12px',
-            fontSize: '11px',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            background: 'transparent',
-            color: '#9ca3af',
-            border: '1px solid #374151',
-          }}
+          className="cluster-refresh-btn"
         >
           {loading ? '…' : t.cluster.refresh}
         </button>
@@ -126,7 +93,7 @@ export function ClusterMempoolPanel() {
                 {t.cluster.fallback}
               </div>
             )}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            <div className="cluster-map">
               {clusters.clusters.flatMap((cluster) =>
                 cluster.txs.map((tx) => {
                   const fee = tx.fee_rate_sat_vb
@@ -138,18 +105,12 @@ export function ClusterMempoolPanel() {
                       title={`${tx.txid} · ${fee} sat/vB`}
                       style={{
                         width: size,
-                        height: 38,
                         background: bg,
-                        border: '1px solid #374151',
-                        borderRadius: 4,
-                        padding: 5,
-                        overflow: 'hidden',
-                        fontSize: 10,
-                        color: '#e5e7eb',
                       }}
+                      className="cluster-tx-node"
                     >
                       <div>{fee} sat/vB</div>
-                      <div style={{ color: '#9ca3af' }}>{tx.txid.slice(0, 10)}…</div>
+                      <div>{tx.txid.slice(0, 10)}…</div>
                     </div>
                   )
                 })

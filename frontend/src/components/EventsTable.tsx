@@ -29,20 +29,9 @@ export function EventsTable({ events, sortBy = 'ts', sortDir = 'desc', onSort }:
         </span>
       </div>
       <div className="panel-body">
-        <div style={{ display: 'flex', gap: 8, marginBottom: 8, fontSize: 11 }}>
+        <div className="event-sortbar">
           {['ts', 'event', 'origin'].map((field) => (
-            <button
-              key={field}
-              onClick={() => onSort?.(field)}
-              style={{
-                background: 'transparent',
-                border: '1px solid #374151',
-                borderRadius: 4,
-                color: '#9ca3af',
-                cursor: 'pointer',
-                fontFamily: 'monospace',
-              }}
-            >
+            <button key={field} onClick={() => onSort?.(field)}>
               {field} {sortLabel(field)}
             </button>
           ))}
