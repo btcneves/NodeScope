@@ -200,7 +200,7 @@ def _wait_for_mempool_entry(
         except RPCError as exc:
             last_error = exc
             if time.monotonic() >= deadline:
-                raise last_error
+                raise last_error from exc
             time.sleep(DETECT_POLL_INTERVAL_SECONDS)
 
 
