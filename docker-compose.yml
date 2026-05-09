@@ -8,7 +8,7 @@ x-logging: &default-logging
 
 services:
   nodescope-bitcoind:
-    image: bitcoin/bitcoin:28
+    image: bitcoin/bitcoin:31
     container_name: nodescope-bitcoind
     restart: unless-stopped
     command:

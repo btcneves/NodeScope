@@ -53,7 +53,7 @@ NodeScope provides that layer: a real-time dashboard backed by direct Bitcoin Co
 | Storage | SQLite (primary) + in-memory fallback |
 | Observability | prometheus-client |
 | Frontend | React 18.3.1 + TypeScript + Vite 6.0.5 |
-| Bitcoin node | Bitcoin Core 26 (regtest) |
+| Bitcoin node | Bitcoin Core 31 (regtest) |
 | Infrastructure | Docker Compose (4 services) |
 | i18n | PT-BR / EN-US (all views) |
 | CI | GitHub Actions (Python 3.12, Node 18/20/24, public-clean check) |
@@ -85,7 +85,7 @@ Full evaluator guide: [docs/presentation/evaluator-checklist.md](evaluator-check
 ### Limitations (Honest)
 
 - All demo scenarios use Bitcoin Core regtest. No mainnet, no real value.
-- Cluster mempool RPCs require Bitcoin Core 31+. BC26 (used here) returns `unavailable`.
+- Cluster mempool RPCs require Bitcoin Core 31+. pre-31 nodes return `unavailable`.
 - Reorg Lab is experimental — reproducible in regtest, behavior depends on wallet state.
 - `estimatesmartfee` in regtest has limited historical data; some targets may return null fees.
 - SQLite history is local to the container volume.
@@ -160,7 +160,7 @@ Guia completo: [docs/presentation/evaluator-checklist.md](evaluator-checklist.md
 ### Limitações (Honestas)
 
 - Todos os cenários de demo usam Bitcoin Core regtest. Sem mainnet, sem valor real.
-- RPCs de cluster mempool exigem Bitcoin Core 31+. BC26 retorna `unavailable`.
+- RPCs de cluster mempool exigem Bitcoin Core 31+. nós pré-31 retornam `unavailable`.
 - Reorg Lab é experimental.
 - `estimatesmartfee` em regtest tem histórico limitado; alguns alvos podem retornar taxas nulas.
 - Histórico SQLite é local ao volume do container.

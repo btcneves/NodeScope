@@ -915,9 +915,89 @@ def _fee_rate_sat_vb(entry: dict[str, Any]) -> float:
     return round(float(fee) * 100_000_000 / vsize, 2)
 
 
-def get_cluster_mempool_visual() -> dict[str, Any]:
+def _serialize_cluster(
+    cluster_id: str,
+    txids: list[str],
+    mempool: dict[str, dict[str, Any]],
+    total_vsize: int | None = None,
+) -> dict[str, Any]:
+    tx_items = []
+    computed_vsize = 0
+    total_fee = 0.0
+    for txid in txids:
+        entry = mempool.get(txid, {})
+        vsize = int(entry.get("vsize") or entry.get("weight", 0) / 4 or 0)
+        fee = float(entry.get("fees", {}).get("base", entry.get("fee", 0)))
+        computed_vsize += vsize
+        total_fee += fee
+        tx_items.append(
+            {
+                "txid": txid,
+                "vsize": vsize,
+                "fee_btc": fee,
+                "fee_rate_sat_vb": _fee_rate_sat_vb(entry),
+                "depends": entry.get("depends") or [],
+                "spentby": entry.get("spentby") or [],
+            }
+        )
+
+    return {
+        "id": cluster_id,
+        "tx_count": len(tx_items),
+        "total_vsize": total_vsize if total_vsize is not None else computed_vsize,
+        "total_fee_btc": round(total_fee, 8),
+        "avg_fee_rate_sat_vb": round(
+            sum(tx["fee_rate_sat_vb"] for tx in tx_items) / len(tx_items), 2
+        )
+        if tx_items
+        else 0,
+        "txs": tx_items,
+    }
+
+
+def _get_native_mempool_clusters(
+    rpc: Any, mempool: dict[str, dict[str, Any]]
+) -> list[dict[str, Any]] | None:
     try:
-        raw = get_client().getrawmempool(verbose=True)
+        rpc.call("help", ["getmempoolcluster"])
+    except RPCError:
+        return None
+
+    clusters = []
+    seen: set[frozenset[str]] = set()
+    for txid in sorted(mempool):
+        try:
+            native = rpc.call("getmempoolcluster", [txid])
+        except RPCError:
+            return None
+        chunk_txids = [
+            chunk_txid
+            for chunk in native.get("chunks", [])
+            for chunk_txid in chunk.get("txs", [])
+            if chunk_txid in mempool
+        ]
+        if not chunk_txids:
+            continue
+        key = frozenset(chunk_txids)
+        if key in seen:
+            continue
+        seen.add(key)
+        clusters.append(
+            _serialize_cluster(
+                f"native-cluster-{len(clusters) + 1}",
+                chunk_txids,
+                mempool,
+                total_vsize=int(native.get("clusterweight", 0) / 4),
+            )
+        )
+
+    return clusters
+
+
+def get_cluster_mempool_visual() -> dict[str, Any]:
+    rpc = get_client()
+    try:
+        raw = rpc.getrawmempool(verbose=True)
         if not isinstance(raw, dict):
             raw = {}
     except RPCError as exc:
@@ -929,41 +1009,20 @@ def get_cluster_mempool_visual() -> dict[str, Any]:
             "error": str(exc),
         }
 
+    native_clusters = _get_native_mempool_clusters(rpc, raw)
+    if native_clusters is not None:
+        native_clusters.sort(key=lambda item: (item["tx_count"], item["total_vsize"]), reverse=True)
+        return {
+            "clusters": native_clusters,
+            "total_tx_count": len(raw),
+            "cluster_count": len(native_clusters),
+            "rpc_ok": True,
+            "error": None,
+        }
+
     clusters = []
     for index, txids in enumerate(_build_clusters(raw), start=1):
-        tx_items = []
-        total_vsize = 0
-        total_fee = 0.0
-        for txid in sorted(txids):
-            entry = raw[txid]
-            vsize = int(entry.get("vsize") or entry.get("weight", 0) / 4 or 0)
-            fee = float(entry.get("fees", {}).get("base", entry.get("fee", 0)))
-            total_vsize += vsize
-            total_fee += fee
-            tx_items.append(
-                {
-                    "txid": txid,
-                    "vsize": vsize,
-                    "fee_btc": fee,
-                    "fee_rate_sat_vb": _fee_rate_sat_vb(entry),
-                    "depends": entry.get("depends") or [],
-                    "spentby": entry.get("spentby") or [],
-                }
-            )
-        clusters.append(
-            {
-                "id": f"cluster-{index}",
-                "tx_count": len(tx_items),
-                "total_vsize": total_vsize,
-                "total_fee_btc": round(total_fee, 8),
-                "avg_fee_rate_sat_vb": round(
-                    sum(tx["fee_rate_sat_vb"] for tx in tx_items) / len(tx_items), 2
-                )
-                if tx_items
-                else 0,
-                "txs": tx_items,
-            }
-        )
+        clusters.append(_serialize_cluster(f"fallback-group-{index}", sorted(txids), raw))
 
     clusters.sort(key=lambda item: (item["tx_count"], item["total_vsize"]), reverse=True)
     return {

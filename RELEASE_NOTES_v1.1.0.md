@@ -61,7 +61,7 @@ RPC offline (critical), simulation errors (warning), cluster mempool unavailable
 
 **Cluster Mempool Detector**
 Probes `getmempoolcluster` and `getmempoolfeeratediagram`. Returns an honest `unavailable`
-on Bitcoin Core 26 — never a false positive. Ready for Bitcoin Core 31+.
+on pre-31 Bitcoin Core nodes — never a false positive. Ready for Bitcoin Core 31+.
 
 ---
 
@@ -155,7 +155,7 @@ No database migrations required. SQLite history is created automatically on firs
 ## Known Limitations
 
 - Regtest-only for demo scenarios. Signet/mainnet support is planned.
-- Cluster mempool RPCs require Bitcoin Core 31+. This release uses Bitcoin Core 26 — `getmempoolcluster` returns `unavailable`.
+- Cluster mempool RPCs require Bitcoin Core 31+. This release uses Bitcoin Core 31 — `getmempoolcluster` is available.
 - Reorg Lab is marked experimental. Behavior may vary depending on wallet state.
 - SQLite history is local to the container volume and does not survive `docker compose down -v`.
 - `estimatesmartfee` returns `unavailable` or `limited` in regtest — no real fee market exists.

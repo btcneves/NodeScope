@@ -135,7 +135,7 @@ No. The entire demo stack is self-contained:
 ## What are the limitations?
 
 - **Regtest only**: All demo scenarios use Bitcoin Core regtest. No mainnet or signet validation.
-- **Cluster mempool**: `getmempoolcluster` and `getmempoolfeeratediagram` require Bitcoin Core 31+. BC26 (used here) does not support them — the UI shows this clearly.
+- **Cluster mempool**: `getmempoolcluster` and `getmempoolfeeratediagram` require Bitcoin Core 31+. pre-31 nodes do not support them — the UI shows this clearly.
 - **Reorg Lab**: Experimental. Results depend on wallet state.
 - **Fee Estimation**: `estimatesmartfee` in regtest may return null fees for some targets due to limited fee history.
 - **History**: SQLite is local to the container volume and does not survive `docker compose down -v`.

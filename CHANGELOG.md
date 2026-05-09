@@ -59,7 +59,7 @@ instrumentation, and a complete bilingual interface.
   - `/fees/compare` shows estimates alongside fee rates from most recent demo/policy runs
 
 - **Cluster Mempool Detector** — `GET /mempool/cluster/compatibility`, `ClusterMempoolPanel.tsx`
-  - Probes `getmempoolcluster` and `getmempoolfeeratediagram`; reports `unavailable` on BC26 without false positives
+  - Probes `getmempoolcluster` and `getmempoolfeeratediagram`; reports `unavailable` on pre-31 nodes without false positives
 
 ### Added — Live Simulation
 

@@ -49,7 +49,7 @@ Open `http://localhost:5173` → click "Run Full Demo" in Guided Demo.
 | Python unit tests | 80 |
 | Prometheus metrics | 28+ |
 | i18n | PT-BR / EN-US |
-| Cluster mempool (BC31+ RPCs) | Unavailable on BC26 (documented) |
+| Cluster mempool (BC31+ RPCs) | Available on BC31; fallback on pre-31 nodes (documented) |
 | Reorg Lab | Ready (experimental) |
 
 ---
