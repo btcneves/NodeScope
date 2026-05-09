@@ -61,26 +61,19 @@ export function Header({
   return (
     <header className="header">
       <div className="header-brand">
+        <span className="header-mark" aria-hidden="true">
+          &lt;n&gt;
+        </span>
         <span className="header-title">{t.header.title}</span>
         <span className={`badge ${networkClass}`}>{network}</span>
       </div>
 
-      {/* Nav tabs */}
       <div className="header-nav">
         {NAV.map(({ id, label }) => (
           <button
             key={id}
+            className={activeView === id ? 'is-active' : undefined}
             onClick={() => onSetView(id)}
-            style={{
-              padding: '4px 12px',
-              fontSize: '12px',
-              background: activeView === id ? '#1d4ed8' : 'transparent',
-              color: activeView === id ? '#fff' : '#9ca3af',
-              border: activeView === id ? '1px solid #3b82f6' : '1px solid #374151',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontFamily: 'monospace',
-            }}
           >
             {label}
           </button>
@@ -94,18 +87,8 @@ export function Header({
             <button
               key={value}
               onClick={() => setLang(value)}
+              className={lang === value ? 'is-active' : undefined}
               title={value}
-              style={{
-                padding: '2px 7px',
-                fontSize: '11px',
-                background: lang === value ? '#1d4ed8' : 'transparent',
-                color: lang === value ? '#fff' : '#6b7280',
-                border: lang === value ? '1px solid #3b82f6' : '1px solid #374151',
-                borderRadius: '3px',
-                cursor: 'pointer',
-                fontFamily: 'monospace',
-                fontWeight: lang === value ? 700 : 400,
-              }}
             >
               {label}
             </button>
@@ -128,19 +111,7 @@ export function Header({
           {t.actions.refresh}
         </button>
         {onNewSession && (
-          <button
-            onClick={onNewSession}
-            style={{
-              padding: '4px 10px',
-              fontSize: '11px',
-              background: 'transparent',
-              color: '#6b7280',
-              border: '1px solid #374151',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontFamily: 'monospace',
-            }}
-          >
+          <button onClick={onNewSession} className="session-btn">
             {t.header.newSession}
           </button>
         )}

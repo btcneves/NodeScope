@@ -239,12 +239,11 @@ export function TransactionLifecycle({
 
       {vertical ? (
         /* ── Vertical layout (right-column panel) ── */
-        <div style={{ padding: '12px 16px 4px' }}>
+        <div className="lifecycle-vertical-body">
           {stages.map((stage, i) => (
             <div key={stage.id}>
               <div
                 className={`lifecycle-step--active-vert ${stage.active ? 'lifecycle-step--active' : ''}`}
-                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '4px 0' }}
               >
                 <div className="lifecycle-dot" style={{ flexShrink: 0 }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -272,15 +271,9 @@ export function TransactionLifecycle({
               </div>
               {i < stages.length - 1 && (
                 <div
-                  style={{
-                    marginLeft: 5,
-                    width: 2,
-                    height: 12,
-                    background: stage.active ? 'var(--accent-bright)' : 'var(--border)',
-                    opacity: stage.active ? 0.6 : 1,
-                    transition: 'background 0.3s',
-                    borderRadius: 1,
-                  }}
+                  className={`lifecycle-vertical-connector ${
+                    stage.active ? 'lifecycle-vertical-connector--active' : ''
+                  }`}
                 />
               )}
             </div>
@@ -310,21 +303,15 @@ export function TransactionLifecycle({
 
       {/* Status bar: idle waiting / confirmed */}
       <div
-        style={{
-          padding: '7px 16px',
-          borderTop: '1px solid var(--border)',
-          fontSize: 11,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
-          color: effectiveTracked?.confirmed
-            ? '#22c55e'
+        className={`lifecycle-status-bar ${
+          effectiveTracked?.confirmed
+            ? 'lifecycle-status-bar--confirmed'
             : effectiveTracked
-              ? '#f59e0b'
+              ? 'lifecycle-status-bar--tracking'
               : idleUnavailable
-                ? '#6b7280'
-                : '#4b5563',
-        }}
+                ? 'lifecycle-status-bar--unavailable'
+                : ''
+        }`}
       >
         {effectiveTracked?.confirmed ? (
           <>

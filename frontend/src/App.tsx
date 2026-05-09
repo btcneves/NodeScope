@@ -124,6 +124,44 @@ export default function App() {
   const rpcOk = health?.rpc_ok ?? false
   const apiOk = health !== null
   const isReadOnly = networkMode?.read_only ?? false
+  const dashboardCopy =
+    lang === 'pt-BR'
+      ? {
+          tag: 'btcneves@nodescope:~$ inspect bitcoin-core',
+          title: 'Bitcoin Core Professional Lab',
+          subtitle:
+            'Laboratorio visual, guiado e auditavel para observar RPC, ZMQ, mempool, blocos e transacoes em tempo real.',
+          primary: 'Executar demo guiada',
+          secondary: 'Inspecionar TXID',
+          tertiary: 'Ver fita ZMQ',
+          consoleTitle: 'live node console',
+          visualTitle: 'observability matrix',
+          proof: 'Proof Report',
+          modules: [
+            ['RPC real', 'health, blocks, tx decode', 'live'],
+            ['ZMQ rawtx/rawblock', 'eventos validados por RPC', 'stream'],
+            ['Mempool policy', 'RBF, CPFP e fee rate', 'lab'],
+            ['Cluster mempool', 'detectado em runtime', 'fallback'],
+          ],
+        }
+      : {
+          tag: 'btcneves@nodescope:~$ inspect bitcoin-core',
+          title: 'Bitcoin Core Professional Lab',
+          subtitle:
+            'A visual, guided and auditable lab for observing RPC, ZMQ, mempool, blocks and transactions in real time.',
+          primary: 'Run guided demo',
+          secondary: 'Inspect TXID',
+          tertiary: 'Open ZMQ tape',
+          consoleTitle: 'live node console',
+          visualTitle: 'observability matrix',
+          proof: 'Proof Report',
+          modules: [
+            ['Real RPC', 'health, blocks, tx decode', 'live'],
+            ['ZMQ rawtx/rawblock', 'events validated by RPC', 'stream'],
+            ['Mempool policy', 'RBF, CPFP and fee rate', 'lab'],
+            ['Cluster mempool', 'detected at runtime', 'fallback'],
+          ],
+        }
 
   const handleInspect = (txid: string) => {
     setInspectorTxid(txid)
@@ -178,33 +216,13 @@ export default function App() {
         <div className="app" style={{ height: '100vh', overflow: 'hidden' }}>
           {header}
           {readOnlyBanner}
-          <div
-            style={{
-              display: 'flex',
-              gap: '20px',
-              padding: '16px 24px',
-              height: 'calc(100vh - 56px)',
-              overflow: 'hidden',
-              maxWidth: '1300px',
-              margin: '0 auto',
-              width: '100%',
-            }}
-          >
+          <div className="guided-demo-workspace">
             {/* Left: scrollable steps list */}
-            <div style={{ flex: 1, overflowY: 'auto', minWidth: 0, paddingRight: 4 }}>
+            <div className="guided-demo-main">
               <GuidedDemo onStepsChange={setGuidedDemoSteps} readOnly={isReadOnly} />
             </div>
             {/* Right: fixed sidebar — lifecycle + explain */}
-            <div
-              style={{
-                width: '300px',
-                flexShrink: 0,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px',
-                overflowY: 'auto',
-              }}
-            >
+            <div className="guided-demo-sidebar">
               <TransactionLifecycle
                 rpcOk={rpcOk}
                 zmqConnected={sseConnected}
@@ -306,6 +324,69 @@ export default function App() {
           {header}
           {readOnlyBanner}
           <main className="main">
+            <section className="lab-hero" aria-label="NodeScope Bitcoin Core lab overview">
+              <div className="lab-hero-copy">
+                <div className="terminal-pill">~ {dashboardCopy.tag}|</div>
+                <h1>{dashboardCopy.title}</h1>
+                <p>{dashboardCopy.subtitle}</p>
+                <div className="lab-hero-actions">
+                  <button className="lab-primary-btn" onClick={() => setActiveView('guided-demo')}>
+                    {dashboardCopy.primary}
+                  </button>
+                  <button className="lab-secondary-btn" onClick={() => setActiveView('inspector')}>
+                    {dashboardCopy.secondary}
+                  </button>
+                  <button className="lab-secondary-btn" onClick={() => setActiveView('zmq-tape')}>
+                    {dashboardCopy.tertiary}
+                  </button>
+                </div>
+                <div className="lab-signal-row">
+                  <span className={apiOk ? 'signal-ok' : 'signal-error'}>API</span>
+                  <span className={rpcOk ? 'signal-ok' : 'signal-error'}>RPC</span>
+                  <span className={sseConnected ? 'signal-ok' : 'signal-warn'}>SSE/ZMQ</span>
+                  <span>{network}</span>
+                </div>
+              </div>
+
+              <div className="lab-visual" aria-hidden="true">
+                <div className="lab-window">
+                  <div className="lab-window-bar">
+                    <span />
+                    <span />
+                    <span />
+                    <strong>{dashboardCopy.consoleTitle}</strong>
+                  </div>
+                  <pre>{`bitcoin-cli -regtest getblockchaininfo
+chain=${network}
+rpc_ok=${String(rpcOk)}
+blocks=${health?.blocks ?? 'loading'}
+
+zmq: rawtx=${sseConnected ? 'subscribed' : 'waiting'}
+mempool.txs=${mempool?.size ?? 0}
+proof=${summary ? 'replayable' : 'collecting'}`}</pre>
+                </div>
+                <div className="lab-code-card lab-code-card-a">
+                  <span>{dashboardCopy.proof}</span>
+                  <code>txid + vbytes + fee_rate</code>
+                </div>
+                <div className="lab-code-card lab-code-card-b">
+                  <span>{dashboardCopy.visualTitle}</span>
+                  <code>{'RPC -> ZMQ -> mempool -> block'}</code>
+                </div>
+              </div>
+            </section>
+
+            <section className="lab-module-grid" aria-label="NodeScope capability map">
+              {dashboardCopy.modules.map(([title, body, status]) => (
+                <article className="lab-module" key={title}>
+                  <div className="module-icon">&lt;/&gt;</div>
+                  <h2>{title}</h2>
+                  <p>{body}</p>
+                  <span>{status}</span>
+                </article>
+              ))}
+            </section>
+
             <ExplainBox text={t.explain.dashboard} />
             <AlertingPanel readOnly={isReadOnly} />
             <KpiRow summary={summary} mempool={mempool} health={health} />

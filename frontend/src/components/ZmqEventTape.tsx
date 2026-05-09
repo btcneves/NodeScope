@@ -14,50 +14,30 @@ function EventRow({ ev, onInspect }: { ev: TapeEvent; onInspect: (txid: string) 
   const isRawtx = ev.topic === 'rawtx'
   const topicColor = isRawtx ? '#60a5fa' : '#a78bfa'
   const topicLabel = isRawtx ? t.zmq.rawTx : t.zmq.rawBlock
+  const scriptSummary =
+    isRawtx && ev.script_types.length > 0 ? ev.script_types.slice(0, 2).join(', ') : ''
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '10px',
-        padding: '8px 12px',
-        background: '#0f172a',
-        border: '1px solid #1f2937',
-        borderRadius: '4px',
-        marginBottom: '4px',
-        fontSize: '11px',
-        fontFamily: 'monospace',
-      }}
-    >
+    <div className="zmq-tape-row">
       <span
+        className="zmq-topic-pill"
         style={{
-          minWidth: '68px',
-          flexShrink: 0,
-          padding: '2px 6px',
-          borderRadius: '3px',
           background: topicColor + '22',
           color: topicColor,
           border: `1px solid ${topicColor}44`,
-          fontWeight: 700,
-          fontSize: '10px',
-          textAlign: 'center',
         }}
       >
         {topicLabel}
       </span>
 
-      <span style={{ color: '#4b5563', flex: '1 1 170px', minWidth: 0 }}>
-        {ev.ts ? ev.ts.replace('T', ' ').slice(0, 23) : '—'}
-      </span>
+      <span className="zmq-timestamp">{ev.ts ? ev.ts.replace('T', ' ').slice(0, 23) : '—'}</span>
 
-      <span style={{ color: '#d1d5db', flex: '1 1 130px', minWidth: 0 }}>
+      <span className="zmq-identifier">
         {isRawtx ? (
           ev.txid ? (
             <span
               title={ev.txid}
-              style={{ cursor: 'pointer', color: '#93c5fd', textDecoration: 'underline' }}
+              className="zmq-id-link"
               onClick={() => ev.txid && onInspect(ev.txid)}
             >
               {ev.short_id ?? ev.txid.slice(0, 16) + '…'}
@@ -69,38 +49,24 @@ function EventRow({ ev, onInspect }: { ev: TapeEvent; onInspect: (txid: string) 
           <span title={ev.blockhash ?? undefined} style={{ color: '#c4b5fd' }}>
             {ev.blockhash ? (ev.short_id ?? ev.blockhash.slice(0, 16) + '…') : '—'}
             {ev.height !== null && ev.height !== undefined ? (
-              <span style={{ color: '#6b7280', marginLeft: '6px' }}>h={ev.height}</span>
+              <span className="zmq-height">h={ev.height}</span>
             ) : null}
           </span>
         )}
       </span>
 
-      {isRawtx && ev.vsize != null && (
-        <span style={{ color: '#6b7280', minWidth: '80px' }}>{ev.vsize} vbytes</span>
-      )}
-      {isRawtx && ev.has_op_return && <span style={{ color: '#f59e0b' }}>OP_RETURN</span>}
-      {isRawtx && ev.script_types.length > 0 && (
-        <span style={{ color: '#4b5563', overflowWrap: 'anywhere' }}>
-          {ev.script_types.slice(0, 2).join(', ')}
-        </span>
-      )}
+      <span className="zmq-flag">{isRawtx && ev.has_op_return ? 'OP_RETURN' : ''}</span>
+
+      <span className="zmq-script-types" title={scriptSummary}>
+        {scriptSummary}
+      </span>
 
       {isRawtx && ev.txid && (
-        <button
-          onClick={() => ev.txid && onInspect(ev.txid)}
-          style={{
-            padding: '2px 8px',
-            fontSize: '10px',
-            background: '#1e3a5f',
-            color: '#93c5fd',
-            border: '1px solid #1d4ed822',
-            borderRadius: '3px',
-            cursor: 'pointer',
-          }}
-        >
+        <button className="zmq-inspect-btn" onClick={() => ev.txid && onInspect(ev.txid)}>
           {t.actions.inspect} →
         </button>
       )}
+      {(!isRawtx || !ev.txid) && <span className="zmq-action-spacer" />}
     </div>
   )
 }
@@ -153,23 +119,13 @@ export function ZmqEventTape({ onInspectTxid }: Props) {
   })
 
   return (
-    <div style={{ fontFamily: 'monospace', color: '#e5e7eb' }}>
+    <div className="zmq-tape-shell">
       {/* Header */}
       <div style={{ marginBottom: '16px' }}>
-        <div
-          style={{
-            fontSize: '18px',
-            fontWeight: 700,
-            color: '#f9fafb',
-            marginBottom: '4px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-          }}
-        >
+        <div className="view-title">
           <Term term="ZMQ">{t.zmq.title}</Term>
         </div>
-        <div style={{ fontSize: '12px', color: '#9ca3af' }}>{t.zmq.subtitle}</div>
+        <div className="view-subtitle">{t.zmq.subtitle}</div>
       </div>
 
       {/* Controls */}
@@ -237,20 +193,13 @@ export function ZmqEventTape({ onInspectTxid }: Props) {
 
       {/* Column headers */}
       {items.length > 0 && (
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '10px',
-            padding: '4px 12px',
-            fontSize: '10px',
-            color: '#4b5563',
-            marginBottom: '2px',
-          }}
-        >
-          <span style={{ minWidth: '68px' }}>topic</span>
-          <span style={{ minWidth: '190px' }}>timestamp (UTC)</span>
+        <div className="zmq-tape-head">
+          <span>topic</span>
+          <span>timestamp (UTC)</span>
           <span>id</span>
+          <span>flags</span>
+          <span>script</span>
+          <span>action</span>
         </div>
       )}
 
@@ -269,9 +218,13 @@ export function ZmqEventTape({ onInspectTxid }: Props) {
           {data ? t.zmq.noEvents : t.status.loading}
         </div>
       )}
-      {items.map((ev, i) => (
-        <EventRow key={`${ev.ts ?? i}-${i}`} ev={ev} onInspect={onInspectTxid} />
-      ))}
+      {items.length > 0 && (
+        <div className="zmq-tape-list">
+          {items.map((ev, i) => (
+            <EventRow key={`${ev.ts ?? i}-${i}`} ev={ev} onInspect={onInspectTxid} />
+          ))}
+        </div>
+      )}
 
       <LearnMore>{t.learn.zmq}</LearnMore>
     </div>
