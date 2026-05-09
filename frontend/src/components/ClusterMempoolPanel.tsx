@@ -11,6 +11,7 @@ export function ClusterMempoolPanel() {
   const [clusters, setClusters] = useState<MempoolClustersData | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const hasNativeClusterRpc = data?.supported === true
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -68,27 +69,49 @@ export function ClusterMempoolPanel() {
                 display: 'inline-block',
                 padding: '2px 8px',
                 fontSize: '10px',
-                background: '#1f2937',
-                border: '1px solid #374151',
+                background: hasNativeClusterRpc ? '#052e16' : '#1f2937',
+                border: `1px solid ${hasNativeClusterRpc ? '#166534' : '#374151'}`,
                 borderRadius: '4px',
-                color: '#9ca3af',
+                color: hasNativeClusterRpc ? '#86efac' : '#d1d5db',
+                marginBottom: data.supported ? '12px' : '8px',
+              }}
+            >
+              {t.cluster.connectedNode}: {data.bitcoin_core_version}
+            </div>
+          )}
+
+          {data && !data.supported && (
+            <div
+              style={{
+                border: '1px solid #78350f',
+                background: '#451a03',
+                color: '#fbbf24',
+                borderRadius: '6px',
+                fontSize: '11px',
+                lineHeight: 1.45,
+                padding: '8px 10px',
                 marginBottom: '12px',
               }}
             >
-              {data.bitcoin_core_version}
+              <div style={{ fontWeight: 700, marginBottom: '2px' }}>
+                {t.cluster.notSupported}
+              </div>
+              <div>{data.note ?? data.message}</div>
             </div>
           )}
 
           <div style={{ marginBottom: 12 }}>
             <div style={{ fontSize: 11, color: '#9ca3af', marginBottom: 8 }}>
-              {clusters.cluster_count} clusters · {clusters.total_tx_count} tx
+              {clusters.cluster_count}{' '}
+              {hasNativeClusterRpc ? t.cluster.nativeClusters : t.cluster.fallbackGroups} ·{' '}
+              {clusters.total_tx_count} tx
             </div>
             {!clusters.rpc_ok && clusters.error && (
               <div style={{ fontSize: 11, color: '#f87171', marginBottom: 8 }}>
                 {clusters.error}
               </div>
             )}
-            {clusters.clusters.length === 0 && (
+            {(clusters.clusters.length === 0 || !hasNativeClusterRpc) && (
               <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 8 }}>
                 {t.cluster.fallback}
               </div>
