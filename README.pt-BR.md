@@ -58,6 +58,23 @@ Clique em **Guided Demo** → **Run Full Demo** e assista 14 etapas executando a
 
 ---
 
+## Preview Visual
+
+As capturas abaixo foram geradas a partir de uma stack regtest local com Bitcoin Core RPC, ZMQ, API,
+monitor e frontend em execucao.
+
+![Dashboard do NodeScope](docs/assets/nodescope-dashboard.png)
+
+| Guided Demo | ZMQ Event Tape |
+|---|---|
+| ![Guided Demo](docs/assets/nodescope-guided-demo.png) | ![ZMQ Event Tape](docs/assets/nodescope-zmq-tape.png) |
+
+| Policy Arena | Dashboard Historico |
+|---|---|
+| ![Mempool Policy Arena](docs/assets/nodescope-policy-arena.png) | ![Dashboard Historico](docs/assets/nodescope-history.png) |
+
+---
+
 ## Caminho do Avaliador
 
 A avaliação completa leva 10–15 minutos a partir de um clone limpo. **Pré-requisitos:** Docker e Docker Compose.

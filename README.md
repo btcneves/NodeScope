@@ -58,6 +58,23 @@ Click **Guided Demo** → **Run Full Demo** and watch 14 steps execute live, end
 
 ---
 
+## Visual Preview
+
+Screenshots below are captured from a local regtest stack with Bitcoin Core RPC, ZMQ, API, monitor,
+and frontend running.
+
+![NodeScope dashboard](docs/assets/nodescope-dashboard.png)
+
+| Guided Demo | ZMQ Event Tape |
+|---|---|
+| ![Guided Demo](docs/assets/nodescope-guided-demo.png) | ![ZMQ Event Tape](docs/assets/nodescope-zmq-tape.png) |
+
+| Policy Arena | Historical Dashboard |
+|---|---|
+| ![Mempool Policy Arena](docs/assets/nodescope-policy-arena.png) | ![Historical Dashboard](docs/assets/nodescope-history.png) |
+
+---
+
 ## Evaluator Path
 
 Full evaluation takes 10–15 minutes from a cold clone. **Prerequisites:** Docker and Docker Compose.

@@ -9,6 +9,15 @@ Esta pasta armazena evidências visuais reais usadas na documentação do NodeSc
 | File | Description |
 |---|---|
 | `nodescope-dashboard.png` | Full dashboard after real regtest activity |
+| `nodescope-charts.png` | Historical Charts tab with persisted snapshots |
+| `nodescope-guided-demo.png` | Guided Demo tab with the 14-step Bitcoin Core workflow |
+| `nodescope-tx-inspector.png` | Transaction Inspector tab for TXID analysis |
+| `nodescope-zmq-tape.png` | ZMQ Event Tape tab with rawtx/rawblock events |
+| `nodescope-policy-arena.png` | Mempool Policy Arena tab |
+| `nodescope-reorg-lab.png` | Reorg Lab tab |
+| `nodescope-history.png` | Historical Dashboard tab with persisted proof reports |
+| `nodescope-fee-estimation.png` | Fee Estimation tab using Bitcoin Core estimatesmartfee |
+| `nodescope-cluster-mempool.png` | Cluster Mempool tab with runtime compatibility/fallback state |
 | `nodescope-command-center.png` | Command Center view from the dashboard |
 | `nodescope-transaction-lifecycle.png` | Transaction Lifecycle view after a confirmed regtest transaction |
 | `nodescope-live-events.png` | Recent events endpoint rendered in Chromium |
